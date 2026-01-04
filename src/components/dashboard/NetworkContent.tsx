@@ -46,7 +46,8 @@ import { useAuth, User, UserRole } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { db } from "@/lib/database";
-import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock } from "lucide-react";
+import { suspendMember, restoreMember, banMember, deleteMember } from "@/lib/members";
+import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 
 const NetworkContent = () => {
@@ -56,6 +57,11 @@ const NetworkContent = () => {
   const [members, setMembers] = useState<User[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [rejectMemberId, setRejectMemberId] = useState<string | null>(null);
+  const [suspendMemberId, setSuspendMemberId] = useState<string | null>(null);
+  const [banMemberId, setBanMemberId] = useState<string | null>(null);
+  const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
+  const [restoreMemberId, setRestoreMemberId] = useState<string | null>(null);
+  const [actionReason, setActionReason] = useState("");
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -88,7 +94,9 @@ const NetworkContent = () => {
         createdAt: dbUser.created_at,
         approvedAt: dbUser.approved_at || undefined,
         approvedBy: dbUser.approved_by || undefined,
-      }));
+        // Filter out soft-deleted members (deleted_at is not null)
+        // We'll show them in a separate view if needed later
+      })).filter((u: User) => !(dbUsers.find((db: any) => db.id === u.id)?.deleted_at));
       setMembers(convertedUsers);
     } catch (error) {
       console.error("Error loading members:", error);
@@ -299,6 +307,7 @@ const NetworkContent = () => {
   const pendingMembers = members.filter(m => m.status === 'pending');
   const approvedMembers = members.filter(m => m.status === 'approved');
   const rejectedMembers = members.filter(m => m.status === 'rejected');
+  const suspendedMembers = members.filter(m => m.status === 'suspended');
 
   const getRoleBadgeVariant = (role?: UserRole) => {
     switch (role) {
@@ -319,8 +328,118 @@ const NetworkContent = () => {
         return 'secondary';
       case 'rejected':
         return 'destructive';
+      case 'suspended':
+        return 'destructive';
       default:
         return 'secondary';
+    }
+  };
+
+  const handleSuspendMember = async () => {
+    if (!suspendMemberId || !user || !actionReason.trim()) {
+      toast({
+        title: t("dashboard.network.suspend.error.title") || "Error",
+        description: t("dashboard.network.suspend.error.reasonRequired") || "Please provide a reason for suspension.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await suspendMember(suspendMemberId, actionReason.trim(), user);
+      toast({
+        title: t("dashboard.network.suspend.success.title") || "Member Suspended",
+        description: t("dashboard.network.suspend.success.description") || "Member has been suspended successfully.",
+      });
+      setSuspendMemberId(null);
+      setActionReason("");
+      await loadMembers();
+    } catch (error: any) {
+      console.error("Error suspending member:", error);
+      toast({
+        title: t("dashboard.network.suspend.error.title") || "Error",
+        description: error.message || t("dashboard.network.suspend.error.description") || "Failed to suspend member. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRestoreMember = async () => {
+    if (!restoreMemberId || !user) return;
+
+    try {
+      await restoreMember(restoreMemberId, user);
+      toast({
+        title: t("dashboard.network.restore.success.title") || "Member Restored",
+        description: t("dashboard.network.restore.success.description") || "Member has been restored successfully.",
+      });
+      setRestoreMemberId(null);
+      await loadMembers();
+    } catch (error: any) {
+      console.error("Error restoring member:", error);
+      toast({
+        title: t("dashboard.network.restore.error.title") || "Error",
+        description: error.message || t("dashboard.network.restore.error.description") || "Failed to restore member. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBanMember = async () => {
+    if (!banMemberId || !user || !actionReason.trim()) {
+      toast({
+        title: t("dashboard.network.ban.error.title") || "Error",
+        description: t("dashboard.network.ban.error.reasonRequired") || "Please provide a reason for ban.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await banMember(banMemberId, actionReason.trim(), user);
+      toast({
+        title: t("dashboard.network.ban.success.title") || "Member Banned",
+        description: t("dashboard.network.ban.success.description") || "Member has been banned successfully.",
+      });
+      setBanMemberId(null);
+      setActionReason("");
+      await loadMembers();
+    } catch (error: any) {
+      console.error("Error banning member:", error);
+      toast({
+        title: t("dashboard.network.ban.error.title") || "Error",
+        description: error.message || t("dashboard.network.ban.error.description") || "Failed to ban member. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteMember = async () => {
+    if (!deleteMemberId || !user || !actionReason.trim()) {
+      toast({
+        title: t("dashboard.network.delete.error.title") || "Error",
+        description: t("dashboard.network.delete.error.reasonRequired") || "Please provide a reason for deletion.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await deleteMember(deleteMemberId, actionReason.trim(), user);
+      toast({
+        title: t("dashboard.network.delete.success.title") || "Member Deleted",
+        description: t("dashboard.network.delete.success.description") || "Member has been deleted successfully.",
+      });
+      setDeleteMemberId(null);
+      setActionReason("");
+      await loadMembers();
+    } catch (error: any) {
+      console.error("Error deleting member:", error);
+      toast({
+        title: t("dashboard.network.delete.error.title") || "Error",
+        description: error.message || t("dashboard.network.delete.error.description") || "Failed to delete member. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -424,6 +543,11 @@ const NetworkContent = () => {
               <TabsTrigger value="rejected" className="rounded-full">
                 {t("dashboard.network.tabs.rejected") || "Rejected"} ({rejectedMembers.length})
               </TabsTrigger>
+              {isSuperAdmin && (
+                <TabsTrigger value="suspended" className="rounded-full">
+                  {t("dashboard.network.tabs.suspended") || "Suspended"} ({suspendedMembers.length})
+                </TabsTrigger>
+              )}
             </>
           )}
         </TabsList>
@@ -504,25 +628,60 @@ const NetworkContent = () => {
                                 ? t("dashboard.network.status.approved") || "Approved"
                                 : member.status === 'pending'
                                 ? t("dashboard.network.status.pending") || "Pending"
+                                : member.status === 'suspended'
+                                ? t("dashboard.network.status.suspended") || "Suspended"
                                 : t("dashboard.network.status.rejected") || "Rejected"}
                             </Badge>
                           </TableCell>
                           {isAdmin && (
                             <TableCell>
-                              <Select
-                                value={member.role || 'member'}
-                                onValueChange={(value) => handleUpdateMemberRole(member.id, value as UserRole)}
-                                disabled={member.role === 'superadmin' && !isSuperAdmin}
-                              >
-                                <SelectTrigger className="w-32 h-8 text-xs rounded-full">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
-                                  <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>
-                                  {isSuperAdmin && <SelectItem value="superadmin">{t("dashboard.network.role.superadmin") || "Super Admin"}</SelectItem>}
-                                </SelectContent>
-                              </Select>
+                              <div className="flex items-center gap-2">
+                                <Select
+                                  value={member.role || 'member'}
+                                  onValueChange={(value) => handleUpdateMemberRole(member.id, value as UserRole)}
+                                  disabled={member.role === 'superadmin' && !isSuperAdmin}
+                                >
+                                  <SelectTrigger className="w-32 h-8 text-xs rounded-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
+                                    <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>
+                                    {isSuperAdmin && <SelectItem value="superadmin">{t("dashboard.network.role.superadmin") || "Super Admin"}</SelectItem>}
+                                  </SelectContent>
+                                </Select>
+                                {isSuperAdmin && (
+                                  <div className="flex gap-1">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setSuspendMemberId(member.id)}
+                                      className="h-8 px-2 rounded-full"
+                                      title={t("dashboard.network.suspend.button") || "Suspend"}
+                                    >
+                                      <Ban className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setBanMemberId(member.id)}
+                                      className="h-8 px-2 rounded-full"
+                                      title={t("dashboard.network.ban.button") || "Ban"}
+                                    >
+                                      <UserX className="h-3 w-3" />
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => setDeleteMemberId(member.id)}
+                                      className="h-8 px-2 rounded-full text-destructive hover:text-destructive"
+                                      title={t("dashboard.network.delete.button") || "Delete"}
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                             </TableCell>
                           )}
                         </TableRow>
@@ -716,9 +875,267 @@ const NetworkContent = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {isSuperAdmin && (
+              <TabsContent value="suspended" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t("dashboard.network.suspended.title") || "Suspended Members"}</CardTitle>
+                    <CardDescription>
+                      {t("dashboard.network.suspended.description") || "Members who have been temporarily suspended"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {suspendedMembers.length === 0 ? (
+                      <p className="text-muted-foreground text-center py-8">
+                        {t("dashboard.network.suspended.empty") || "No suspended members."}
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
+                              <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
+                              <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
+                              <TableHead>{t("dashboard.network.table.role") || "Role"}</TableHead>
+                              <TableHead>{t("dashboard.network.table.status") || "Status"}</TableHead>
+                              <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {suspendedMembers.map((member) => (
+                              <TableRow key={member.id}>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage src={member.image} alt={member.name} />
+                                      <AvatarFallback>
+                                        {member.name
+                                          .split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .toUpperCase()
+                                          .slice(0, 2)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <span className="font-medium">{member.name}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-1">
+                                    <Mail className="h-3 w-3 text-muted-foreground" />
+                                    {member.email}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  {member.phone ? (
+                                    <div className="flex items-center gap-1">
+                                      <Phone className="h-3 w-3 text-muted-foreground" />
+                                      {member.phone}
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={getRoleBadgeVariant(member.role)} className="rounded-full">
+                                    {member.role === 'superadmin' 
+                                      ? t("dashboard.network.role.superadmin") || "Super Admin"
+                                      : member.role === 'admin'
+                                      ? t("dashboard.network.role.admin") || "Admin"
+                                      : t("dashboard.network.role.member") || "Member"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={getStatusBadgeVariant(member.status)} className="rounded-full">
+                                    {t("dashboard.network.status.suspended") || "Suspended"}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => setRestoreMemberId(member.id)}
+                                    className="rounded-full"
+                                  >
+                                    <RotateCcw className="mr-1 h-3 w-3" />
+                                    {t("dashboard.network.restore.button") || "Restore"}
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
           </>
         )}
       </Tabs>
+
+      {/* Suspend Confirmation Dialog */}
+      <AlertDialog open={suspendMemberId !== null} onOpenChange={(open) => {
+        if (!open) {
+          setSuspendMemberId(null);
+          setActionReason("");
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.network.suspend.confirm.title") || "Suspend Member?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.network.suspend.confirm.description") || "This will temporarily suspend this member. They will lose access to the platform but can be restored later."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="suspend-reason">
+                {t("dashboard.network.suspend.confirm.reason") || "Reason for suspension (required)"}
+              </Label>
+              <Textarea
+                id="suspend-reason"
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
+                placeholder={t("dashboard.network.suspend.confirm.reasonPlaceholder") || "Enter reason for suspension..."}
+                className="min-h-[100px]"
+                required
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full" onClick={() => {
+              setSuspendMemberId(null);
+              setActionReason("");
+            }}>
+              {t("dashboard.network.reject.cancel") || "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSuspendMember}
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("dashboard.network.suspend.confirm.button") || "Suspend Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Restore Confirmation Dialog */}
+      <AlertDialog open={restoreMemberId !== null} onOpenChange={(open) => !open && setRestoreMemberId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.network.restore.confirm.title") || "Restore Member?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.network.restore.confirm.description") || "This will restore this member's access to the platform."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">
+              {t("dashboard.network.reject.cancel") || "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => restoreMemberId && handleRestoreMember()}
+              className="rounded-full"
+            >
+              {t("dashboard.network.restore.confirm.button") || "Restore Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Ban Confirmation Dialog */}
+      <AlertDialog open={banMemberId !== null} onOpenChange={(open) => {
+        if (!open) {
+          setBanMemberId(null);
+          setActionReason("");
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.network.ban.confirm.title") || "Ban Member?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.network.ban.confirm.description") || "This will permanently ban this member. This action cannot be easily undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="ban-reason">
+                {t("dashboard.network.ban.confirm.reason") || "Reason for ban (required)"}
+              </Label>
+              <Textarea
+                id="ban-reason"
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
+                placeholder={t("dashboard.network.ban.confirm.reasonPlaceholder") || "Enter reason for ban..."}
+                className="min-h-[100px]"
+                required
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full" onClick={() => {
+              setBanMemberId(null);
+              setActionReason("");
+            }}>
+              {t("dashboard.network.reject.cancel") || "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBanMember}
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("dashboard.network.ban.confirm.button") || "Ban Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteMemberId !== null} onOpenChange={(open) => {
+        if (!open) {
+          setDeleteMemberId(null);
+          setActionReason("");
+        }
+      }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.network.delete.confirm.title") || "Delete Member?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.network.delete.confirm.description") || "This will permanently delete this member. This action cannot be undone. All their data will be marked as deleted."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="delete-reason">
+                {t("dashboard.network.delete.confirm.reason") || "Reason for deletion (required)"}
+              </Label>
+              <Textarea
+                id="delete-reason"
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
+                placeholder={t("dashboard.network.delete.confirm.reasonPlaceholder") || "Enter reason for deletion..."}
+                className="min-h-[100px]"
+                required
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full" onClick={() => {
+              setDeleteMemberId(null);
+              setActionReason("");
+            }}>
+              {t("dashboard.network.reject.cancel") || "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMember}
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("dashboard.network.delete.confirm.button") || "Delete Member"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Reject Confirmation Dialog */}
       <AlertDialog open={rejectMemberId !== null} onOpenChange={(open) => !open && setRejectMemberId(null)}>

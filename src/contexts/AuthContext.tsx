@@ -4,7 +4,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { db } from '@/lib/database';
 
 export type UserRole = 'superadmin' | 'admin' | 'member';
-export type MemberStatus = 'pending' | 'approved' | 'rejected';
+export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export interface User {
   id: string;

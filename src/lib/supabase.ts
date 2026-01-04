@@ -75,7 +75,7 @@ export type Database = {
           website: string | null;
           phone: string | null;
           role: 'superadmin' | 'admin' | 'member';
-          status: 'pending' | 'approved' | 'rejected';
+          status: 'pending' | 'approved' | 'rejected' | 'suspended';
           created_at: string;
           updated_at: string | null;
           approved_at: string | null;

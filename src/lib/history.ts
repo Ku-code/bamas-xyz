@@ -18,6 +18,10 @@ export type HistoryType =
   | "member_added"
   | "member_approved"
   | "member_rejected"
+  | "member_suspended"
+  | "member_restored"
+  | "member_banned"
+  | "member_deleted"
   | "member_role_changed"
   | "member_removed"
   | "profile_updated"
@@ -75,6 +79,10 @@ export const logHistory = async (
       member_added: { action: 'Added member', description: `Added member "${targetTitle || targetId}"` },
       member_approved: { action: 'Approved member', description: `Approved member "${targetTitle || targetId}"` },
       member_rejected: { action: 'Rejected member', description: `Rejected member "${targetTitle || targetId}"` },
+      member_suspended: { action: 'Suspended member', description: `Suspended member "${targetTitle || targetId}"` },
+      member_restored: { action: 'Restored member', description: `Restored member "${targetTitle || targetId}"` },
+      member_banned: { action: 'Banned member', description: `Banned member "${targetTitle || targetId}"` },
+      member_deleted: { action: 'Deleted member', description: `Deleted member "${targetTitle || targetId}"` },
       member_role_changed: { action: 'Changed member role', description: `Changed role of "${targetTitle || targetId}"` },
       member_removed: { action: 'Removed member', description: `Removed member "${targetTitle || targetId}"` },
       profile_updated: { action: 'Updated profile', description: 'Updated their profile' },
