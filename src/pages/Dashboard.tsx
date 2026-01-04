@@ -29,6 +29,7 @@ import {
   Home,
   ArrowLeft,
   Package,
+  Map,
 } from "lucide-react";
 import HistoryContent from "@/components/dashboard/HistoryContent";
 import VotesContent from "@/components/dashboard/VotesContent";
@@ -37,8 +38,9 @@ import DocumentsContent from "@/components/dashboard/DocumentsContent";
 import BudgetContent from "@/components/dashboard/BudgetContent";
 import NetworkContent from "@/components/dashboard/NetworkContent";
 import ResourcesContent from "@/components/dashboard/ResourcesContent";
+import AdditiveMapContent from "@/components/dashboard/AdditiveMapContent";
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -54,6 +56,7 @@ const Dashboard = () => {
     { id: "budget" as MenuItem, icon: DollarSign, label: t("dashboard.menu.budget") || "Budget" },
     { id: "network" as MenuItem, icon: Users, label: t("dashboard.menu.network") || "Network" },
     { id: "resources" as MenuItem, icon: Package, label: t("dashboard.menu.resources") || "Resources" },
+    { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
   ];
 
   const renderContent = () => {
@@ -72,6 +75,8 @@ const Dashboard = () => {
         return <NetworkContent />;
       case "resources":
         return <ResourcesContent />;
+      case "additivemap":
+        return <AdditiveMapContent />;
       default:
         return <HistoryContent />;
     }
