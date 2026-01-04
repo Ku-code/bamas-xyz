@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatErrorForToast } from "@/lib/error-messages";
 import { logHistory } from "@/lib/history";
 import { loadResources, createResource, updateResource, deleteResource, uploadResourceFile, getResourceFileUrl, Resource as SupabaseResource } from "@/lib/resources";
 import { FileText, Plus, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Upload, Download, LayoutGrid, List, Grid, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
@@ -99,21 +100,25 @@ const ResourcesContent = () => {
       setResources(convertedResources);
     } catch (error: any) {
       console.error("Error loading resources:", error);
-      const errorMessage = error?.message || error?.error?.message || error?.code || "Unknown error";
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.error.title") || "Error Loading Resources",
+        t("dashboard.resources.error.loadFailed") || "Failed to load resources"
+      );
       
-      let userFriendlyMessage = t("dashboard.resources.error.loadFailed") || "Failed to load resources. Please try again.";
+      // Add specific messages for common resource loading errors
+      let description = errorInfo.description;
+      const errorMessage = error?.message || error?.error?.message || error?.code || "";
       
       if (errorMessage.includes("relation") || errorMessage.includes("does not exist") || error?.code === "42P01") {
-        userFriendlyMessage = "Resources table not found. Please run the database migration (002_resources_table.sql) in Supabase SQL Editor.";
+        description = "Resources table not found. Please run the database migration (002_resources_table.sql) in Supabase SQL Editor.";
       } else if (errorMessage.includes("permission") || errorMessage.includes("policy") || error?.code === "42501") {
-        userFriendlyMessage = "You don't have permission to access resources. Please ensure your account is approved and RLS policies are set up correctly.";
-      } else if (errorMessage.includes("JWT") || errorMessage.includes("authentication")) {
-        userFriendlyMessage = "Authentication error. Please log out and log back in.";
+        description = "You don't have permission to access resources. Please ensure your account is approved and RLS policies are set up correctly.";
       }
       
       toast({
-        title: t("dashboard.resources.error.title") || "Error",
-        description: userFriendlyMessage,
+        title: errorInfo.title,
+        description: description,
         variant: "destructive",
         duration: 8000,
       });
@@ -195,25 +200,29 @@ const ResourcesContent = () => {
       await loadResourcesFromDatabase();
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      const errorMessage = error?.message || error?.error?.message || error?.code || "Unknown error";
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.upload.error.title") || "Upload Failed",
+        t("dashboard.resources.upload.error.description") || "Failed to upload resource"
+      );
       
-      let userFriendlyMessage = t("dashboard.resources.upload.error.description") || "Failed to upload resource. Please try again.";
+      // Add specific messages for common resource upload errors
+      let description = errorInfo.description;
+      const errorMessage = error?.message || error?.error?.message || error?.code || "";
       
       if (errorMessage.includes("bucket") || errorMessage.includes("not found") || error?.code === "404") {
-        userFriendlyMessage = "Storage bucket 'resources' not found. Please create it in Supabase Storage settings. See RESOURCES_SETUP.md for instructions.";
+        description = "Storage bucket 'resources' not found. Please create it in Supabase Storage settings. See RESOURCES_SETUP.md for instructions.";
       } else if (errorMessage.includes("permission") || errorMessage.includes("policy") || error?.code === "42501") {
-        userFriendlyMessage = "You don't have permission to upload resources. Please ensure your account is approved and storage policies are configured.";
+        description = "You don't have permission to upload resources. Please ensure your account is approved and storage policies are configured.";
       } else if (errorMessage.includes("size") || errorMessage.includes("too large") || error?.code === "413") {
-        userFriendlyMessage = "File is too large. Maximum size is 50MB. Please upload a smaller file.";
-      } else if (errorMessage.includes("JWT") || errorMessage.includes("authentication")) {
-        userFriendlyMessage = "Authentication error. Please log out and log back in.";
+        description = "File is too large. Maximum size is 50MB. Please upload a smaller file.";
       } else if (errorMessage.includes("duplicate") || errorMessage.includes("already exists")) {
-        userFriendlyMessage = "A file with this name already exists. Please rename your file and try again.";
+        description = "A file with this name already exists. Please rename your file and try again.";
       }
       
       toast({
-        title: t("dashboard.resources.upload.error.title") || "Upload Failed",
-        description: userFriendlyMessage,
+        title: errorInfo.title,
+        description: description,
         variant: "destructive",
         duration: 8000,
       });
@@ -279,9 +288,14 @@ const ResourcesContent = () => {
       }
     } catch (error: any) {
       console.error("Error creating resource:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.create.error.title") || "Failed to Create Resource",
+        t("dashboard.resources.create.error.description") || "Failed to create resource"
+      );
       toast({
-        title: t("dashboard.resources.create.error.title") || "Error",
-        description: error.message || t("dashboard.resources.create.error.description") || "Failed to create resource.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -325,9 +339,14 @@ const ResourcesContent = () => {
       await loadResourcesFromDatabase();
     } catch (error: any) {
       console.error("Error updating resource:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.update.error.title") || "Failed to Update Resource",
+        t("dashboard.resources.update.error.description") || "Failed to update resource"
+      );
       toast({
-        title: t("dashboard.resources.update.error.title") || "Error",
-        description: error.message || t("dashboard.resources.update.error.description") || "Failed to update resource.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -356,9 +375,14 @@ const ResourcesContent = () => {
       await loadResourcesFromDatabase();
     } catch (error: any) {
       console.error("Error deleting resource:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.delete.error.title") || "Failed to Delete Resource",
+        t("dashboard.resources.delete.error.description") || "Failed to delete resource"
+      );
       toast({
-        title: t("dashboard.resources.delete.error.title") || "Error",
-        description: error.message || t("dashboard.resources.delete.error.description") || "Failed to delete resource.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -398,9 +422,14 @@ const ResourcesContent = () => {
       }
     } catch (error: any) {
       console.error("Error downloading resource:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.resources.download.error.title") || "Download Failed",
+        t("dashboard.resources.download.error.description") || "Failed to download resource"
+      );
       toast({
-        title: t("dashboard.resources.download.error.title") || "Error",
-        description: error.message || t("dashboard.resources.download.error.description") || "Failed to download resource.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }

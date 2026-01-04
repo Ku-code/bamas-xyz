@@ -11,6 +11,7 @@ import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatErrorForToast } from "@/lib/error-messages";
 import { UserPlus, Mail, Lock, User, X, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 const Register = () => {
@@ -48,10 +49,14 @@ const Register = () => {
       });
       navigate("/dashboard");
     } catch (error: any) {
-      const errorMessage = error.message || t("auth.register.error.description") || "Failed to create account. Please check your information and try again.";
+      const errorInfo = formatErrorForToast(
+        error,
+        t("auth.register.error.title") || "Registration Failed",
+        t("auth.register.error.description") || "Failed to create account"
+      );
       toast({
-        title: t("auth.register.error.title") || "Registration Failed",
-        description: errorMessage,
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     } finally {
@@ -72,10 +77,14 @@ const Register = () => {
     });
         navigate("/dashboard");
       } catch (error: any) {
-        const errorMessage = error.message || t("auth.google.error.description") || "Failed to register with Google. Please try again.";
+        const errorInfo = formatErrorForToast(
+          error,
+          t("auth.google.error.title") || "Google Registration Failed",
+          t("auth.google.error.description") || "Failed to register with Google"
+        );
         toast({
-          title: t("auth.google.error.title") || "Registration Failed",
-          description: errorMessage,
+          title: errorInfo.title,
+          description: errorInfo.description,
           variant: "destructive",
         });
       } finally {

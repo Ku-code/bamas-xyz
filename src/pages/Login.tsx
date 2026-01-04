@@ -11,6 +11,7 @@ import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatErrorForToast } from "@/lib/error-messages";
 import { LogIn, Mail, Lock, X, ArrowLeft, Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
@@ -37,10 +38,14 @@ const Login = () => {
       const returnTo = searchParams.get('returnTo') || '/dashboard';
       navigate(returnTo);
     } catch (error: any) {
-      const errorMessage = error.message || t("auth.login.error.description") || "Invalid email or password. Please check your credentials and try again.";
+      const errorInfo = formatErrorForToast(
+        error,
+        t("auth.login.error.title") || "Login Failed",
+        t("auth.login.error.description") || "Invalid email or password"
+      );
       toast({
-        title: t("auth.login.error.title") || "Login Failed",
-        description: errorMessage,
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     } finally {
@@ -62,10 +67,14 @@ const Login = () => {
         const returnTo = searchParams.get('returnTo') || '/dashboard';
         navigate(returnTo);
       } catch (error: any) {
-        const errorMessage = error.message || t("auth.google.error.description") || "Failed to login with Google. Please try again.";
+        const errorInfo = formatErrorForToast(
+          error,
+          t("auth.google.error.title") || "Google Login Failed",
+          t("auth.google.error.description") || "Failed to login with Google"
+        );
         toast({
-          title: t("auth.google.error.title") || "Login Failed",
-          description: errorMessage,
+          title: errorInfo.title,
+          description: errorInfo.description,
           variant: "destructive",
         });
       } finally {

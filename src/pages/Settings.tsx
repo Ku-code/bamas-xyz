@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatErrorForToast } from "@/lib/error-messages";
 import { storage } from "@/lib/storage";
 import { ArrowLeft, LogOut, Save, Upload, X, Globe, MapPin, Phone, Hash } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -170,9 +171,14 @@ const Settings = () => {
         description: t("settings.save.success.description") || "Your settings have been updated successfully!",
       });
     } catch (error: any) {
+      const errorInfo = formatErrorForToast(
+        error,
+        t("settings.save.error.title") || "Failed to Save Settings",
+        t("settings.save.error.description") || "Failed to save settings"
+      );
       toast({
-        title: t("settings.save.error.title") || "Error",
-        description: error.message || t("settings.save.error.description") || "Failed to save settings. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     } finally {
@@ -189,9 +195,14 @@ const Settings = () => {
       });
       navigate("/");
     } catch (error: any) {
+      const errorInfo = formatErrorForToast(
+        error,
+        t("settings.logout.error.title") || "Logout Failed",
+        t("settings.logout.error.description") || "Failed to logout"
+      );
       toast({
-        title: t("settings.logout.error.title") || "Error",
-        description: error.message || t("settings.logout.error.description") || "Failed to logout. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }

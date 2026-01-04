@@ -47,6 +47,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { db } from "@/lib/database";
 import { suspendMember, restoreMember, banMember, deleteMember } from "@/lib/members";
+import { formatErrorForToast } from "@/lib/error-messages";
 import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 
@@ -100,9 +101,14 @@ const NetworkContent = () => {
       setMembers(convertedUsers);
     } catch (error) {
       console.error("Error loading members:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.error.title") || "Error Loading Members",
+        t("dashboard.network.error.loadFailed") || "Failed to load members"
+      );
       toast({
-        title: t("dashboard.network.error.title") || "Error",
-        description: t("dashboard.network.error.loadFailed") || "Failed to load members. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -180,9 +186,14 @@ const NetworkContent = () => {
       setIsAddDialogOpen(false);
     } catch (error: any) {
       console.error("Error adding member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.add.error.title") || "Failed to Add Member",
+        t("dashboard.network.add.error.description") || "Failed to add member"
+      );
       toast({
-        title: t("dashboard.network.add.error.title") || "Error",
-        description: error.message || t("dashboard.network.add.error.description") || "Failed to add member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -216,9 +227,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error approving member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.approve.error.title") || "Approval Failed",
+        t("dashboard.network.approve.error.description") || "Failed to approve member"
+      );
       toast({
-        title: t("dashboard.network.approve.error.title") || "Error",
-        description: error.message || t("dashboard.network.approve.error.description") || "Failed to approve member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -252,9 +268,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error rejecting member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.reject.error.title") || "Rejection Failed",
+        t("dashboard.network.reject.error.description") || "Failed to reject member"
+      );
       toast({
-        title: t("dashboard.network.reject.error.title") || "Error",
-        description: error.message || t("dashboard.network.reject.error.description") || "Failed to reject member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -296,9 +317,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error updating member role:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.role.error.title") || "Role Update Failed",
+        t("dashboard.network.role.error.description") || "Failed to update role"
+      );
       toast({
-        title: t("dashboard.network.role.error.title") || "Error",
-        description: error.message || t("dashboard.network.role.error.description") || "Failed to update role. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -356,9 +382,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error suspending member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.suspend.error.title") || "Suspension Failed",
+        t("dashboard.network.suspend.error.description") || "Failed to suspend member"
+      );
       toast({
-        title: t("dashboard.network.suspend.error.title") || "Error",
-        description: error.message || t("dashboard.network.suspend.error.description") || "Failed to suspend member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -377,9 +408,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error restoring member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.restore.error.title") || "Restoration Failed",
+        t("dashboard.network.restore.error.description") || "Failed to restore member"
+      );
       toast({
-        title: t("dashboard.network.restore.error.title") || "Error",
-        description: error.message || t("dashboard.network.restore.error.description") || "Failed to restore member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -406,9 +442,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error banning member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.ban.error.title") || "Ban Failed",
+        t("dashboard.network.ban.error.description") || "Failed to ban member"
+      );
       toast({
-        title: t("dashboard.network.ban.error.title") || "Error",
-        description: error.message || t("dashboard.network.ban.error.description") || "Failed to ban member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -435,9 +476,14 @@ const NetworkContent = () => {
       await loadMembers();
     } catch (error: any) {
       console.error("Error deleting member:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.network.delete.error.title") || "Deletion Failed",
+        t("dashboard.network.delete.error.description") || "Failed to delete member"
+      );
       toast({
-        title: t("dashboard.network.delete.error.title") || "Error",
-        description: error.message || t("dashboard.network.delete.error.description") || "Failed to delete member. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }

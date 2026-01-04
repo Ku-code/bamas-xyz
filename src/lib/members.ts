@@ -11,14 +11,14 @@ export const suspendMember = async (
   adminUser: User
 ): Promise<void> => {
   try {
-    const member = await db.fetch('users', memberId);
+    const member = await db.fetchById('users', memberId);
     if (!member) {
-      throw new Error('Member not found');
+      throw new Error('Member not found. The member may have been deleted or does not exist.');
     }
 
     // Prevent self-suspension
     if (memberId === adminUser.id) {
-      throw new Error('Cannot suspend yourself');
+      throw new Error('You cannot suspend your own account. Please ask another superadmin to perform this action.');
     }
 
     // Prevent suspending last superadmin
@@ -28,7 +28,7 @@ export const suspendMember = async (
         status: 'approved'
       });
       if (allAdmins.length <= 1) {
-        throw new Error('Cannot suspend the last superadmin');
+        throw new Error('Cannot suspend the last superadmin. At least one superadmin must remain active to manage the platform.');
       }
     }
 
@@ -49,7 +49,17 @@ export const suspendMember = async (
     );
   } catch (error: any) {
     console.error('Error suspending member:', error);
-    throw error;
+    // Provide more descriptive error messages
+    if (error.message) {
+      throw error;
+    }
+    if (error.code === 'PGRST301' || error.code === '23503') {
+      throw new Error('Database constraint violation. The member may be referenced by other records. Please contact support.');
+    }
+    if (error.code === '42501') {
+      throw new Error('Permission denied. You do not have sufficient permissions to suspend members. Please contact a superadmin.');
+    }
+    throw new Error(`Failed to suspend member: ${error.message || 'Unknown database error. Please try again or contact support.'}`);
   }
 };
 
@@ -61,13 +71,13 @@ export const restoreMember = async (
   adminUser: User
 ): Promise<void> => {
   try {
-    const member = await db.fetch('users', memberId);
+    const member = await db.fetchById('users', memberId);
     if (!member) {
-      throw new Error('Member not found');
+      throw new Error('Member not found. The member may have been deleted or does not exist.');
     }
 
     if (member.status !== 'suspended') {
-      throw new Error('Member is not suspended');
+      throw new Error(`Member is not suspended. Current status: ${member.status || 'unknown'}. Only suspended members can be restored.`);
     }
 
     await db.update('users', memberId, {
@@ -99,14 +109,14 @@ export const banMember = async (
   adminUser: User
 ): Promise<void> => {
   try {
-    const member = await db.fetch('users', memberId);
+    const member = await db.fetchById('users', memberId);
     if (!member) {
-      throw new Error('Member not found');
+      throw new Error('Member not found. The member may have been deleted or does not exist.');
     }
 
     // Prevent self-ban
     if (memberId === adminUser.id) {
-      throw new Error('Cannot ban yourself');
+      throw new Error('You cannot ban your own account. Please ask another superadmin to perform this action.');
     }
 
     // Prevent banning last superadmin
@@ -116,7 +126,7 @@ export const banMember = async (
         status: 'approved'
       });
       if (allAdmins.length <= 1) {
-        throw new Error('Cannot ban the last superadmin');
+        throw new Error('Cannot ban the last superadmin. At least one superadmin must remain active to manage the platform.');
       }
     }
 
@@ -150,14 +160,14 @@ export const deleteMember = async (
   adminUser: User
 ): Promise<void> => {
   try {
-    const member = await db.fetch('users', memberId);
+    const member = await db.fetchById('users', memberId);
     if (!member) {
-      throw new Error('Member not found');
+      throw new Error('Member not found. The member may have been deleted or does not exist.');
     }
 
     // Prevent self-deletion
     if (memberId === adminUser.id) {
-      throw new Error('Cannot delete yourself');
+      throw new Error('You cannot delete your own account. Please ask another superadmin to perform this action.');
     }
 
     // Prevent deleting last superadmin
@@ -167,7 +177,7 @@ export const deleteMember = async (
         status: 'approved'
       });
       if (allAdmins.length <= 1) {
-        throw new Error('Cannot delete the last superadmin');
+        throw new Error('Cannot delete the last superadmin. At least one superadmin must remain active to manage the platform.');
       }
     }
 
