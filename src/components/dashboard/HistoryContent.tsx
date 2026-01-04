@@ -21,15 +21,26 @@ import {
 } from "@/components/ui/popover";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { getHistory, HistoryItem } from "@/lib/history";
-import { Clock, Calendar as CalendarIcon, Filter, X, FileText, CheckSquare, CalendarDays, DollarSign, Users } from "lucide-react";
+import { getHistory, deleteHistoryItem, clearHistory, HistoryItem } from "@/lib/history";
+import { formatErrorForToast } from "@/lib/error-messages";
+import { Clock, Calendar as CalendarIcon, Filter, X, FileText, CheckSquare, CalendarDays, DollarSign, Users, Trash2 } from "lucide-react";
 import { format, startOfDay, endOfDay, isWithinInterval, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const HistoryContent = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { toast } = useToast();
   const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
   const [filteredItems, setFilteredItems] = useState<HistoryItem[]>([]);
@@ -38,6 +49,8 @@ const HistoryContent = () => {
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("all");
+  const [deleteHistoryId, setDeleteHistoryId] = useState<string | null>(null);
+  const [showClearAllDialog, setShowClearAllDialog] = useState(false);
 
   // Load history from Supabase
   useEffect(() => {
@@ -68,9 +81,66 @@ const HistoryContent = () => {
       setFilteredItems(sorted);
     } catch (error) {
       console.error("Error loading history:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.history.error.title") || "Error Loading History",
+        t("dashboard.history.error.loadFailed") || "Failed to load history"
+      );
       toast({
-        title: t("dashboard.history.error.title") || "Error",
-        description: t("dashboard.history.error.loadFailed") || "Failed to load history. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteHistoryItem = async () => {
+    if (!deleteHistoryId || !user) return;
+
+    try {
+      await deleteHistoryItem(deleteHistoryId);
+      toast({
+        title: t("dashboard.history.delete.success.title") || "History Item Deleted",
+        description: t("dashboard.history.delete.success.description") || "History item has been deleted successfully.",
+      });
+      setDeleteHistoryId(null);
+      await loadHistoryFromDatabase();
+    } catch (error: any) {
+      console.error("Error deleting history item:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.history.delete.error.title") || "Failed to Delete History",
+        t("dashboard.history.delete.error.description") || "Failed to delete history item"
+      );
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClearAllHistory = async () => {
+    if (!user) return;
+
+    try {
+      await clearHistory();
+      toast({
+        title: t("dashboard.history.clear.success.title") || "History Cleared",
+        description: t("dashboard.history.clear.success.description") || "All history has been cleared successfully.",
+      });
+      setShowClearAllDialog(false);
+      await loadHistoryFromDatabase();
+    } catch (error: any) {
+      console.error("Error clearing history:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.history.clear.error.title") || "Failed to Clear History",
+        t("dashboard.history.clear.error.description") || "Failed to clear history"
+      );
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -181,6 +251,17 @@ const HistoryContent = () => {
           <Clock className="h-6 w-6" />
           <h2 className="text-2xl font-bold">{t("dashboard.history.title") || "Activity History"}</h2>
         </div>
+        {isSuperAdmin && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setShowClearAllDialog(true)}
+            className="rounded-full"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t("dashboard.history.clear.all") || "Clear All History"}
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -360,6 +441,16 @@ const HistoryContent = () => {
                         <span>{format(itemDate, "PPP 'at' p")}</span>
                       </div>
                     </div>
+                    {isSuperAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteHistoryId(item.id)}
+                        className="rounded-full text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 );
               })}
@@ -367,6 +458,42 @@ const HistoryContent = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Delete History Item Confirmation Dialog */}
+      <AlertDialog open={deleteHistoryId !== null} onOpenChange={(open) => !open && setDeleteHistoryId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.history.delete.confirm.title") || "Delete History Item?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.history.delete.confirm.description") || "This action cannot be undone. This will permanently delete this history entry."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">{t("dashboard.history.delete.cancel") || "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteHistoryItem} className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("dashboard.history.delete.confirm.button") || "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear All History Confirmation Dialog */}
+      <AlertDialog open={showClearAllDialog} onOpenChange={setShowClearAllDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.history.clear.confirm.title") || "Clear All History?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.history.clear.confirm.description") || "This action cannot be undone. This will permanently delete all history entries. Are you sure you want to continue?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">{t("dashboard.history.clear.cancel") || "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearAllHistory} className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("dashboard.history.clear.confirm.button") || "Clear All"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -130,14 +130,31 @@ export const getHistory = async (limit: number = 1000): Promise<HistoryItem[]> =
 };
 
 /**
- * Clear all history (admin only - would need additional permission check)
+ * Delete a specific history item
+ */
+export const deleteHistoryItem = async (historyId: string): Promise<void> => {
+  try {
+    await db.delete('activity_history', historyId);
+  } catch (error) {
+    console.error('Error deleting history item:', error);
+    throw error;
+  }
+};
+
+/**
+ * Clear all history (superadmin only)
  */
 export const clearHistory = async (): Promise<void> => {
   try {
-    // This would need to be implemented with proper admin check
-    // For now, we'll just log a warning
-    console.warn('clearHistory not implemented - requires admin permissions');
+    // Get all history items
+    const allHistory = await db.fetchAll('activity_history');
+    
+    // Delete all items
+    for (const item of allHistory) {
+      await db.delete('activity_history', item.id);
+    }
   } catch (error) {
     console.error('Error clearing history:', error);
+    throw error;
   }
 };

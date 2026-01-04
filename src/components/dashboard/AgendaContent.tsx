@@ -20,18 +20,39 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { loadAgendaItems, createAgendaItem, updateAgendaItem, deleteAgendaItem, addComment, AgendaItem, Comment } from "@/lib/agenda";
-import { Calendar, Plus, MessageSquare, Clock, User, Send } from "lucide-react";
+import { formatErrorForToast } from "@/lib/error-messages";
+import { Calendar, Plus, MessageSquare, Clock, User, Send, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AgendaContent = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { toast } = useToast();
   const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState<string | null>(null);
   const [isCommentDialogOpen, setIsCommentDialogOpen] = useState<string | null>(null);
+  const [deleteAgendaId, setDeleteAgendaId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [newAgenda, setNewAgenda] = useState({
+    title: "",
+    description: "",
+    date: "",
+    time: "",
+    location: "",
+  });
+  const [editingAgenda, setEditingAgenda] = useState({
+    id: "",
     title: "",
     description: "",
     date: "",
@@ -129,9 +150,127 @@ const AgendaContent = () => {
       await loadAgendaItemsFromDatabase();
     } catch (error: any) {
       console.error("Error creating agenda item:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.agenda.create.error.title") || "Failed to Create Agenda",
+        t("dashboard.agenda.create.error.description") || "Failed to create agenda item"
+      );
       toast({
-        title: t("dashboard.agenda.create.error.title") || "Error",
-        description: error.message || t("dashboard.agenda.create.error.description") || "Failed to create agenda item. Please try again.",
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditAgenda = (item: AgendaItem) => {
+    setEditingAgenda({
+      id: item.id,
+      title: item.title,
+      description: item.description || "",
+      date: item.date,
+      time: item.time,
+      location: item.location || "",
+    });
+    setIsEditDialogOpen(item.id);
+  };
+
+  const handleUpdateAgenda = async () => {
+    if (!editingAgenda.title || !editingAgenda.date || !editingAgenda.time) {
+      toast({
+        title: t("dashboard.agenda.edit.error.title") || "Validation Error",
+        description: t("dashboard.agenda.edit.error.description") || "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: t("dashboard.agenda.edit.error.title") || "Error",
+        description: t("dashboard.agenda.edit.error.notLoggedIn") || "You must be logged in to edit an agenda item.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await updateAgendaItem(editingAgenda.id, {
+        title: editingAgenda.title,
+        description: editingAgenda.description,
+        date: editingAgenda.date,
+        time: editingAgenda.time,
+        location: editingAgenda.location || undefined,
+      });
+
+      // Log history
+      if (user) {
+        await logHistory("agenda_updated", user, editingAgenda.id, editingAgenda.title);
+      }
+
+      toast({
+        title: t("dashboard.agenda.edit.success.title") || "Agenda Updated",
+        description: t("dashboard.agenda.edit.success.description") || "Your agenda item has been updated successfully!",
+      });
+
+      setIsEditDialogOpen(null);
+      setEditingAgenda({
+        id: "",
+        title: "",
+        description: "",
+        date: "",
+        time: "",
+        location: "",
+      });
+
+      // Reload agenda items
+      await loadAgendaItemsFromDatabase();
+    } catch (error: any) {
+      console.error("Error updating agenda item:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.agenda.edit.error.title") || "Failed to Update Agenda",
+        t("dashboard.agenda.edit.error.description") || "Failed to update agenda item"
+      );
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteAgenda = async () => {
+    if (!deleteAgendaId || !user) return;
+
+    try {
+      const agendaItem = agendaItems.find((item) => item.id === deleteAgendaId);
+      if (!agendaItem) return;
+
+      await deleteAgendaItem(deleteAgendaId);
+
+      // Log history
+      if (user) {
+        await logHistory("agenda_deleted", user, deleteAgendaId, agendaItem.title);
+      }
+
+      toast({
+        title: t("dashboard.agenda.delete.success.title") || "Agenda Deleted",
+        description: t("dashboard.agenda.delete.success.description") || "Agenda item has been deleted successfully.",
+      });
+
+      setDeleteAgendaId(null);
+      await loadAgendaItemsFromDatabase();
+    } catch (error: any) {
+      console.error("Error deleting agenda item:", error);
+      const errorInfo = formatErrorForToast(
+        error,
+        t("dashboard.agenda.delete.error.title") || "Failed to Delete Agenda",
+        t("dashboard.agenda.delete.error.description") || "Failed to delete agenda item"
+      );
+      toast({
+        title: errorInfo.title,
+        description: errorInfo.description,
         variant: "destructive",
       });
     }
@@ -345,6 +484,26 @@ const AgendaContent = () => {
                     </Avatar>
                     <span className="text-sm text-muted-foreground">{item.createdByName}</span>
                   </div>
+                  {(user?.id === item.created_by || isSuperAdmin) && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditAgenda(item)}
+                        className="rounded-full"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeleteAgendaId(item.id)}
+                        className="rounded-full text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -429,6 +588,107 @@ const AgendaContent = () => {
           ))}
         </div>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen !== null} onOpenChange={(open) => setIsEditDialogOpen(open ? editingAgenda.id : null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{t("dashboard.agenda.edit.title") || "Edit Agenda Item"}</DialogTitle>
+            <DialogDescription>
+              {t("dashboard.agenda.edit.description") || "Update the agenda item details"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">
+                {t("dashboard.agenda.create.form.title") || "Title"} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-title"
+                value={editingAgenda.title}
+                onChange={(e) => setEditingAgenda({ ...editingAgenda, title: e.target.value })}
+                placeholder={t("dashboard.agenda.create.form.title.placeholder") || "Meeting title"}
+                className="rounded-full"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">{t("dashboard.agenda.create.form.description") || "Description"}</Label>
+              <Textarea
+                id="edit-description"
+                value={editingAgenda.description}
+                onChange={(e) => setEditingAgenda({ ...editingAgenda, description: e.target.value })}
+                placeholder={t("dashboard.agenda.create.form.description.placeholder") || "Agenda description..."}
+                className="min-h-[100px] rounded-lg"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-date">
+                  {t("dashboard.agenda.create.form.date") || "Date"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-date"
+                  type="date"
+                  value={editingAgenda.date}
+                  onChange={(e) => setEditingAgenda({ ...editingAgenda, date: e.target.value })}
+                  className="rounded-full"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-time">
+                  {t("dashboard.agenda.create.form.time") || "Time"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-time"
+                  type="time"
+                  value={editingAgenda.time}
+                  onChange={(e) => setEditingAgenda({ ...editingAgenda, time: e.target.value })}
+                  className="rounded-full"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-location">{t("dashboard.agenda.create.form.location") || "Location"}</Label>
+              <Input
+                id="edit-location"
+                value={editingAgenda.location}
+                onChange={(e) => setEditingAgenda({ ...editingAgenda, location: e.target.value })}
+                placeholder={t("dashboard.agenda.create.form.location.placeholder") || "Meeting location"}
+                className="rounded-full"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(null)} className="rounded-full">
+              {t("dashboard.agenda.create.cancel") || "Cancel"}
+            </Button>
+            <Button onClick={handleUpdateAgenda} className="rounded-full">
+              {t("dashboard.agenda.edit.submit") || "Update"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteAgendaId !== null} onOpenChange={(open) => !open && setDeleteAgendaId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("dashboard.agenda.delete.confirm.title") || "Delete Agenda Item?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("dashboard.agenda.delete.confirm.description") || "This action cannot be undone. This will permanently delete the agenda item and all its comments."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">{t("dashboard.agenda.delete.cancel") || "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteAgenda} className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {t("dashboard.agenda.delete.confirm.button") || "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
