@@ -112,6 +112,8 @@ const AdditiveMapContent = () => {
         description: errorInfo.description,
         variant: "destructive",
       });
+      // Set empty array on error to prevent crashes
+      setCompanies([]);
     } finally {
       setIsLoading(false);
     }
@@ -398,21 +400,23 @@ const AdditiveMapContent = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 h-[calc(100vh-200px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4" style={{ minHeight: '600px' }}>
         {/* Map */}
         <Card className="overflow-hidden">
-          <CardContent className="p-0 h-full">
+          <CardContent className="p-0" style={{ height: '100%', minHeight: '500px' }}>
             {isLoading && companies.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex items-center justify-center" style={{ height: '100%', minHeight: '500px' }}>
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
             ) : (
-              <Map
-                companies={companies}
-                onCompanyClick={handleCompanyClick}
-                selectedCompanyId={selectedCompany?.id || null}
-                className="h-full"
-              />
+              <div style={{ width: '100%', height: '100%', minHeight: '500px' }}>
+                <Map
+                  companies={companies}
+                  onCompanyClick={handleCompanyClick}
+                  selectedCompanyId={selectedCompany?.id || null}
+                  className="h-full"
+                />
+              </div>
             )}
           </CardContent>
         </Card>

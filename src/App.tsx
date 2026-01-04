@@ -51,12 +51,25 @@ class ErrorBoundary extends Component<
             <p className="mb-4 text-muted-foreground">
               {this.state.error?.message || "An unexpected error occurred"}
             </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-            >
-              Reload Page
-            </button>
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  window.location.href = '/';
+                }}
+                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Go to Home
+              </button>
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                }}
+                className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       );
