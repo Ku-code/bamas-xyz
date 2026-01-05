@@ -373,12 +373,80 @@ const DocumentsContent = () => {
           }
 
           if (signers.length > 0) {
-            // For now, we'll create a placeholder submission
-            // In production, you would upload the document file and create a template
-            toast({
-              title: t("dashboard.documents.docuseal.pending") || "Signature Setup Pending",
-              description: `Document created. ${signers.length} signer(s) will be notified once the template is configured.`,
-            });
+            // Check if document has a file to create DocuSeal template from
+            if (createdDoc.file_path) {
+              try {
+                // Get the file from Supabase Storage
+                const fileUrl = getDocumentFileUrl(createdDoc.file_path);
+                console.log('Fetching file from:', fileUrl);
+                
+                const response = await fetch(fileUrl);
+                if (!response.ok) {
+                  throw new Error(`Failed to fetch file: ${response.statusText}`);
+                }
+                const fileBlob = await response.blob();
+                console.log('File fetched, size:', fileBlob.size);
+                
+                // Create DocuSeal template from the file
+                console.log('Creating DocuSeal template...');
+                const template = await createDocuSealTemplate(
+                  `${createdDoc.title} - Signature Required`,
+                  fileBlob
+                );
+                console.log('Template created:', template.id);
+                
+                // Create DocuSeal submission with all signers
+                console.log('Creating DocuSeal submission with signers:', signers);
+                const submission = await createDocuSealSubmission(
+                  template.id,
+                  signers,
+                  createdDoc.id // external_id for tracking
+                );
+                console.log('Submission created:', submission.id);
+                
+                // Update document with DocuSeal IDs
+                await updateDocument(createdDoc.id, {
+                  docuseal_template_id: template.id,
+                  docuseal_submission_id: submission.id,
+                });
+                
+                toast({
+                  title: t("dashboard.documents.docuseal.success") || "Signatures Configured",
+                  description: `Document ready for signatures. ${signers.length} signer(s) will receive notification.`,
+                });
+                
+              } catch (docusealApiError: any) {
+                console.error("DocuSeal API error:", docusealApiError);
+                
+                // Provide helpful error messages
+                if (docusealApiError.message?.includes('API key')) {
+                  toast({
+                    title: t("dashboard.documents.docuseal.error.apiKey") || "DocuSeal API Error",
+                    description: t("dashboard.documents.docuseal.error.apiKeyDesc") || "Invalid API key. Check your .env configuration.",
+                    variant: "destructive",
+                  });
+                } else if (docusealApiError.message?.includes('template')) {
+                  toast({
+                    title: t("dashboard.documents.docuseal.error.template") || "Template Creation Failed",
+                    description: t("dashboard.documents.docuseal.error.templateDesc") || "Could not create DocuSeal template. Ensure the file is a valid PDF.",
+                    variant: "destructive",
+                  });
+                } else {
+                  toast({
+                    title: t("dashboard.documents.docuseal.warning") || "Signature Setup Warning",
+                    description: `Document created but signature setup failed: ${docusealApiError.message || 'Unknown error'}`,
+                    variant: "default",
+                  });
+                }
+              }
+            } else {
+              // No file attached - can't create DocuSeal template
+              toast({
+                title: t("dashboard.documents.docuseal.error.fileRequired") || "File Required",
+                description: t("dashboard.documents.docuseal.error.fileRequiredDesc") || "Critical documents must have a file (PDF, Word, etc.) attached to enable digital signatures.",
+                variant: "default",
+              });
+            }
           }
         } catch (docusealError: any) {
           console.error("Error setting up DocuSeal:", docusealError);
