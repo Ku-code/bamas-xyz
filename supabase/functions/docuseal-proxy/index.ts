@@ -10,7 +10,7 @@ const corsHeaders = {
 }
 
 interface DocuSealRequest {
-  action: 'create_template' | 'create_submission' | 'get_submission' | 'get_templates'
+  action: 'create_template' | 'create_submission' | 'get_submission' | 'get_templates' | 'download_submission'
   data?: any
 }
 
@@ -93,9 +93,19 @@ serve(async (req) => {
         })
         break
 
+      case 'download_submission':
+        console.log('[DocuSeal Proxy] Downloading submission:', data.submission_id)
+        response = await fetch(`${DOCUSEAL_API_URL}/submissions/${data.submission_id}/download`, {
+          method: 'GET',
+          headers: {
+            'X-Auth-Token': DOCUSEAL_API_KEY,
+          },
+        })
+        break
+
       default:
         return new Response(
-          JSON.stringify({ error: 'Invalid action. Supported: create_template, create_submission, get_submission, get_templates' }),
+          JSON.stringify({ error: 'Invalid action. Supported: create_template, create_submission, get_submission, get_templates, download_submission' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
     }

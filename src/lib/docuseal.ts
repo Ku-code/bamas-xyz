@@ -187,25 +187,37 @@ export const getDocuSealSubmissionStatus = async (
 
 /**
  * Download the signed PDF from a completed submission
+ * Uses Supabase Edge Function to avoid CORS issues
  */
 export const downloadSignedPDF = async (
   submissionId: string
 ): Promise<Blob> => {
-  if (!DOCUSEAL_API_KEY) {
-    throw new Error('DocuSeal API key is not configured. Please set VITE_DOCUSEAL_API_KEY in your .env file.');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase configuration is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
   try {
-    const response = await fetch(`${DOCUSEAL_API_URL}/submissions/${submissionId}/download`, {
-      method: 'GET',
+    console.log('[DocuSeal] Downloading signed PDF via Edge Function:', submissionId);
+
+    // Call Supabase Edge Function instead of direct API
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
       headers: {
-        'X-Auth-Token': DOCUSEAL_API_KEY,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
+      body: JSON.stringify({
+        action: 'download_submission',
+        data: {
+          submission_id: submissionId,
+        },
+      }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+      console.error('[DocuSeal] Download failed:', error);
+      throw new Error(error.error || error.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     const blob = await response.blob();
@@ -217,24 +229,82 @@ export const downloadSignedPDF = async (
 };
 
 /**
- * Get the signing URL for a specific signer
+ * Get the signing URL for a specific signer from a submission
+ * Uses Supabase Edge Function to avoid CORS issues
  */
 export const getSignerUrl = async (
   submissionId: string,
   signerEmail: string
 ): Promise<string> => {
-  if (!DOCUSEAL_API_KEY) {
-    throw new Error('DocuSeal API key is not configured. Please set VITE_DOCUSEAL_API_KEY in your .env file.');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase configuration is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
   try {
+    console.log('[DocuSeal] Getting signer URL for:', signerEmail);
+    
     const submission = await getDocuSealSubmissionStatus(submissionId);
     
-    // The submission object should contain signer URLs
-    // This is a simplified version - adjust based on actual DocuSeal API response
-    return submission.url || '';
+    // Find the submitter matching the email
+    const submitter = submission.submitters?.find(
+      (s: any) => s.email?.toLowerCase() === signerEmail.toLowerCase()
+    );
+    
+    if (!submitter) {
+      console.error('[DocuSeal] Submitter not found for email:', signerEmail);
+      throw new Error(`No submitter found for email: ${signerEmail}`);
+    }
+    
+    // Return the embed_src URL for the DocusealForm component
+    // Format: https://docuseal.com/s/{slug}
+    const embedUrl = submitter.embed_src || submitter.url;
+    
+    if (!embedUrl) {
+      console.error('[DocuSeal] No embed URL found for submitter:', submitter);
+      throw new Error('No signing URL available for this submitter');
+    }
+    
+    console.log('[DocuSeal] Embed URL found:', embedUrl);
+    return embedUrl;
   } catch (error) {
     console.error('Error getting signer URL:', error);
+    throw error;
+  }
+};
+
+interface DocuSealSubmitter {
+  email: string;
+  slug: string;
+  embed_src: string;
+  url: string;
+  status: string;
+}
+
+interface DocuSealSubmissionWithSubmitters extends DocuSealSubmission {
+  submitters?: DocuSealSubmitter[];
+}
+
+/**
+ * Get submission with submitter details for a specific user
+ */
+export const getSubmissionForUser = async (
+  submissionId: string,
+  userEmail: string
+): Promise<{ submission: DocuSealSubmissionWithSubmitters; submitter: DocuSealSubmitter }> => {
+  try {
+    const submission = await getDocuSealSubmissionStatus(submissionId) as DocuSealSubmissionWithSubmitters;
+    
+    const submitter = submission.submitters?.find(
+      (s) => s.email?.toLowerCase() === userEmail.toLowerCase()
+    );
+    
+    if (!submitter) {
+      throw new Error(`You are not a signer for this document`);
+    }
+    
+    return { submission, submitter };
+  } catch (error) {
+    console.error('Error getting submission for user:', error);
     throw error;
   }
 };

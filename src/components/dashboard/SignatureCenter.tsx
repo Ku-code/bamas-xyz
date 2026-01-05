@@ -15,7 +15,7 @@ import {
   type Document,
   type DocumentSignature,
 } from "@/lib/documents";
-import { getSignerUrl } from "@/lib/docuseal";
+import { getSubmissionForUser } from "@/lib/docuseal";
 import { DocusealForm } from '@docuseal/react';
 import { FileText, AlertCircle, CheckCircle2, Loader2, ExternalLink, X } from "lucide-react";
 import { format } from "date-fns";
@@ -29,6 +29,7 @@ const SignatureCenter = () => {
   const [signingDocumentId, setSigningDocumentId] = useState<string | null>(null);
   const [showSigningDialog, setShowSigningDialog] = useState(false);
   const [currentSigningDoc, setCurrentSigningDoc] = useState<Document | null>(null);
+  const [signingEmbedUrl, setSigningEmbedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     loadPendingDocuments();
@@ -94,26 +95,39 @@ const SignatureCenter = () => {
   const handleSignDocument = async (document: Document) => {
     if (!user) return;
 
+    setSigningDocumentId(document.id);
+
     try {
-      // Check if signature record exists
-      const signatures = await loadDocumentSignatures(document.id);
-      let signature = signatures.find((s) => s.user_id === user.id);
+      // Get DocuSeal submission and user's specific embed URL
+      if (document.docuseal_submission_id && user.email) {
+        console.log('[SignatureCenter] Fetching submission for user:', user.email);
+        
+        const { submission, submitter } = await getSubmissionForUser(
+          document.docuseal_submission_id,
+          user.email
+        );
+        
+        console.log('[SignatureCenter] Submitter found:', submitter);
+        console.log('[SignatureCenter] Embed URL:', submitter.embed_src);
+        
+        // Create signature record if it doesn't exist
+        const signatures = await loadDocumentSignatures(document.id);
+        let signature = signatures.find((s) => s.user_id === user.id);
 
-      if (!signature) {
-        // Create signature record
-        signature = await createDocumentSignature({
-          document_id: document.id,
-          user_id: user.id,
-          status: 'pending',
-        });
-      }
-
-      // Get DocuSeal submission URL
-      if (document.docuseal_submission_id) {
-        // Open embedded signing dialog
+        if (!signature) {
+          // Create signature record
+          signature = await createDocumentSignature({
+            document_id: document.id,
+            user_id: user.id,
+            status: 'pending',
+          });
+        }
+        
+        // Set the embed URL and open dialog
+        setSigningEmbedUrl(submitter.embed_src);
         setCurrentSigningDoc(document);
         setShowSigningDialog(true);
-        setSigningDocumentId(document.id);
+        
       } else {
         toast({
           title: t("dashboard.signatures.error.noSubmission") || "No Submission Found",
@@ -133,6 +147,8 @@ const SignatureCenter = () => {
         description: errorInfo.description,
         variant: "destructive",
       });
+    } finally {
+      setSigningDocumentId(null);
     }
   };
 
@@ -294,7 +310,13 @@ const SignatureCenter = () => {
       </Card>
 
       {/* DocuSeal Signing Dialog */}
-      <Dialog open={showSigningDialog} onOpenChange={setShowSigningDialog}>
+      <Dialog open={showSigningDialog} onOpenChange={(open) => {
+        setShowSigningDialog(open);
+        if (!open) {
+          setCurrentSigningDoc(null);
+          setSigningEmbedUrl(null);
+        }
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>
@@ -305,9 +327,9 @@ const SignatureCenter = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[70vh]">
-            {currentSigningDoc?.docuseal_submission_id && user?.email ? (
+            {signingEmbedUrl && user?.email ? (
               <DocusealForm
-                src={`https://docuseal.com/s/${currentSigningDoc.docuseal_submission_id}`}
+                src={signingEmbedUrl}
                 email={user.email}
                 onComplete={handleSignatureComplete}
               />
