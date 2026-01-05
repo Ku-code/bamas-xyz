@@ -351,7 +351,7 @@ const DocumentsContent = () => {
                 .from('users')
                 .select('email, name')
                 .eq('role', 'board_member')
-                .eq('approved', true);
+                .eq('status', 'approved');
               
               boardMembers?.forEach(member => {
                 if (member.email && !signers.find(s => s.email === member.email)) {
@@ -367,7 +367,7 @@ const DocumentsContent = () => {
                 .from('users')
                 .select('email, name')
                 .eq('role', 'wg_lead')
-                .eq('approved', true);
+                .eq('status', 'approved');
               
               wgLeads?.forEach(lead => {
                 if (lead.email && !signers.find(s => s.email === lead.email)) {
