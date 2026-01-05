@@ -167,11 +167,18 @@ DROP POLICY IF EXISTS "Only superadmin can create Critical documents" ON documen
 CREATE POLICY "Only superadmin can create Critical documents"
   ON documents FOR INSERT
   WITH CHECK (
-    (classification != 'CRITICAL' OR classification IS NULL)
-    OR EXISTS (
-      SELECT 1 FROM users
-      WHERE users.id = auth.uid()
-      AND users.role = 'superadmin'
+    -- Allow if NOT Critical
+    (classification IS NULL OR classification != 'CRITICAL')
+    OR
+    -- OR if Critical, user must be superadmin AND must be the creator
+    (
+      classification = 'CRITICAL'
+      AND auth.uid()::text = created_by::text
+      AND EXISTS (
+        SELECT 1 FROM users
+        WHERE users.id = auth.uid()
+        AND users.role = 'superadmin'
+      )
     )
   );
 
@@ -180,11 +187,31 @@ DROP POLICY IF EXISTS "Only superadmin can update Critical documents" ON documen
 CREATE POLICY "Only superadmin can update Critical documents"
   ON documents FOR UPDATE
   USING (
-    (classification != 'CRITICAL' OR classification IS NULL)
-    OR EXISTS (
-      SELECT 1 FROM users
-      WHERE users.id = auth.uid()
-      AND users.role = 'superadmin'
+    -- Allow if NOT Critical
+    (classification IS NULL OR classification != 'CRITICAL')
+    OR
+    -- OR if Critical, user must be superadmin
+    (
+      classification = 'CRITICAL'
+      AND EXISTS (
+        SELECT 1 FROM users
+        WHERE users.id = auth.uid()
+        AND users.role = 'superadmin'
+      )
+    )
+  )
+  WITH CHECK (
+    -- Allow if NOT Critical
+    (classification IS NULL OR classification != 'CRITICAL')
+    OR
+    -- OR if Critical, user must be superadmin
+    (
+      classification = 'CRITICAL'
+      AND EXISTS (
+        SELECT 1 FROM users
+        WHERE users.id = auth.uid()
+        AND users.role = 'superadmin'
+      )
     )
   );
 
