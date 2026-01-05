@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { db } from '@/lib/database';
 
-export type UserRole = 'superadmin' | 'admin' | 'member';
+export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
 export interface User {

@@ -1,6 +1,21 @@
 import { supabase } from './supabase';
 import { storage } from './storage';
 
+export type DocumentClassification = 'GENERAL' | 'PROCEDURAL' | 'CRITICAL';
+export type SignatureStatus = 'NONE' | 'PENDING' | 'COMPLETED';
+
+export interface DocumentSignature {
+  id: string;
+  document_id: string;
+  user_id: string;
+  docuseal_submission_id?: string;
+  status: 'pending' | 'completed' | 'declined';
+  signed_at?: string;
+  signed_pdf_url?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
 export interface Document {
   id: string;
   title: string;
@@ -14,6 +29,13 @@ export interface Document {
   file_size?: number;
   mime_type?: string;
   category: string;
+  classification?: DocumentClassification;
+  signature_status?: SignatureStatus;
+  docuseal_template_id?: string;
+  docuseal_submission_id?: string;
+  signed_pdf_url?: string;
+  required_signers?: string[]; // Array of user IDs or role names
+  signatures?: any[]; // Array of signature records
   created_by: string;
   created_by_name: string;
   created_by_image?: string;
@@ -55,6 +77,13 @@ export const createDocument = async (
     file_size?: number;
     mime_type?: string;
     category: string;
+    classification?: DocumentClassification;
+    signature_status?: SignatureStatus;
+    docuseal_template_id?: string;
+    docuseal_submission_id?: string;
+    signed_pdf_url?: string;
+    required_signers?: string[];
+    signatures?: any[];
     created_by: string;
     created_by_name: string;
     created_by_image?: string;
@@ -75,6 +104,13 @@ export const createDocument = async (
         file_size: docData.file_size || null,
         mime_type: docData.mime_type || null,
         category: docData.category,
+        classification: docData.classification || 'GENERAL',
+        signature_status: docData.signature_status || 'NONE',
+        docuseal_template_id: docData.docuseal_template_id || null,
+        docuseal_submission_id: docData.docuseal_submission_id || null,
+        signed_pdf_url: docData.signed_pdf_url || null,
+        required_signers: docData.required_signers || [],
+        signatures: docData.signatures || [],
         created_by: docData.created_by,
         created_by_name: docData.created_by_name,
         created_by_image: docData.created_by_image || null,
@@ -106,6 +142,13 @@ export const updateDocument = async (
     file_size?: number;
     mime_type?: string;
     category?: string;
+    classification?: DocumentClassification;
+    signature_status?: SignatureStatus;
+    docuseal_template_id?: string;
+    docuseal_submission_id?: string;
+    signed_pdf_url?: string;
+    required_signers?: string[];
+    signatures?: any[];
   }
 ): Promise<Document> => {
   try {
@@ -208,6 +251,83 @@ export const convertBase64ToFileAndUpload = async (
     return await uploadDocumentFile(file, userId);
   } catch (error) {
     console.error('Error converting and uploading base64 file:', error);
+    throw error;
+  }
+};
+
+/**
+ * Load document signatures for a document
+ */
+export const loadDocumentSignatures = async (documentId: string): Promise<DocumentSignature[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('document_signatures')
+      .select('*')
+      .eq('document_id', documentId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return (data || []) as DocumentSignature[];
+  } catch (error) {
+    console.error('Error loading document signatures:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create a document signature record
+ */
+export const createDocumentSignature = async (
+  signatureData: {
+    document_id: string;
+    user_id: string;
+    docuseal_submission_id?: string;
+    status?: 'pending' | 'completed' | 'declined';
+  }
+): Promise<DocumentSignature> => {
+  try {
+    const { data, error } = await supabase
+      .from('document_signatures')
+      .insert({
+        document_id: signatureData.document_id,
+        user_id: signatureData.user_id,
+        docuseal_submission_id: signatureData.docuseal_submission_id || null,
+        status: signatureData.status || 'pending',
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as DocumentSignature;
+  } catch (error) {
+    console.error('Error creating document signature:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update a document signature record
+ */
+export const updateDocumentSignature = async (
+  signatureId: string,
+  updates: {
+    status?: 'pending' | 'completed' | 'declined';
+    signed_at?: string;
+    signed_pdf_url?: string;
+  }
+): Promise<DocumentSignature> => {
+  try {
+    const { data, error } = await supabase
+      .from('document_signatures')
+      .update(updates)
+      .eq('id', signatureId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data as DocumentSignature;
+  } catch (error) {
+    console.error('Error updating document signature:', error);
     throw error;
   }
 };

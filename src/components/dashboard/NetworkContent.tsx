@@ -340,6 +340,8 @@ const NetworkContent = () => {
       case 'superadmin':
         return 'destructive';
       case 'admin':
+      case 'board_member':
+      case 'wg_lead':
         return 'default';
       default:
         return 'secondary';
@@ -559,6 +561,8 @@ const NetworkContent = () => {
                     <SelectContent>
                       <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
                       {isSuperAdmin && <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>}
+                      {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
+                      {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
                     </SelectContent>
                   </Select>
                 </div>
@@ -665,6 +669,10 @@ const NetworkContent = () => {
                                 ? t("dashboard.network.role.superadmin") || "Super Admin"
                                 : member.role === 'admin'
                                 ? t("dashboard.network.role.admin") || "Admin"
+                                : member.role === 'board_member'
+                                ? t("dashboard.network.role.board_member") || "Board Member"
+                                : member.role === 'wg_lead'
+                                ? t("dashboard.network.role.wg_lead") || "WG Lead"
                                 : t("dashboard.network.role.member") || "Member"}
                             </Badge>
                           </TableCell>
@@ -693,6 +701,8 @@ const NetworkContent = () => {
                                   <SelectContent>
                                     <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
                                     <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>
+                                    {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
+                                    {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
                                     {isSuperAdmin && <SelectItem value="superadmin">{t("dashboard.network.role.superadmin") || "Super Admin"}</SelectItem>}
                                   </SelectContent>
                                 </Select>

@@ -30,6 +30,8 @@ import {
   ArrowLeft,
   Package,
   Map,
+  Briefcase,
+  PenTool,
 } from "lucide-react";
 import HistoryContent from "@/components/dashboard/HistoryContent";
 import VotesContent from "@/components/dashboard/VotesContent";
@@ -39,8 +41,10 @@ import BudgetContent from "@/components/dashboard/BudgetContent";
 import NetworkContent from "@/components/dashboard/NetworkContent";
 import ResourcesContent from "@/components/dashboard/ResourcesContent";
 import AdditiveMapContent from "@/components/dashboard/AdditiveMapContent";
+import WorkingGroupsContent from "@/components/dashboard/WorkingGroupsContent";
+import SignatureCenter from "@/components/dashboard/SignatureCenter";
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -57,6 +61,8 @@ const Dashboard = () => {
     { id: "network" as MenuItem, icon: Users, label: t("dashboard.menu.network") || "Network" },
     { id: "resources" as MenuItem, icon: Package, label: t("dashboard.menu.resources") || "Resources" },
     { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
+    { id: "workinggroups" as MenuItem, icon: Briefcase, label: t("dashboard.menu.workinggroups") || "Working Groups" },
+    { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
   ];
 
   const renderContent = () => {
@@ -77,6 +83,10 @@ const Dashboard = () => {
         return <ResourcesContent />;
       case "additivemap":
         return <AdditiveMapContent />;
+      case "workinggroups":
+        return <WorkingGroupsContent />;
+      case "signatures":
+        return <SignatureCenter />;
       default:
         return <HistoryContent />;
     }

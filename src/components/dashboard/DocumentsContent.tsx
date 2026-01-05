@@ -65,6 +65,9 @@ interface Document {
   fileSize?: number; // File size in bytes
   mimeType?: string; // MIME type of uploaded file
   category: string;
+  classification?: "GENERAL" | "PROCEDURAL" | "CRITICAL";
+  signatureStatus?: "NONE" | "PENDING" | "COMPLETED";
+  requiredSigners?: string[];
   createdBy: string;
   createdByName: string;
   createdByImage?: string;
@@ -92,6 +95,8 @@ const DocumentsContent = () => {
     googleDriveLink: "",
     content: "",
     category: "General",
+    classification: "GENERAL" as "GENERAL" | "PROCEDURAL" | "CRITICAL",
+    requiredSigners: [] as string[],
     tableRows: 3,
     tableCols: 3,
     tableHeaders: [""],
@@ -132,6 +137,9 @@ const DocumentsContent = () => {
         fileSize: doc.file_size || undefined,
         mimeType: doc.mime_type || undefined,
         category: doc.category,
+        classification: (doc as any).classification || undefined,
+        signatureStatus: (doc as any).signature_status || undefined,
+        requiredSigners: (doc as any).required_signers || undefined,
         createdBy: doc.created_by,
         createdByName: doc.created_by_name,
         createdByImage: doc.created_by_image || undefined,
@@ -219,10 +227,33 @@ const DocumentsContent = () => {
     }
 
     try {
+      // Validate Critical document requirements
+      if (newDocument.classification === 'CRITICAL') {
+        if (!isSuperAdmin) {
+          toast({
+            title: t("dashboard.documents.create.error.title") || "Permission Denied",
+            description: t("dashboard.documents.create.error.criticalPermission") || "Only superadmin can create Critical documents.",
+            variant: "destructive",
+          });
+          return;
+        }
+        if (newDocument.requiredSigners.length === 0) {
+          toast({
+            title: t("dashboard.documents.create.error.title") || "Validation Error",
+            description: t("dashboard.documents.create.error.requiredSigners") || "Please select at least one required signer for Critical documents.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       let documentData: any = {
         title: newDocument.title.trim(),
         description: newDocument.description.trim() || undefined,
         category: newDocument.category,
+        classification: newDocument.classification,
+        signature_status: newDocument.classification === 'CRITICAL' ? 'PENDING' : 'NONE',
+        required_signers: newDocument.classification === 'CRITICAL' ? newDocument.requiredSigners : [],
         created_by: user.id,
         created_by_name: user.name,
         created_by_image: user.image,
@@ -294,6 +325,8 @@ const DocumentsContent = () => {
         googleDriveLink: "",
         content: "",
         category: "General",
+        classification: "GENERAL",
+        requiredSigners: [],
         tableRows: 3,
         tableCols: 3,
         tableHeaders: [""],
@@ -566,6 +599,9 @@ const DocumentsContent = () => {
         type: "googleDrive",
         google_drive_link: importDocument.googleDriveLink.trim(),
         category: importDocument.category,
+        classification: importDocument.classification,
+        signature_status: importDocument.classification === 'CRITICAL' ? 'PENDING' : 'NONE',
+        required_signers: importDocument.classification === 'CRITICAL' ? importDocument.requiredSigners : [],
         created_by: user.id,
         created_by_name: user.name,
         created_by_image: user.image,
@@ -587,6 +623,8 @@ const DocumentsContent = () => {
         description: "",
         googleDriveLink: "",
         category: "General",
+        classification: "GENERAL",
+        requiredSigners: [],
       });
       setIsImportDialogOpen(false);
 
@@ -858,6 +896,8 @@ const DocumentsContent = () => {
                 googleDriveLink: "",
                 content: "",
                 category: "General",
+                classification: "GENERAL",
+                requiredSigners: [],
                 tableRows: 3,
                 tableCols: 3,
                 tableHeaders: [""],
@@ -1182,6 +1222,100 @@ const DocumentsContent = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="doc-classification">{t("dashboard.documents.create.form.classification") || "Classification Level"}</Label>
+              <Select 
+                value={newDocument.classification} 
+                onValueChange={(value: "GENERAL" | "PROCEDURAL" | "CRITICAL") => {
+                  setNewDocument({ 
+                    ...newDocument, 
+                    classification: value,
+                    requiredSigners: value !== 'CRITICAL' ? [] : newDocument.requiredSigners
+                  });
+                }}
+                disabled={!isSuperAdmin && newDocument.classification === 'CRITICAL'}
+              >
+                <SelectTrigger className="rounded-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GENERAL">{t("dashboard.documents.classification.general") || "General"}</SelectItem>
+                  <SelectItem value="PROCEDURAL">{t("dashboard.documents.classification.procedural") || "Procedural"}</SelectItem>
+                  {isSuperAdmin && (
+                    <SelectItem value="CRITICAL">{t("dashboard.documents.classification.critical") || "Critical"}</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              {!isSuperAdmin && newDocument.classification === 'CRITICAL' && (
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.documents.classification.superadminOnly") || "Only superadmin can create Critical documents"}
+                </p>
+              )}
+            </div>
+
+            {newDocument.classification === 'CRITICAL' && isSuperAdmin && (
+              <div className="space-y-2">
+                <Label htmlFor="doc-required-signers">
+                  {t("dashboard.documents.create.form.requiredSigners") || "Required Signers"} <span className="text-destructive">*</span>
+                </Label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="all-board-members"
+                      checked={newDocument.requiredSigners.includes('all_board_members')}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewDocument({
+                            ...newDocument,
+                            requiredSigners: [...newDocument.requiredSigners.filter(s => s !== 'all_board_members'), 'all_board_members']
+                          });
+                        } else {
+                          setNewDocument({
+                            ...newDocument,
+                            requiredSigners: newDocument.requiredSigners.filter(s => s !== 'all_board_members')
+                          });
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <Label htmlFor="all-board-members" className="font-normal cursor-pointer">
+                      {t("dashboard.documents.create.form.allBoardMembers") || "All Board Members"}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="all-wg-leads"
+                      checked={newDocument.requiredSigners.includes('all_wg_leads')}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewDocument({
+                            ...newDocument,
+                            requiredSigners: [...newDocument.requiredSigners.filter(s => s !== 'all_wg_leads'), 'all_wg_leads']
+                          });
+                        } else {
+                          setNewDocument({
+                            ...newDocument,
+                            requiredSigners: newDocument.requiredSigners.filter(s => s !== 'all_wg_leads')
+                          });
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <Label htmlFor="all-wg-leads" className="font-normal cursor-pointer">
+                      {t("dashboard.documents.create.form.allWGLeads") || "All WG Leads"}
+                    </Label>
+                  </div>
+                </div>
+                {newDocument.requiredSigners.length === 0 && (
+                  <p className="text-xs text-destructive">
+                    {t("dashboard.documents.create.form.requiredSignersError") || "Please select at least one required signer"}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button

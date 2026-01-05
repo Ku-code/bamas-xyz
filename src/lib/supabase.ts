@@ -79,7 +79,7 @@ export type Database = {
           location: string | null;
           website: string | null;
           phone: string | null;
-          role: 'superadmin' | 'admin' | 'member';
+          role: 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
           status: 'pending' | 'approved' | 'rejected' | 'suspended';
           created_at: string;
           updated_at: string | null;
