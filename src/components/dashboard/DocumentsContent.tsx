@@ -80,7 +80,7 @@ const CATEGORIES = ["General", "Meeting Minutes", "Reports", "Policies", "Forms"
 
 const DocumentsContent = () => {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { toast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);

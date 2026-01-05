@@ -21,6 +21,16 @@ export const parseError = (error: any): ErrorInfo => {
     };
   }
 
+  // Storage bucket errors (custom code)
+  if (error.code === 'BUCKET_NOT_FOUND') {
+    return {
+      title: 'Storage Bucket Not Found',
+      description: error.message || 'The required storage bucket does not exist.',
+      cause: 'The storage bucket has not been created in Supabase.',
+      solution: 'Please create the storage bucket in Supabase Dashboard → Storage. Contact support if you need assistance.',
+    };
+  }
+
   // Database errors
   if (error.code) {
     switch (error.code) {
