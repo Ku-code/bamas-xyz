@@ -28,12 +28,12 @@ const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || '';
 const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecification => {
   if (MAPTILER_API_KEY) {
     // Use Maptiler Dataviz styles with API key
-    // Try dark/light variants first, fallback to base style if variants don't exist
+    // dataviz-v4 is the light style, dataviz-v4-dark is the dark style
     if (isDark) {
-      // Try dataviz-v4-dark, fallback to base dataviz-v4 if dark variant doesn't exist
       return `https://api.maptiler.com/maps/dataviz-v4-dark/style.json?key=${MAPTILER_API_KEY}`;
     } else {
-      // Use base dataviz-v4 for light mode (this is the light style)
+      // Use dataviz-v4-light for light mode (or base dataviz-v4 if light variant doesn't exist)
+      // Try dataviz-v4-light first, fallback to base dataviz-v4
       return `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
     }
   } else {
@@ -110,19 +110,40 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         maxZoom: 18,
       });
 
+      // Only handle errors during initial load, not during style changes
+      let isInitialLoad = true;
+      
       map.current.on('load', () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:113',message:'Map load event',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        isInitialLoad = false; // Mark initial load as complete
         setIsLoaded(true);
+        // Trigger resize to ensure map renders correctly
+        setTimeout(() => {
+          map.current?.resize();
+        }, 100);
       });
       
       map.current.on('style.load', () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:125',message:'Map style.load event',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         // Style loaded successfully
         setIsLoaded(true);
+        // Trigger resize after style loads
+        setTimeout(() => {
+          map.current?.resize();
+        }, 100);
       });
 
       map.current.on('error', (e: any) => {
         console.error('Map error:', e);
-        // If style loading fails, try fallback
-        if (e.error && e.error.message && e.error.message.includes('style')) {
+        // Only use fallback during initial load, not for subsequent style changes
+        if (isInitialLoad && e.error && e.error.message && e.error.message.includes('style')) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:137',message:'Initial style load error, using fallback',data:{errorMessage:e?.error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
           try {
             map.current?.setStyle(fallbackStyle);
           } catch (fallbackError) {
@@ -147,30 +168,44 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   useEffect(() => {
     if (!map.current || !isLoaded) return;
 
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:147',message:'Style change effect triggered',data:{isDarkMode,isLoaded:!!map.current,hasApiKey:!!MAPTILER_API_KEY},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:151',message:'Got new style URL',data:{isDarkMode,styleUrl:typeof newStyle === 'string' ? newStyle : 'object',styleType:typeof newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      
       if (typeof newStyle === 'string') {
+        // Set the new style
         map.current.setStyle(newStyle);
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:153',message:'setStyle called',data:{isDarkMode,styleUrl:newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
         
         // Re-add markers after style change
         map.current.once('styledata', () => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:157',message:'Style loaded successfully',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
           // Markers will be re-added by the markers effect
         });
         
-        // Handle style loading errors
+        // Handle style loading errors (only log, don't interfere)
         map.current.once('error', (e: any) => {
-          if (e.error && e.error.message && e.error.message.includes('style')) {
-            // If dark/light variant doesn't exist, try base style
-            const baseStyle = `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
-            try {
-              map.current?.setStyle(baseStyle);
-            } catch (fallbackError) {
-              console.error('Could not load base style either:', fallbackError);
-            }
-          }
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:163',message:'Style load error',data:{errorMessage:e?.error?.message,isDarkMode,styleUrl:newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+          console.error('Map style load error:', e);
         });
       }
     } catch (error) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:173',message:'Style change catch error',data:{error:error instanceof Error?error.message:String(error),isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       console.error('Error changing map style:', error);
       // Don't throw - just log the error
     }
@@ -299,6 +334,9 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   }, [isFullscreen, isPanelOpen, isLoaded]);
 
   const toggleDarkMode = (checked: boolean) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:301',message:'toggleDarkMode called',data:{checked,currentIsDarkMode:isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     setIsDarkMode(checked);
   };
 

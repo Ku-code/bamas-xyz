@@ -30,8 +30,13 @@ try {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+        storage: window.localStorage, // Explicitly use localStorage
+        storageKey: 'sb-auth-token', // Explicit storage key
       },
     });
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'supabase.ts:28',message:'Supabase client initialized',data:{hasUrl:!!supabaseUrl,hasKey:!!supabaseAnonKey,persistSession:true,autoRefreshToken:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
   }
 } catch (error) {
   console.error('Failed to initialize Supabase client:', error);
