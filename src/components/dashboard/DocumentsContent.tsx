@@ -44,7 +44,7 @@ import { logHistory } from "@/lib/history";
 import { loadDocuments, createDocument, updateDocument, deleteDocument, uploadDocumentFile, getDocumentFileUrl, convertBase64ToFileAndUpload, Document as SupabaseDocument } from "@/lib/documents";
 import { createDocuSealTemplate, createDocuSealSubmission } from "@/lib/docuseal";
 import { supabase } from "@/lib/supabase";
-import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid } from "lucide-react";
+import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface TableData {
@@ -104,6 +104,8 @@ const DocumentsContent = () => {
     tableHeaders: [""],
     tableData: [] as string[][],
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const createFileInputRef = useRef<HTMLInputElement>(null);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [importType, setImportType] = useState<"googleDrive" | "computer">("googleDrive");
@@ -292,6 +294,28 @@ const DocumentsContent = () => {
           type: "text",
           content: newDocument.content.trim() || "",
         };
+      } else if (createType === "uploaded") {
+        // Uploaded file type
+        if (!selectedFile) {
+          toast({
+            title: t("dashboard.documents.create.error.title") || "Validation Error",
+            description: t("dashboard.documents.create.error.fileRequired") || "Please select a file to upload.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Upload file to Supabase Storage
+        const uploadResult = await uploadDocumentFile(selectedFile, user.id);
+        
+        documentData = {
+          ...documentData,
+          type: "uploaded",
+          file_path: uploadResult.path,
+          file_name: uploadResult.fileName,
+          file_size: uploadResult.fileSize,
+          mime_type: uploadResult.mimeType,
+        };
       } else {
         // Table type
         const tableData: TableData = {
@@ -478,6 +502,7 @@ const DocumentsContent = () => {
         tableHeaders: [""],
         tableData: [],
       });
+      setSelectedFile(null);
       setCreateType("googleDrive");
       setIsCreateDialogOpen(false);
 
@@ -1107,6 +1132,16 @@ const DocumentsContent = () => {
                   <Grid3x3 className="mr-2 h-4 w-4" />
                   {t("dashboard.documents.create.type.table") || "Table"}
                 </Button>
+                <Button
+                  type="button"
+                  variant={createType === "uploaded" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCreateType("uploaded")}
+                  className="rounded-full"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {t("dashboard.documents.create.type.upload") || "Upload File"}
+                </Button>
               </div>
             )}
 
@@ -1167,6 +1202,68 @@ const DocumentsContent = () => {
                   placeholder={t("dashboard.documents.create.form.content.placeholder") || "Write your notes here..."}
                   className="min-h-[300px] rounded-lg font-mono text-sm"
                 />
+              </div>
+            )}
+
+            {createType === "uploaded" && (
+              <div className="space-y-2">
+                <Label>
+                  {t("dashboard.documents.create.form.upload") || "Upload File"} <span className="text-destructive">*</span>
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => createFileInputRef.current?.click()}
+                    className="rounded-full"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    {selectedFile ? t("dashboard.documents.create.form.changeFile") || "Change File" : t("dashboard.documents.create.form.selectFile") || "Select File"}
+                  </Button>
+                  {selectedFile && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <File className="h-4 w-4" />
+                      <span>{selectedFile.name}</span>
+                      <span className="text-xs">({formatFileSize(selectedFile.size)})</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedFile(null)}
+                        className="h-6 w-6 rounded-full"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <input
+                  ref={createFileInputRef}
+                  type="file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setSelectedFile(file);
+                      // Auto-fill title with filename if empty
+                      if (!newDocument.title) {
+                        const fileName = file.name.replace(/\.[^/.]+$/, "");
+                        setNewDocument({ ...newDocument, title: fileName });
+                      }
+                    }
+                  }}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.documents.create.form.upload.help") || "Supported: PDF, Word, Excel, PowerPoint, Images (Max 10MB)"}
+                </p>
+                {newDocument.classification === "CRITICAL" && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-500 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {t("dashboard.documents.create.form.upload.criticalNote") || "Critical documents require a file for digital signatures"}
+                  </p>
+                )}
               </div>
             )}
 
