@@ -1,10 +1,14 @@
 /**
- * DocuSeal API Integration
+ * DocuSeal API Integration via Supabase Edge Function
  * Handles template creation, submission management, and signature tracking
+ * 
+ * NOTE: Uses Supabase Edge Function as a proxy to avoid CORS issues
+ * Direct browser calls to DocuSeal API are blocked by CORS policy
  */
 
-const DOCUSEAL_API_KEY = import.meta.env.VITE_DOCUSEAL_API_KEY;
-const DOCUSEAL_API_URL = 'https://api.docuseal.co';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/docuseal-proxy`;
 
 interface DocuSealTemplate {
   id: string;
@@ -28,13 +32,14 @@ interface DocuSealSigner {
 
 /**
  * Create a DocuSeal template from a PDF file
+ * Uses Supabase Edge Function to avoid CORS issues
  */
 export const createDocuSealTemplate = async (
   name: string,
   pdfFile: File | Blob
 ): Promise<DocuSealTemplate> => {
-  if (!DOCUSEAL_API_KEY) {
-    throw new Error('DocuSeal API key is not configured. Please set VITE_DOCUSEAL_API_KEY in your .env file.');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase configuration is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
   try {
@@ -43,7 +48,7 @@ export const createDocuSealTemplate = async (
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
-        // Remove data URL prefix
+        // Remove data URL prefix (data:application/pdf;base64,)
         const base64 = result.split(',')[1];
         resolve(base64);
       };
@@ -51,25 +56,32 @@ export const createDocuSealTemplate = async (
       reader.readAsDataURL(pdfFile);
     });
 
-    const response = await fetch(`${DOCUSEAL_API_URL}/templates`, {
+    console.log('[DocuSeal] Creating template via Edge Function:', name);
+
+    // Call Supabase Edge Function instead of direct API
+    const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Auth-Token': DOCUSEAL_API_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({
-        name,
-        source: base64,
-        source_type: 'base64',
+        action: 'create_template',
+        data: {
+          name,
+          file_base64: base64,
+        },
       }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+      console.error('[DocuSeal] Template creation failed:', error);
+      throw new Error(error.error || error.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('[DocuSeal] Template created successfully:', data.id);
     return data;
   } catch (error) {
     console.error('Error creating DocuSeal template:', error);
@@ -79,41 +91,50 @@ export const createDocuSealTemplate = async (
 
 /**
  * Create a DocuSeal submission with signers
+ * Uses Supabase Edge Function to avoid CORS issues
  */
 export const createDocuSealSubmission = async (
   templateId: string,
   signers: DocuSealSigner[],
   externalId?: string
 ): Promise<DocuSealSubmission> => {
-  if (!DOCUSEAL_API_KEY) {
-    throw new Error('DocuSeal API key is not configured. Please set VITE_DOCUSEAL_API_KEY in your .env file.');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase configuration is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
   try {
-    const response = await fetch(`${DOCUSEAL_API_URL}/submissions`, {
+    console.log('[DocuSeal] Creating submission via Edge Function for template:', templateId);
+
+    // Call Supabase Edge Function instead of direct API
+    const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Auth-Token': DOCUSEAL_API_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({
-        template_id: templateId,
-        send_email: true,
-        external_id: externalId,
-        signers: signers.map(signer => ({
-          email: signer.email,
-          role: signer.role,
-          name: signer.name,
-        })),
+        action: 'create_submission',
+        data: {
+          template_id: templateId,
+          send_email: true,
+          external_id: externalId,
+          submitters: signers.map(signer => ({
+            email: signer.email,
+            role: signer.role,
+            name: signer.name,
+          })),
+        },
       }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+      console.error('[DocuSeal] Submission creation failed:', error);
+      throw new Error(error.error || error.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log('[DocuSeal] Submission created successfully:', data.id);
     return data;
   } catch (error) {
     console.error('Error creating DocuSeal submission:', error);
@@ -123,25 +144,37 @@ export const createDocuSealSubmission = async (
 
 /**
  * Get the status of a DocuSeal submission
+ * Uses Supabase Edge Function to avoid CORS issues
  */
 export const getDocuSealSubmissionStatus = async (
   submissionId: string
 ): Promise<DocuSealSubmission> => {
-  if (!DOCUSEAL_API_KEY) {
-    throw new Error('DocuSeal API key is not configured. Please set VITE_DOCUSEAL_API_KEY in your .env file.');
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Supabase configuration is missing. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 
   try {
-    const response = await fetch(`${DOCUSEAL_API_URL}/submissions/${submissionId}`, {
-      method: 'GET',
+    console.log('[DocuSeal] Getting submission status via Edge Function:', submissionId);
+
+    // Call Supabase Edge Function instead of direct API
+    const response = await fetch(EDGE_FUNCTION_URL, {
+      method: 'POST',
       headers: {
-        'X-Auth-Token': DOCUSEAL_API_KEY,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
+      body: JSON.stringify({
+        action: 'get_submission',
+        data: {
+          submission_id: submissionId,
+        },
+      }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+      console.error('[DocuSeal] Get submission failed:', error);
+      throw new Error(error.error || error.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
