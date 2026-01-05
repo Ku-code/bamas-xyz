@@ -525,6 +525,10 @@
   "dashboard.additivemap.map.lightMode": "Light Mode",
   "dashboard.additivemap.map.toggleDark": "Switch to Dark Mode",
   "dashboard.additivemap.map.toggleLight": "Switch to Light Mode",
+  "dashboard.additivemap.map.fullscreen": "Fullscreen",
+  "dashboard.additivemap.map.exitFullscreen": "Exit Fullscreen",
+  "dashboard.additivemap.panel.open": "Open Panel",
+  "dashboard.additivemap.panel.close": "Close Panel",
   
   "dashboard.budget.title": "Budget & Financials",
   "dashboard.budget.overview": "Budget Overview",

@@ -3,7 +3,9 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Company } from '@/lib/companies';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Moon, Sun, Maximize2, Minimize2, X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MapProps {
@@ -11,6 +13,8 @@ interface MapProps {
   onCompanyClick?: (company: Company) => void;
   selectedCompanyId?: string | null;
   className?: string;
+  isFullscreen?: boolean;
+  isPanelOpen?: boolean;
 }
 
 // Maptiler API key - must be set via environment variable VITE_MAPTILER_API_KEY
@@ -29,7 +33,7 @@ const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecificati
       // Try dataviz-v4-dark, fallback to base dataviz-v4 if dark variant doesn't exist
       return `https://api.maptiler.com/maps/dataviz-v4-dark/style.json?key=${MAPTILER_API_KEY}`;
     } else {
-      // Use base dataviz-v4 for light mode (or dataviz-v4-light if it exists)
+      // Use base dataviz-v4 for light mode (this is the light style)
       return `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
     }
   } else {
@@ -60,13 +64,14 @@ const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecificati
   }
 };
 
-export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = '' }: MapProps) => {
+export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = '', isFullscreen = false, isPanelOpen = true }: MapProps) => {
   const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<globalThis.Map<string, maplibregl.Marker>>(new globalThis.Map());
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // Default to light mode (false = light, true = dark)
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Initialize map (only once on mount)
   useEffect(() => {
@@ -99,9 +104,9 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: typeof initialStyle === 'string' ? initialStyle : initialStyle,
-        center: [23.3219, 42.6977], // Sofia, Bulgaria
+        center: [23.3219, 42.6977], // Sofia, Bulgaria (default focus)
         zoom: 7,
-        minZoom: 6,
+        minZoom: 1, // Allow viewing entire world
         maxZoom: 18,
       });
 
@@ -283,35 +288,36 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
     }
   }, [companies, isLoaded, selectedCompanyId, onCompanyClick]);
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
+  // Resize map when fullscreen or panel state changes
+  useEffect(() => {
+    if (map.current && isLoaded) {
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(() => {
+        map.current?.resize();
+      }, 100);
+    }
+  }, [isFullscreen, isPanelOpen, isLoaded]);
+
+  const toggleDarkMode = (checked: boolean) => {
+    setIsDarkMode(checked);
   };
 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ minHeight: '500px' }}>
       <div ref={mapContainer} className="w-full h-full rounded-lg" style={{ minHeight: '500px' }} />
       
-      {/* Dark/Light Mode Toggle Button */}
-      <div className="absolute top-4 right-4 z-10">
-        <Button
-          onClick={toggleDarkMode}
-          variant="outline"
-          size="sm"
-          className="rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
-          title={isDarkMode ? (t("dashboard.additivemap.map.toggleLight") || "Switch to Light Mode") : (t("dashboard.additivemap.map.toggleDark") || "Switch to Dark Mode")}
-        >
-          {isDarkMode ? (
-            <>
-              <Sun className="h-4 w-4 mr-2" />
-              {t("dashboard.additivemap.map.lightMode") || "Light"}
-            </>
-          ) : (
-            <>
-              <Moon className="h-4 w-4 mr-2" />
-              {t("dashboard.additivemap.map.darkMode") || "Dark"}
-            </>
-          )}
-        </Button>
+      {/* Dark/Light Mode Toggle Button - Like Footer */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+        <Sun className="h-4 w-4" />
+        <Switch
+          id="map-dark-mode"
+          checked={isDarkMode}
+          onCheckedChange={toggleDarkMode}
+        />
+        <Moon className="h-4 w-4" />
+        <Label htmlFor="map-dark-mode" className="sr-only">
+          {isDarkMode ? (t("dashboard.additivemap.map.toggleLight") || "Switch to Light Mode") : (t("dashboard.additivemap.map.toggleDark") || "Switch to Dark Mode")}
+        </Label>
       </div>
 
       <style>{`

@@ -460,7 +460,7 @@
   "dashboard.resources.sort.size": "Размер",
   "dashboard.resources.sort.category": "Категория",
   
-  "dashboard.additivemap.title": "Карта на аддитивното производство",
+  "dashboard.additivemap.title": "Карта на адитивното производство",
   "dashboard.additivemap.register.button": "Регистрирай компания",
   "dashboard.additivemap.error.title": "Грешка при зареждане на компании",
   "dashboard.additivemap.error.loadFailed": "Неуспешно зареждане на компании. Моля, опитайте отново.",
@@ -526,6 +526,10 @@
   "dashboard.additivemap.map.lightMode": "Светъл режим",
   "dashboard.additivemap.map.toggleDark": "Превключи към тъмен режим",
   "dashboard.additivemap.map.toggleLight": "Превключи към светъл режим",
+  "dashboard.additivemap.map.fullscreen": "Цял екран",
+  "dashboard.additivemap.map.exitFullscreen": "Излез от цял екран",
+  "dashboard.additivemap.panel.open": "Отвори панел",
+  "dashboard.additivemap.panel.close": "Затвори панел",
   
   "dashboard.budget.title": "Бюджет и финанси",
   "dashboard.budget.overview": "Преглед на бюджета",

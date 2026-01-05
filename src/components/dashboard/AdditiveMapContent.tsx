@@ -46,7 +46,7 @@ import {
   type Company,
 } from "@/lib/companies";
 import { Map } from "@/components/ui/map";
-import { MapPin, Plus, Edit, Trash2, Globe, Mail, Phone, Building2, X, Loader2 } from "lucide-react";
+import { MapPin, Plus, Edit, Trash2, Globe, Mail, Phone, Building2, X, Loader2, Maximize2, Minimize2, ChevronRight, ChevronLeft } from "lucide-react";
 
 const TECHNOLOGY_OPTIONS = [
   "FDM (Fused Deposition Modeling)",
@@ -76,6 +76,8 @@ const AdditiveMapContent = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   const [companyForm, setCompanyForm] = useState({
     name: "",
@@ -400,10 +402,13 @@ const AdditiveMapContent = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4" style={{ minHeight: '600px' }}>
+      <div 
+        className={`grid gap-4 transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 bg-background p-4' : ''} ${isPanelOpen ? 'grid-cols-1 lg:grid-cols-[1fr_400px]' : 'grid-cols-1'}`}
+        style={{ minHeight: isFullscreen ? '100vh' : '600px' }}
+      >
         {/* Map */}
-        <Card className="overflow-hidden">
-          <CardContent className="p-0" style={{ height: '100%', minHeight: '500px' }}>
+        <Card className="overflow-hidden relative">
+          <CardContent className="p-0" style={{ height: isFullscreen ? 'calc(100vh - 2rem)' : '100%', minHeight: '500px' }}>
             {isLoading && companies.length === 0 ? (
               <div className="flex items-center justify-center" style={{ height: '100%', minHeight: '500px' }}>
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -415,25 +420,71 @@ const AdditiveMapContent = () => {
                   onCompanyClick={handleCompanyClick}
                   selectedCompanyId={selectedCompany?.id || null}
                   className="h-full"
+                  isFullscreen={isFullscreen}
+                  isPanelOpen={isPanelOpen}
                 />
               </div>
             )}
+            
+            {/* Fullscreen and Panel Toggle Buttons */}
+            <div className="absolute top-4 left-4 z-10 flex gap-2">
+              <Button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                variant="outline"
+                size="sm"
+                className="rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                title={isFullscreen ? (t("dashboard.additivemap.map.exitFullscreen") || "Exit Fullscreen") : (t("dashboard.additivemap.map.fullscreen") || "Fullscreen")}
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                onClick={() => setIsPanelOpen(!isPanelOpen)}
+                variant="outline"
+                size="sm"
+                className="rounded-full bg-background/80 backdrop-blur-sm hover:bg-background shadow-lg"
+                title={isPanelOpen ? (t("dashboard.additivemap.panel.close") || "Close Panel") : (t("dashboard.additivemap.panel.open") || "Open Panel")}
+              >
+                {isPanelOpen ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
         {/* Info Panel */}
-        <Card>
+        {isPanelOpen && (
+          <Card className={`transition-all duration-300 ${isFullscreen ? '' : ''}`}>
           <CardHeader>
-            <CardTitle>{t("dashboard.additivemap.panel.title") || "Company Information"}</CardTitle>
-            <CardDescription>
-              {selectedCompany
-                ? t("dashboard.additivemap.panel.description") || "Click on a company marker to view details"
-                : t("dashboard.additivemap.panel.noSelection") || "No company selected"}
-            </CardDescription>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle>{t("dashboard.additivemap.panel.title") || "Company Information"}</CardTitle>
+                <CardDescription>
+                  {selectedCompany
+                    ? t("dashboard.additivemap.panel.description") || "Click on a company marker to view details"
+                    : t("dashboard.additivemap.panel.noSelection") || "No company selected"}
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPanelOpen(false)}
+                className="h-8 w-8 p-0 rounded-full"
+                title={t("dashboard.additivemap.panel.close") || "Close Panel"}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {selectedCompany ? (
-              <ScrollArea className="h-[calc(100vh-300px)]">
+              <ScrollArea className={isFullscreen ? "h-[calc(100vh-200px)]" : "h-[calc(100vh-300px)]"}>
                 <div className="space-y-4">
                   {/* Logo */}
                   {selectedCompany.logo_url && (
@@ -580,7 +631,7 @@ const AdditiveMapContent = () => {
                 </div>
               </ScrollArea>
             ) : (
-              <div className="flex items-center justify-center h-[calc(100vh-300px)] text-muted-foreground">
+              <div className={`flex items-center justify-center text-muted-foreground ${isFullscreen ? "h-[calc(100vh-200px)]" : "h-[calc(100vh-300px)]"}`}>
                 <div className="text-center">
                   <Building2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p>{t("dashboard.additivemap.panel.selectCompany") || "Select a company from the map to view details"}</p>
@@ -589,6 +640,7 @@ const AdditiveMapContent = () => {
             )}
           </CardContent>
         </Card>
+        )}
       </div>
 
       {/* Create Company Dialog */}
