@@ -42,6 +42,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { loadDocuments, createDocument, updateDocument, deleteDocument, uploadDocumentFile, getDocumentFileUrl, convertBase64ToFileAndUpload, Document as SupabaseDocument } from "@/lib/documents";
+import { createDocuSealTemplate, createDocuSealSubmission } from "@/lib/docuseal";
+import { supabase } from "@/lib/supabase";
 import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid } from "lucide-react";
 import { format } from "date-fns";
 
@@ -311,6 +313,82 @@ const DocumentsContent = () => {
       // Log history
       if (user) {
         await logHistory("document_created", user, createdDoc.id, createdDoc.title);
+      }
+
+      // If Critical document, set up DocuSeal workflow
+      if (newDocument.classification === 'CRITICAL' && newDocument.requiredSigners.length > 0) {
+        try {
+          // Get all users who need to sign
+          const signers: Array<{ email: string; name: string; role: string }> = [];
+          
+          for (const signerId of newDocument.requiredSigners) {
+            if (signerId === 'all_board_members') {
+              const { data: boardMembers } = await supabase
+                .from('users')
+                .select('email, name')
+                .eq('role', 'board_member')
+                .eq('approved', true);
+              
+              boardMembers?.forEach(member => {
+                if (member.email && !signers.find(s => s.email === member.email)) {
+                  signers.push({
+                    email: member.email,
+                    name: member.name || member.email,
+                    role: 'signer'
+                  });
+                }
+              });
+            } else if (signerId === 'all_wg_leads') {
+              const { data: wgLeads } = await supabase
+                .from('users')
+                .select('email, name')
+                .eq('role', 'wg_lead')
+                .eq('approved', true);
+              
+              wgLeads?.forEach(lead => {
+                if (lead.email && !signers.find(s => s.email === lead.email)) {
+                  signers.push({
+                    email: lead.email,
+                    name: lead.name || lead.email,
+                    role: 'signer'
+                  });
+                }
+              });
+            } else {
+              // Individual user ID
+              const { data: userData } = await supabase
+                .from('users')
+                .select('email, name')
+                .eq('id', signerId)
+                .single();
+              
+              if (userData?.email && !signers.find(s => s.email === userData.email)) {
+                signers.push({
+                  email: userData.email,
+                  name: userData.name || userData.email,
+                  role: 'signer'
+                });
+              }
+            }
+          }
+
+          if (signers.length > 0) {
+            // For now, we'll create a placeholder submission
+            // In production, you would upload the document file and create a template
+            toast({
+              title: t("dashboard.documents.docuseal.pending") || "Signature Setup Pending",
+              description: `Document created. ${signers.length} signer(s) will be notified once the template is configured.`,
+            });
+          }
+        } catch (docusealError: any) {
+          console.error("Error setting up DocuSeal:", docusealError);
+          // Don't fail the whole operation if DocuSeal setup fails
+          toast({
+            title: t("dashboard.documents.docuseal.warning") || "Signature Setup Warning",
+            description: "Document created but signature workflow needs manual setup.",
+            variant: "default",
+          });
+        }
       }
 
       toast({

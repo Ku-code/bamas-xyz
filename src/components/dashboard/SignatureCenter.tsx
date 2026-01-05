@@ -16,6 +16,7 @@ import {
   type DocumentSignature,
 } from "@/lib/documents";
 import { getSignerUrl } from "@/lib/docuseal";
+import { DocusealForm } from '@docuseal/react';
 import { FileText, AlertCircle, CheckCircle2, Loader2, ExternalLink, X } from "lucide-react";
 import { format } from "date-fns";
 
@@ -26,6 +27,8 @@ const SignatureCenter = () => {
   const [pendingDocuments, setPendingDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [signingDocumentId, setSigningDocumentId] = useState<string | null>(null);
+  const [showSigningDialog, setShowSigningDialog] = useState(false);
+  const [currentSigningDoc, setCurrentSigningDoc] = useState<Document | null>(null);
 
   useEffect(() => {
     loadPendingDocuments();
@@ -98,28 +101,23 @@ const SignatureCenter = () => {
 
       if (!signature) {
         // Create signature record
-        const { data, error } = await db.insert('document_signatures', {
+        signature = await createDocumentSignature({
           document_id: document.id,
           user_id: user.id,
           status: 'pending',
         });
-        if (error) throw error;
-        signature = data as any;
       }
 
       // Get DocuSeal submission URL
       if (document.docuseal_submission_id) {
-        // Open DocuSeal signing interface
-        // Note: This would typically use @docuseal/react component
-        // For now, we'll redirect to the DocuSeal URL
-        const docuSealUrl = `https://app.docuseal.co/submissions/${document.docuseal_submission_id}`;
-        window.open(docuSealUrl, '_blank');
-        
+        // Open embedded signing dialog
+        setCurrentSigningDoc(document);
+        setShowSigningDialog(true);
         setSigningDocumentId(document.id);
       } else {
         toast({
           title: t("dashboard.signatures.error.noSubmission") || "No Submission Found",
-          description: t("dashboard.signatures.error.noSubmissionDesc") || "This document does not have a DocuSeal submission configured.",
+          description: t("dashboard.signatures.error.noSubmissionDesc") || "This document does not have a DocuSeal submission configured. Please contact an administrator.",
           variant: "destructive",
         });
       }
@@ -133,6 +131,43 @@ const SignatureCenter = () => {
       toast({
         title: errorInfo.title,
         description: errorInfo.description,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSignatureComplete = async (data: any) => {
+    console.log("Signature completed:", data);
+    
+    if (!currentSigningDoc || !user) return;
+
+    try {
+      // Update signature record
+      const signatures = await loadDocumentSignatures(currentSigningDoc.id);
+      const userSignature = signatures.find((s) => s.user_id === user.id);
+      
+      if (userSignature) {
+        await updateDocumentSignature(userSignature.id, {
+          status: 'completed',
+          signed_at: new Date().toISOString(),
+        });
+      }
+
+      toast({
+        title: t("dashboard.signatures.success.title") || "Signature Completed",
+        description: t("dashboard.signatures.success.description") || "Your signature has been recorded successfully!",
+      });
+
+      // Close dialog and reload
+      setShowSigningDialog(false);
+      setCurrentSigningDoc(null);
+      setSigningDocumentId(null);
+      await loadPendingDocuments();
+    } catch (error: any) {
+      console.error("Error updating signature:", error);
+      toast({
+        title: t("dashboard.signatures.error.updateFailed") || "Update Failed",
+        description: "Signature completed but failed to update record. Please refresh the page.",
         variant: "destructive",
       });
     }
@@ -257,6 +292,36 @@ const SignatureCenter = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* DocuSeal Signing Dialog */}
+      <Dialog open={showSigningDialog} onOpenChange={setShowSigningDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>
+              {t("dashboard.signatures.dialog.title") || "Sign Document"}: {currentSigningDoc?.title}
+            </DialogTitle>
+            <DialogDescription>
+              {t("dashboard.signatures.dialog.description") || "Please review and sign the document below"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[70vh]">
+            {currentSigningDoc?.docuseal_submission_id && user?.email ? (
+              <DocusealForm
+                src={`https://docuseal.com/s/${currentSigningDoc.docuseal_submission_id}`}
+                email={user.email}
+                onComplete={handleSignatureComplete}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-64 text-muted-foreground">
+                <div className="text-center">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-4" />
+                  <p>{t("dashboard.signatures.error.noSubmission") || "Signature form not available"}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
