@@ -255,13 +255,20 @@ export const getSignerUrl = async (
       throw new Error(`No submitter found for email: ${signerEmail}`);
     }
     
-    // Return the embed_src URL for the DocusealForm component
-    // Format: https://docuseal.com/s/{slug}
-    const embedUrl = submitter.embed_src || submitter.url;
+    // Return the embed URL for the DocusealForm component
+    // Format: https://docuseal.com/d/{slug} (official format from DocuSeal React docs)
+    // The API returns 'embed_src' with the correct format, or we can construct from slug
+    let embedUrl = submitter.embed_src;
     
-    if (!embedUrl) {
-      console.error('[DocuSeal] No embed URL found for submitter:', submitter);
-      throw new Error('No signing URL available for this submitter');
+    // If embed_src is not available or uses wrong format, construct from slug
+    if (!embedUrl || !embedUrl.includes('/d/')) {
+      if (submitter.slug) {
+        embedUrl = `https://docuseal.com/d/${submitter.slug}`;
+        console.log('[DocuSeal] Constructed embed URL from slug:', embedUrl);
+      } else {
+        console.error('[DocuSeal] No embed URL or slug found for submitter:', submitter);
+        throw new Error('No signing URL available for this submitter');
+      }
     }
     
     console.log('[DocuSeal] Embed URL found:', embedUrl);
@@ -275,9 +282,10 @@ export const getSignerUrl = async (
 interface DocuSealSubmitter {
   email: string;
   slug: string;
-  embed_src: string;
-  url: string;
+  embed_src?: string; // https://docuseal.com/d/{slug} format
+  url?: string; // Alternative URL format
   status: string;
+  role?: string;
 }
 
 interface DocuSealSubmissionWithSubmitters extends DocuSealSubmission {
