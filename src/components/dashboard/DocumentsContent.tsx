@@ -433,6 +433,8 @@ const DocumentsContent = () => {
       googleDriveLink: doc.googleDriveLink || "",
       content: doc.content || "",
       category: doc.category,
+      classification: doc.classification || "GENERAL",
+      requiredSigners: doc.requiredSigners || [],
       tableRows: doc.tableData?.rows || 3,
       tableCols: doc.tableData?.cols || 3,
       tableHeaders: doc.tableData?.headers || [""],
