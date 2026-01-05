@@ -114,9 +114,6 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
       let isInitialLoad = true;
       
       map.current.on('load', () => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:113',message:'Map load event',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         isInitialLoad = false; // Mark initial load as complete
         setIsLoaded(true);
         // Trigger resize to ensure map renders correctly
@@ -126,9 +123,6 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
       });
       
       map.current.on('style.load', () => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:125',message:'Map style.load event',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         // Style loaded successfully
         setIsLoaded(true);
         // Trigger resize after style loads
@@ -141,9 +135,6 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         console.error('Map error:', e);
         // Only use fallback during initial load, not for subsequent style changes
         if (isInitialLoad && e.error && e.error.message && e.error.message.includes('style')) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:137',message:'Initial style load error, using fallback',data:{errorMessage:e?.error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           try {
             map.current?.setStyle(fallbackStyle);
           } catch (fallbackError) {
@@ -168,44 +159,24 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   useEffect(() => {
     if (!map.current || !isLoaded) return;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:147',message:'Style change effect triggered',data:{isDarkMode,isLoaded:!!map.current,hasApiKey:!!MAPTILER_API_KEY},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:151',message:'Got new style URL',data:{isDarkMode,styleUrl:typeof newStyle === 'string' ? newStyle : 'object',styleType:typeof newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       
       if (typeof newStyle === 'string') {
         // Set the new style
         map.current.setStyle(newStyle);
         
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:153',message:'setStyle called',data:{isDarkMode,styleUrl:newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        
         // Re-add markers after style change
         map.current.once('styledata', () => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:157',message:'Style loaded successfully',data:{isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-          // #endregion
           // Markers will be re-added by the markers effect
         });
         
         // Handle style loading errors (only log, don't interfere)
         map.current.once('error', (e: any) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:163',message:'Style load error',data:{errorMessage:e?.error?.message,isDarkMode,styleUrl:newStyle},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           console.error('Map style load error:', e);
         });
       }
     } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:173',message:'Style change catch error',data:{error:error instanceof Error?error.message:String(error),isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       console.error('Error changing map style:', error);
       // Don't throw - just log the error
     }
@@ -334,9 +305,6 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   }, [isFullscreen, isPanelOpen, isLoaded]);
 
   const toggleDarkMode = (checked: boolean) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'map.tsx:301',message:'toggleDarkMode called',data:{checked,currentIsDarkMode:isDarkMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     setIsDarkMode(checked);
   };
 
