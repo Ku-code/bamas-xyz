@@ -159,59 +159,62 @@ CREATE POLICY "Admins can update any signature record"
 -- ============================================
 -- DOCUMENTS TABLE RLS POLICY UPDATES
 -- ============================================
--- These policies add classification-aware restrictions
--- Existing policies remain in effect for non-Critical documents
+-- Replace existing document policies with classification-aware versions
 
--- Policy: Only superadmin can create Critical documents
+-- Drop ALL existing INSERT/UPDATE policies that will be replaced
+DROP POLICY IF EXISTS "Authenticated users can create documents" ON documents;
 DROP POLICY IF EXISTS "Only superadmin can create Critical documents" ON documents;
-CREATE POLICY "Only superadmin can create Critical documents"
+DROP POLICY IF EXISTS "Users can update own documents" ON documents;
+DROP POLICY IF EXISTS "Only superadmin can update Critical documents" ON documents;
+
+-- Policy: Comprehensive INSERT policy with classification rules
+CREATE POLICY "Users can create documents with classification rules"
   ON documents FOR INSERT
+  TO authenticated
   WITH CHECK (
-    -- Allow if NOT Critical
-    (classification IS NULL OR classification != 'CRITICAL')
-    OR
-    -- OR if Critical, user must be superadmin AND must be the creator
+    -- User must be the creator
+    auth.uid() = created_by
+    AND
     (
-      classification = 'CRITICAL'
-      AND auth.uid()::text = created_by::text
-      AND EXISTS (
-        SELECT 1 FROM users
-        WHERE users.id = auth.uid()
-        AND users.role = 'superadmin'
+      -- Allow non-Critical documents for all authenticated users
+      (classification IS NULL OR classification IN ('GENERAL', 'PROCEDURAL'))
+      OR
+      -- Allow Critical documents only for superadmins
+      (
+        classification = 'CRITICAL'
+        AND EXISTS (
+          SELECT 1 FROM users
+          WHERE users.id = auth.uid()
+          AND users.role = 'superadmin'
+        )
       )
     )
   );
 
--- Policy: Only superadmin can update Critical documents
-DROP POLICY IF EXISTS "Only superadmin can update Critical documents" ON documents;
-CREATE POLICY "Only superadmin can update Critical documents"
+-- Policy: Comprehensive UPDATE policy for document owners
+CREATE POLICY "Users can update own documents with classification rules"
   ON documents FOR UPDATE
-  USING (
-    -- Allow if NOT Critical
-    (classification IS NULL OR classification != 'CRITICAL')
-    OR
-    -- OR if Critical, user must be superadmin
-    (
-      classification = 'CRITICAL'
-      AND EXISTS (
-        SELECT 1 FROM users
-        WHERE users.id = auth.uid()
-        AND users.role = 'superadmin'
-      )
-    )
-  )
+  TO authenticated
+  USING (auth.uid() = created_by)
   WITH CHECK (
-    -- Allow if NOT Critical
-    (classification IS NULL OR classification != 'CRITICAL')
-    OR
-    -- OR if Critical, user must be superadmin
+    auth.uid() = created_by
+    AND
     (
-      classification = 'CRITICAL'
-      AND EXISTS (
-        SELECT 1 FROM users
-        WHERE users.id = auth.uid()
-        AND users.role = 'superadmin'
+      -- Allow updating non-Critical documents
+      (classification IS NULL OR classification IN ('GENERAL', 'PROCEDURAL'))
+      OR
+      -- Allow updating Critical documents only if user is superadmin
+      (
+        classification = 'CRITICAL'
+        AND EXISTS (
+          SELECT 1 FROM users
+          WHERE users.id = auth.uid()
+          AND users.role = 'superadmin'
+        )
       )
     )
   );
+
+-- Note: "Admins can update any document" and "Admins can delete any document" 
+-- policies from initial migration remain in effect
 
