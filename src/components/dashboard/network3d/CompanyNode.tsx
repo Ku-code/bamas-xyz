@@ -1,6 +1,6 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, useTexture } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import type { GraphNode } from '../networkTypes';
 
@@ -23,27 +23,36 @@ export const CompanyNode = ({
 }: CompanyNodeProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
   
-  // Load logo texture if available - with error handling
-  let texture: THREE.Texture | null = null;
-  try {
+  // Load logo texture manually if available
+  useEffect(() => {
     if (node.image) {
-      const loadedTexture = useTexture(node.image);
-      if (loadedTexture) {
-        if (Array.isArray(loadedTexture)) {
-          texture = loadedTexture[0];
-        } else {
-          texture = loadedTexture;
+      const loader = new THREE.TextureLoader();
+      loader.load(
+        node.image,
+        (loadedTexture) => {
+          loadedTexture.flipY = false;
+          setTexture(loadedTexture);
+        },
+        undefined,
+        (error) => {
+          // Texture loading failed, will use fallback colored box
+          console.warn('Failed to load texture for company:', node.id, error);
+          setTexture(null);
         }
-        if (texture) {
-          texture.flipY = false;
-        }
-      }
+      );
+    } else {
+      setTexture(null);
     }
-  } catch (error) {
-    // Texture loading failed, will use fallback colored box
-    texture = null;
-  }
+    
+    // Cleanup
+    return () => {
+      if (texture) {
+        texture.dispose();
+      }
+    };
+  }, [node.image, node.id]);
 
   // Animate scale on hover
   useFrame(() => {
@@ -88,6 +97,18 @@ export const CompanyNode = ({
       });
     }
   }, [texture, node.color, isHovered, isHighlighted]);
+  
+  // Cleanup material on unmount
+  useEffect(() => {
+    return () => {
+      if (material) {
+        material.dispose();
+        if (material.map) {
+          material.map.dispose();
+        }
+      }
+    };
+  }, [material]);
 
   return (
     <group position={position}>

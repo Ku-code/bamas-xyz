@@ -61,11 +61,16 @@ export const calculateSpherePosition = (
   total: number,
   radius: number
 ): { x: number; y: number; z: number } => {
+  // Handle edge case: single node
+  if (total === 1) {
+    return { x: radius, y: 0, z: 0 };
+  }
+  
   // Use golden angle spiral for even distribution
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   const theta = goldenAngle * index;
   const y = 1 - (index / (total - 1)) * 2; // y goes from 1 to -1
-  const radiusAtY = Math.sqrt(1 - y * y);
+  const radiusAtY = Math.sqrt(Math.max(0, 1 - y * y)); // Ensure non-negative
   const x = Math.cos(theta) * radiusAtY;
   const z = Math.sin(theta) * radiusAtY;
   

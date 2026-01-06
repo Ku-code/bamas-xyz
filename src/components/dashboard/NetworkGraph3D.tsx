@@ -1,6 +1,6 @@
 import { useMemo, useRef, useEffect, useState, useCallback } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Environment, Stars } from '@react-three/drei';
+import { Canvas, Suspense } from '@react-three/fiber';
+import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import type { User } from '@/contexts/AuthContext';
 import type { Company } from '@/lib/companies';
@@ -322,16 +322,18 @@ export const NetworkGraph3D = ({ members, companies, width = 800, height = 700 }
           targetNode={cameraTarget}
         />
         
-        <NetworkScene
-          members={members}
-          companies={companies}
-          onNodeHover={handleNodeHover}
-          onNodeClick={handleNodeClick}
-          hoveredNodeId={hoveredNode?.id || null}
-          highlightedNodeIds={highlightedNodes}
-          cameraTarget={cameraTarget}
-          deviceCapability={deviceCapability}
-        />
+        <Suspense fallback={null}>
+          <NetworkScene
+            members={members}
+            companies={companies}
+            onNodeHover={handleNodeHover}
+            onNodeClick={handleNodeClick}
+            hoveredNodeId={hoveredNode?.id || null}
+            highlightedNodeIds={highlightedNodes}
+            cameraTarget={cameraTarget}
+            deviceCapability={deviceCapability}
+          />
+        </Suspense>
       </Canvas>
 
       {/* Info panel */}

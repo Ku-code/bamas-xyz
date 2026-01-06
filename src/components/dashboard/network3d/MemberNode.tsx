@@ -1,6 +1,6 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, useTexture } from '@react-three/drei';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import type { GraphNode } from '../networkTypes';
 
@@ -23,27 +23,36 @@ export const MemberNode = ({
 }: MemberNodeProps) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
   
-  // Load avatar texture if available - with error handling
-  let texture: THREE.Texture | null = null;
-  try {
+  // Load avatar texture manually if available
+  useEffect(() => {
     if (node.image) {
-      const loadedTexture = useTexture(node.image);
-      if (loadedTexture) {
-        if (Array.isArray(loadedTexture)) {
-          texture = loadedTexture[0];
-        } else {
-          texture = loadedTexture;
+      const loader = new THREE.TextureLoader();
+      loader.load(
+        node.image,
+        (loadedTexture) => {
+          loadedTexture.flipY = false;
+          setTexture(loadedTexture);
+        },
+        undefined,
+        (error) => {
+          // Texture loading failed, will use fallback colored sphere
+          console.warn('Failed to load texture for node:', node.id, error);
+          setTexture(null);
         }
-        if (texture) {
-          texture.flipY = false;
-        }
-      }
+      );
+    } else {
+      setTexture(null);
     }
-  } catch (error) {
-    // Texture loading failed, will use fallback colored sphere
-    texture = null;
-  }
+    
+    // Cleanup
+    return () => {
+      if (texture) {
+        texture.dispose();
+      }
+    };
+  }, [node.image, node.id]);
 
   // Animate scale on hover
   useFrame(() => {
@@ -70,11 +79,12 @@ export const MemberNode = ({
   // Material based on whether we have a texture
   const material = useMemo(() => {
     if (texture) {
-      return new THREE.MeshStandardMaterial({
+      const mat = new THREE.MeshStandardMaterial({
         map: texture,
         emissive: node.color || '#3b82f6',
         emissiveIntensity: isHovered || isHighlighted ? 0.3 : 0.1,
       });
+      return mat;
     } else {
       return new THREE.MeshStandardMaterial({
         color: node.color || '#3b82f6',
@@ -85,6 +95,18 @@ export const MemberNode = ({
       });
     }
   }, [texture, node.color, isHovered, isHighlighted]);
+  
+  // Cleanup material on unmount
+  useEffect(() => {
+    return () => {
+      if (material) {
+        material.dispose();
+        if (material.map) {
+          material.map.dispose();
+        }
+      }
+    };
+  }, [material]);
 
   const radius = (node.size || 60) / 200; // Scale down for 3D
 
