@@ -78,8 +78,6 @@ export const createDocument = async (
     category: string;
     classification?: DocumentClassification;
     signature_status?: SignatureStatus;
-    docuseal_template_id?: string;
-    docuseal_submission_id?: string;
     signed_pdf_url?: string;
     required_signers?: string[];
     signatures?: any[];
@@ -105,8 +103,6 @@ export const createDocument = async (
         category: docData.category,
         classification: docData.classification || 'GENERAL',
         signature_status: docData.signature_status || 'NONE',
-        docuseal_template_id: docData.docuseal_template_id || null,
-        docuseal_submission_id: docData.docuseal_submission_id || null,
         signed_pdf_url: docData.signed_pdf_url || null,
         required_signers: docData.required_signers || [],
         signatures: docData.signatures || [],
@@ -143,8 +139,6 @@ export const updateDocument = async (
     category?: string;
     classification?: DocumentClassification;
     signature_status?: SignatureStatus;
-    docuseal_template_id?: string;
-    docuseal_submission_id?: string;
     signed_pdf_url?: string;
     required_signers?: string[];
     signatures?: any[];

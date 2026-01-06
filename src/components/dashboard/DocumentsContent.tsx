@@ -45,7 +45,7 @@ import { loadDocuments, createDocument, updateDocument, deleteDocument, uploadDo
 import { downloadSignedPDF } from "@/lib/pdf-signatures";
 import { createDocumentSignature } from "@/lib/documents";
 import { supabase } from "@/lib/supabase";
-import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle, Eye } from "lucide-react";
+import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle, Eye, Maximize2, Minimize2 } from "lucide-react";
 import { SignatureProgressBadge } from "@/components/documents/SignatureProgressBadge";
 import { PDFViewer } from "@/components/signature/PDFViewer";
 import { format } from "date-fns";
@@ -123,6 +123,7 @@ const DocumentsContent = () => {
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isPreviewFullscreen, setIsPreviewFullscreen] = useState(false);
 
   // Load documents from Supabase
   useEffect(() => {
@@ -1697,19 +1698,34 @@ const DocumentsContent = () => {
         if (!open) {
           setPreviewDocument(null);
           setPreviewUrl(null);
+          setIsPreviewFullscreen(false);
         }
       }}>
-        <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>
-              {t("dashboard.documents.preview.title") || "Document Preview"}
-              {previewDocument?.title && `: ${previewDocument.title}`}
-            </DialogTitle>
-            <DialogDescription>
-              {t("dashboard.documents.preview.description") || "Preview the document below"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex-1 overflow-hidden">
+        <DialogContent className={`${isPreviewFullscreen ? 'max-w-[100vw] max-h-[100vh] m-0 rounded-none' : 'max-w-[95vw] max-h-[95vh]'} flex flex-col p-0`}>
+          <div className="p-4 border-b flex items-center justify-between">
+            <DialogHeader className="flex-1">
+              <DialogTitle>
+                {t("dashboard.documents.preview.title") || "Document Preview"}
+                {previewDocument?.title && `: ${previewDocument.title}`}
+              </DialogTitle>
+              <DialogDescription>
+                {t("dashboard.documents.preview.description") || "Preview the document below"}
+              </DialogDescription>
+            </DialogHeader>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsPreviewFullscreen(!isPreviewFullscreen)}
+              className="ml-4"
+            >
+              {isPreviewFullscreen ? (
+                <Minus className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+          <div className="flex-1 overflow-auto p-4">
             {previewUrl && previewDocument && (
               previewDocument.type === 'googleDrive' ? (
                 <div className="h-full w-full">
@@ -1721,7 +1737,7 @@ const DocumentsContent = () => {
                   />
                 </div>
               ) : previewDocument.mimeType === 'application/pdf' || previewUrl.endsWith('.pdf') || previewUrl.includes('pdf') ? (
-                <PDFViewer fileUrl={previewUrl} documentTitle={previewDocument.title} />
+                <PDFViewer fileUrl={previewUrl} documentTitle={previewDocument.title} enableFullscreen={true} />
               ) : (
                 <div className="flex items-center justify-center h-96">
                   <p className="text-muted-foreground">
@@ -1731,7 +1747,7 @@ const DocumentsContent = () => {
               )
             )}
           </div>
-          <DialogFooter>
+          <div className="p-4 border-t flex justify-between items-center">
             <Button
               variant="outline"
               onClick={() => {
@@ -1753,7 +1769,7 @@ const DocumentsContent = () => {
                   : (t("dashboard.documents.download") || "Download")}
               </Button>
             )}
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

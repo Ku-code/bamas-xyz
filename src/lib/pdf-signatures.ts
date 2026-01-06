@@ -75,8 +75,51 @@ async function addSignaturePageToPDF(
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-  // Embed signature image
-  const signatureImage = await pdfDoc.embedPng(signatureData.signatureImageDataUrl);
+  // Embed signature image - convert data URL to Uint8Array for reliability
+  let signatureImage;
+  try {
+    // Ensure we have a valid data URL
+    if (!signatureData.signatureImageDataUrl) {
+      throw new Error('Signature image data URL is missing');
+    }
+
+    // Extract base64 data from data URL (format: data:image/png;base64,<data>)
+    let base64Data = signatureData.signatureImageDataUrl;
+    if (base64Data.includes(',')) {
+      base64Data = base64Data.split(',')[1];
+    } else if (base64Data.startsWith('data:')) {
+      // If it has data: prefix but no comma, it's malformed
+      throw new Error('Invalid data URL format');
+    }
+    
+    // Convert base64 to Uint8Array
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Embed PNG from bytes
+    signatureImage = await pdfDoc.embedPng(bytes);
+    console.log(`[PDF Signatures] Successfully embedded signature image (${bytes.length} bytes)`);
+  } catch (error: any) {
+    console.error('[PDF Signatures] Error embedding signature image:', error);
+    console.error('[PDF Signatures] Signature data URL preview:', signatureData.signatureImageDataUrl?.substring(0, 100));
+    
+    // Fallback: try direct data URL (pdf-lib might handle it)
+    try {
+      signatureImage = await pdfDoc.embedPng(signatureData.signatureImageDataUrl);
+      console.log('[PDF Signatures] Fallback embedding succeeded');
+    } catch (fallbackError: any) {
+      console.error('[PDF Signatures] Fallback embedding also failed:', fallbackError);
+      throw new Error(`Failed to embed signature image: ${error.message || 'Unknown error'}`);
+    }
+  }
+  
+  if (!signatureImage) {
+    throw new Error('Signature image embedding failed - no image object created');
+  }
+  
   const imgDims = signatureImage.scale(0.3);
 
   // Draw title
@@ -240,7 +283,7 @@ export async function generateSignedPDF(
       throw new Error('Failed to fetch signer information');
     }
 
-    // 6. Add signature page for each signer
+    // 6. Add signature page for each signer (in order of signing)
     for (const signature of signatures) {
       const user = users.find((u) => u.id === signature.user_id);
       if (!user || !signature.signature_data_url) {
@@ -248,29 +291,36 @@ export async function generateSignedPDF(
         continue;
       }
 
-      await addSignaturePageToPDF(pdfDoc, {
-        signerName: user.name,
-        signerEmail: user.email,
-        signatureImageDataUrl: signature.signature_data_url,
-        documentTitle: document.title,
-        documentId: document.id,
-        signedAt: signature.signed_at || new Date().toISOString(),
-        userId: signature.user_id,
-      });
+      try {
+        await addSignaturePageToPDF(pdfDoc, {
+          signerName: user.name,
+          signerEmail: user.email,
+          signatureImageDataUrl: signature.signature_data_url,
+          documentTitle: document.title,
+          documentId: document.id,
+          signedAt: signature.signed_at || new Date().toISOString(),
+          userId: signature.user_id,
+        });
+        console.log(`[PDF Signatures] Added signature page for ${user.name}`);
+      } catch (sigError: any) {
+        console.error(`[PDF Signatures] Failed to add signature page for ${user.name}:`, sigError);
+        // Continue with other signatures even if one fails
+      }
     }
 
     // 7. Save final PDF
     const pdfBytes = await pdfDoc.save();
+    console.log(`[PDF Signatures] Generated PDF with ${pdfDoc.getPageCount()} pages (original + ${signatures.length} signature pages)`);
 
-    // 8. Upload to storage
-    const signedFileName = `${documentId}_final_${Date.now()}.pdf`;
+    // 8. Upload to storage (use upsert to allow regeneration)
+    const signedFileName = `${documentId}_final.pdf`;
     const signedFilePath = `signed/${signedFileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('documents')
       .upload(signedFilePath, pdfBytes, {
         contentType: 'application/pdf',
-        upsert: false,
+        upsert: true, // Allow overwriting if regenerating
       });
 
     if (uploadError) {
@@ -388,6 +438,16 @@ export async function saveSignature(
     console.error('Error saving signature:', error);
     return { success: false, error: error.message || 'Unknown error' };
   }
+}
+
+/**
+ * Manually regenerate signed PDF (for admins or troubleshooting)
+ */
+export async function regenerateSignedPDF(
+  documentId: string
+): Promise<{ success: boolean; signedFilePath?: string; error?: string }> {
+  console.log(`[PDF Signatures] Manual regeneration requested for document ${documentId}`);
+  return await generateSignedPDF(documentId);
 }
 
 /**

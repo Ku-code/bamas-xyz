@@ -169,6 +169,17 @@ const Dashboard = () => {
           <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <SidebarTrigger className="shrink-0" />
+              <div className="flex-1 flex items-center justify-center px-4">
+                <div className="relative group">
+                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-accent via-primary/80 to-primary bg-clip-text text-transparent animate-gradient-x tracking-tight select-none">
+                    <span className="relative z-10 inline-block">
+                      {language === 'bg' ? 'Твоят Български Адитивен Център' : 'Your Bulgarian Additive Hub'}
+                    </span>
+                  </h1>
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-accent/30 to-primary/40 blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-700 -z-10 rounded-full scale-110" />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-accent/10 to-primary/20 rounded-lg blur-md opacity-30 -z-20 animate-pulse" />
+                </div>
+              </div>
               <div className="flex items-center gap-2 ml-auto shrink-0">
                 <Button
                   variant="outline"
