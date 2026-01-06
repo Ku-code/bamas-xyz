@@ -48,10 +48,13 @@ import { logHistory } from "@/lib/history";
 import { db } from "@/lib/database";
 import { suspendMember, restoreMember, banMember, deleteMember } from "@/lib/members";
 import { formatErrorForToast } from "@/lib/error-messages";
-import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw, Network, List } from "lucide-react";
+import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw, Network, List, Box } from "lucide-react";
 import { format } from "date-fns";
 import { loadCompanies, type Company } from "@/lib/companies";
 import { NetworkGraph } from "./NetworkGraph";
+import { NetworkGraph3D } from "./NetworkGraph3D";
+import { detectDeviceCapability } from "./networkTypes";
+import { Network3DErrorBoundary } from "./network3d/ErrorBoundary";
 
 const NetworkContent = () => {
   const { t } = useLanguage();
@@ -66,7 +69,8 @@ const NetworkContent = () => {
   const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
   const [restoreMemberId, setRestoreMemberId] = useState<string | null>(null);
   const [actionReason, setActionReason] = useState("");
-  const [activeTab, setActiveTab] = useState<"graph" | "list">("graph");
+  const [activeTab, setActiveTab] = useState<"graph" | "3d" | "list">("graph");
+  const [deviceCapability] = useState(() => detectDeviceCapability());
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -598,13 +602,19 @@ const NetworkContent = () => {
         )}
       </div>
 
-      {/* Main View Tabs - Graph or List */}
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "graph" | "list")} className="space-y-4">
+      {/* Main View Tabs - Graph, 3D, or List */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "graph" | "3d" | "list")} className="space-y-4">
         <TabsList className="rounded-full">
           <TabsTrigger value="graph" className="rounded-full">
             <Network className="h-4 w-4 mr-2" />
-            {t("dashboard.network.view.graph") || "Network Graph"}
+            {t("dashboard.network.view.graph") || "2D Network"}
           </TabsTrigger>
+          {deviceCapability.canHandle3D && (
+            <TabsTrigger value="3d" className="rounded-full">
+              <Box className="h-4 w-4 mr-2" />
+              {t("dashboard.network.view.3d") || "3D Network"}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="list" className="rounded-full">
             <List className="h-4 w-4 mr-2" />
             {t("dashboard.network.view.list") || "Member List"}
@@ -614,7 +624,7 @@ const NetworkContent = () => {
         <TabsContent value="graph" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.network.graph.title") || "Interactive Network"}</CardTitle>
+              <CardTitle>{t("dashboard.network.graph.title") || "Interactive Network (2D)"}</CardTitle>
               <CardDescription>
                 {t("dashboard.network.graph.description") || "Visual representation of BAMAS members and their companies"}
               </CardDescription>
@@ -640,6 +650,31 @@ const NetworkContent = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {deviceCapability.canHandle3D && (
+          <TabsContent value="3d" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.network.graph3d.title") || "Interactive Network (3D)"}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.network.graph3d.description") || "Immersive 3D visualization of BAMAS network"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full h-[700px] rounded-lg overflow-hidden relative" id="network-graph-3d-container">
+                  <Network3DErrorBoundary>
+                    <NetworkGraph3D 
+                      members={approvedMembers} 
+                      companies={companies}
+                      width={typeof window !== 'undefined' ? Math.max(800, window.innerWidth - 300) : 1200}
+                      height={700}
+                    />
+                  </Network3DErrorBoundary>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
         <TabsContent value="list" className="space-y-4">
       <Tabs defaultValue="approved" className="space-y-4">
