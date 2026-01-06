@@ -11,10 +11,18 @@ interface SignaturePadProps {
   signerName: string;
 }
 
+const SIGNATURE_COLORS = [
+  { name: 'black', value: '#000000', label: 'Black' },
+  { name: 'blue', value: '#2563eb', label: 'Blue' },
+  { name: 'red', value: '#dc2626', label: 'Red' },
+  { name: 'green', value: '#16a34a', label: 'Green' },
+] as const;
+
 export function SignaturePad({ onSave, onCancel, signerName }: SignaturePadProps) {
   const { t } = useLanguage();
   const sigPadRef = useRef<SignatureCanvas>(null);
   const [isEmpty, setIsEmpty] = useState(true);
+  const [penColor, setPenColor] = useState<string>('#000000');
 
   const handleClear = () => {
     sigPadRef.current?.clear();
@@ -27,6 +35,13 @@ export function SignaturePad({ onSave, onCancel, signerName }: SignaturePadProps
       onSave(dataUrl);
     }
   };
+
+  // Update pen color when it changes
+  React.useEffect(() => {
+    if (sigPadRef.current) {
+      sigPadRef.current.penColor = penColor;
+    }
+  }, [penColor]);
 
   const handleEnd = () => {
     setIsEmpty(sigPadRef.current?.isEmpty() || false);
@@ -43,21 +58,53 @@ export function SignaturePad({ onSave, onCancel, signerName }: SignaturePadProps
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="border-2 border-dashed border-muted rounded-lg bg-white p-2">
-          <SignatureCanvas
-            ref={sigPadRef}
-            canvasProps={{
-              className: 'w-full h-64 cursor-crosshair touch-none',
-            }}
-            onEnd={handleEnd}
-            backgroundColor="white"
-          />
+        <div className="space-y-4">
+          {/* Color Selection */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
+              {t('dashboard.signatures.pad.color') || 'Color:'}
+            </span>
+            <div className="flex gap-2">
+              {SIGNATURE_COLORS.map((color) => (
+                <button
+                  key={color.name}
+                  type="button"
+                  onClick={() => {
+                    setPenColor(color.value);
+                    if (sigPadRef.current) {
+                      sigPadRef.current.penColor = color.value;
+                    }
+                  }}
+                  className={`w-8 h-8 rounded-full border-2 transition-all ${
+                    penColor === color.value
+                      ? 'border-primary scale-110'
+                      : 'border-muted hover:border-primary/50'
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                  title={t(`dashboard.signatures.pad.color.${color.name}`) || color.label}
+                  aria-label={color.label}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="border-2 border-dashed border-muted rounded-lg bg-white p-2">
+            <SignatureCanvas
+              ref={sigPadRef}
+              canvasProps={{
+                className: 'w-full h-64 cursor-crosshair touch-none',
+              }}
+              onEnd={handleEnd}
+              backgroundColor="white"
+              penColor={penColor}
+            />
+          </div>
         </div>
 
         <div className="flex gap-2 mt-4 justify-end">
           <Button variant="outline" onClick={onCancel} className="flex items-center gap-2">
             <X className="h-4 w-4" />
-            {t('common.cancel') || 'Cancel'}
+            {t('dashboard.signatures.pad.cancel') || t('common.cancel') || 'Cancel'}
           </Button>
 
           <Button

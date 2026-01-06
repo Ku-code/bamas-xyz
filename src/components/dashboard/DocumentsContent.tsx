@@ -45,8 +45,9 @@ import { loadDocuments, createDocument, updateDocument, deleteDocument, uploadDo
 import { downloadSignedPDF } from "@/lib/pdf-signatures";
 import { createDocumentSignature } from "@/lib/documents";
 import { supabase } from "@/lib/supabase";
-import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle } from "lucide-react";
+import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle, Eye } from "lucide-react";
 import { SignatureProgressBadge } from "@/components/documents/SignatureProgressBadge";
+import { PDFViewer } from "@/components/signature/PDFViewer";
 import { format } from "date-fns";
 
 interface TableData {
@@ -120,6 +121,8 @@ const DocumentsContent = () => {
   });
   const [isDragging, setIsDragging] = useState(false);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Load documents from Supabase
   useEffect(() => {
@@ -545,6 +548,72 @@ const DocumentsContent = () => {
       toast({
         title: t("dashboard.signatures.error.downloadFailed") || "Download Failed",
         description: error.message || "Could not download the signed PDF",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePreviewDocument = async (doc: Document) => {
+    try {
+      let url: string | null = null;
+
+      // Check if document has a signed file path (completed signatures)
+      if (doc.signatureStatus === 'COMPLETED' && (doc as any).signed_file_path) {
+        url = await getDocumentFileUrl((doc as any).signed_file_path);
+      } else if (doc.filePath) {
+        // Use original file path
+        url = await getDocumentFileUrl(doc.filePath);
+      } else if (doc.type === 'googleDrive' && doc.googleDriveLink) {
+        // For Google Drive, use embed URL
+        const embedUrl = getEmbedUrl(doc.googleDriveLink);
+        if (embedUrl) {
+          url = embedUrl;
+        }
+      }
+
+      if (url) {
+        setPreviewUrl(url);
+        setPreviewDocument(doc);
+      } else {
+        toast({
+          title: t("dashboard.documents.preview.error.title") || "Preview Unavailable",
+          description: t("dashboard.documents.preview.error.description") || "This document cannot be previewed.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error previewing document:', error);
+      toast({
+        title: t("dashboard.documents.preview.error.title") || "Preview Failed",
+        description: error.message || t("dashboard.documents.preview.error.description") || "Failed to load document preview.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadDocument = async (doc: Document) => {
+    if (!user) return;
+
+    try {
+      // If document is signed and completed, download signed version
+      if (doc.signatureStatus === 'COMPLETED' && (doc as any).signed_file_path) {
+        await handleDownloadSignedPDF(doc);
+        return;
+      }
+
+      // Otherwise, download original file
+      if (doc.filePath) {
+        await handleDownloadFile(doc);
+      } else if (doc.type === 'googleDrive' && doc.googleDriveLink) {
+        // Open Google Drive link
+        window.open(doc.googleDriveLink, '_blank');
+      } else {
+        throw new Error('No file available for download');
+      }
+    } catch (error: any) {
+      toast({
+        title: t("dashboard.documents.download.error.title") || "Download Failed",
+        description: error.message || t("dashboard.documents.download.error.description") || "Failed to download document.",
         variant: "destructive",
       });
     }
@@ -1582,10 +1651,24 @@ const DocumentsContent = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => {
+              setCreateType("uploaded");
+              setIsCreateDialogOpen(true);
+            }}>
+              <HardDrive className="mr-2 h-4 w-4" />
+              {t("dashboard.documents.create.type.uploadComputer") || "Upload from Computer"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
               setCreateType("googleDrive");
               setIsCreateDialogOpen(true);
             }}>
-              <ExternalLink className="mr-2 h-4 w-4" />
+              <div className="mr-2 h-4 w-4 flex items-center justify-center">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.71 2L2 7.71V22H22V2H7.71ZM12 4.29L18.71 11H12V4.29ZM11 13H4.29L11 6.29V13ZM13 15V21.71L19.71 15H13ZM3 21V8.29L8.29 3H20V21H3Z" fill="#4285F4"/>
+                  <path d="M12 4.29L18.71 11H12V4.29Z" fill="#34A853"/>
+                  <path d="M11 13H4.29L11 6.29V13Z" fill="#FBBC04"/>
+                  <path d="M13 15V21.71L19.71 15H13Z" fill="#EA4335"/>
+                </svg>
+              </div>
               {t("dashboard.documents.create.type.googleDrive") || "Add from Google Drive"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
@@ -1608,6 +1691,71 @@ const DocumentsContent = () => {
         </DropdownMenu>
         {renderCreateDialog()}
       </div>
+
+      {/* Preview Dialog */}
+      <Dialog open={!!previewDocument} onOpenChange={(open) => {
+        if (!open) {
+          setPreviewDocument(null);
+          setPreviewUrl(null);
+        }
+      }}>
+        <DialogContent className="max-w-5xl max-h-[95vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>
+              {t("dashboard.documents.preview.title") || "Document Preview"}
+              {previewDocument?.title && `: ${previewDocument.title}`}
+            </DialogTitle>
+            <DialogDescription>
+              {t("dashboard.documents.preview.description") || "Preview the document below"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden">
+            {previewUrl && previewDocument && (
+              previewDocument.type === 'googleDrive' ? (
+                <div className="h-full w-full">
+                  <iframe
+                    src={previewUrl}
+                    className="w-full h-[600px]"
+                    title={previewDocument.title}
+                    allow="autoplay"
+                  />
+                </div>
+              ) : previewDocument.mimeType === 'application/pdf' || previewUrl.endsWith('.pdf') || previewUrl.includes('pdf') ? (
+                <PDFViewer fileUrl={previewUrl} documentTitle={previewDocument.title} />
+              ) : (
+                <div className="flex items-center justify-center h-96">
+                  <p className="text-muted-foreground">
+                    {t("dashboard.documents.preview.unsupported") || "Preview not available for this file type"}
+                  </p>
+                </div>
+              )
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPreviewDocument(null);
+                setPreviewUrl(null);
+              }}
+              className="rounded-full"
+            >
+              {t("common.close") || "Close"}
+            </Button>
+            {previewDocument && (
+              <Button
+                onClick={() => handleDownloadDocument(previewDocument)}
+                className="rounded-full"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                {previewDocument.signatureStatus === 'COMPLETED' 
+                  ? (t("dashboard.signatures.download.signed") || "Download Signed PDF")
+                  : (t("dashboard.documents.download") || "Download")}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Search and Filter */}
       {documents.length > 0 && (
@@ -1826,22 +1974,28 @@ const DocumentsContent = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {doc.classification === 'CRITICAL' && doc.signatureStatus === 'COMPLETED' && (
+                      {(doc.filePath || doc.type === 'googleDrive' || doc.signatureStatus === 'COMPLETED') && (
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDownloadSignedPDF(doc)}
+                          onClick={() => handlePreviewDocument(doc)}
+                          className="rounded-full"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          {t("dashboard.documents.preview.button") || "Preview"}
+                        </Button>
+                      )}
+                      {(doc.filePath || doc.type === 'googleDrive' || doc.signatureStatus === 'COMPLETED') && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownloadDocument(doc)}
                           className="rounded-full"
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          {t("dashboard.signatures.download.signed") || "Download Signed PDF"}
-                        </Button>
-                      )}
-                      {doc.type === "googleDrive" && doc.googleDriveLink && (
-                        <Button asChild variant="outline" size="sm" className="rounded-full">
-                          <a href={doc.googleDriveLink} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                          {doc.signatureStatus === 'COMPLETED' 
+                            ? (t("dashboard.signatures.download.signed") || "Download Signed PDF")
+                            : (t("dashboard.documents.download") || "Download")}
                         </Button>
                       )}
                       {doc.createdBy === user?.id && (
@@ -2034,32 +2188,30 @@ const DocumentsContent = () => {
                         <span>{format(new Date(doc.updatedAt || doc.createdAt), "PP")}</span>
                       </div>
                     </div>
-                    {doc.type === "googleDrive" && doc.googleDriveLink && (
-                      <Button
-                        asChild
-                        variant="outline"
-                        className="w-full rounded-full"
-                      >
-                        <a
-                          href={doc.googleDriveLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          {t("dashboard.documents.open") || "Open in Google Drive"}
-                        </a>
-                      </Button>
-                    )}
-                    {doc.type === "uploaded" && doc.fileData && (
-                      <Button
-                        variant="outline"
-                        className="w-full rounded-full"
-                        onClick={() => handleDownloadFile(doc)}
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        {t("dashboard.documents.download") || "Download File"}
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {(doc.filePath || doc.type === 'googleDrive' || doc.signatureStatus === 'COMPLETED') && (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="flex-1 rounded-full"
+                            onClick={() => handlePreviewDocument(doc)}
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            {t("dashboard.documents.preview.button") || "Preview"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="flex-1 rounded-full"
+                            onClick={() => handleDownloadDocument(doc)}
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            {doc.signatureStatus === 'COMPLETED' 
+                              ? (t("dashboard.signatures.download.signed") || "Download Signed PDF")
+                              : (t("dashboard.documents.download") || "Download")}
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

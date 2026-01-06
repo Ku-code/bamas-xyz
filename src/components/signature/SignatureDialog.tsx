@@ -116,7 +116,7 @@ export function SignatureDialog({
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={onClose}>
-                {t('common.cancel') || 'Cancel'}
+                {t('dashboard.signatures.pad.cancel') || t('common.cancel') || 'Cancel'}
               </Button>
               <Button onClick={handleContinueToSign} disabled={!pdfUrl || !!pdfError}>
                 {t('dashboard.signatures.preview.continue') || 'Continue to Sign'}
