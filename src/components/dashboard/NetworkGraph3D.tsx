@@ -37,15 +37,26 @@ const NetworkScene = ({
   highlightedNodeIds: Set<string>;
   cameraTarget: { x: number; y: number; z: number } | null;
 }) => {
-  const { nodes, links } = useMemo(() => buildGraphData(members, companies), [members, companies]);
+  const { nodes, links } = useMemo(() => {
+    try {
+      return buildGraphData(members, companies);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error building graph data:', error);
+      }
+      return { nodes: [], links: [] };
+    }
+  }, [members, companies]);
   
   // Position member nodes on a sphere around BAMAS
   const memberNodes = useMemo(() => {
     const userNodes = nodes.filter(n => n.type === 'user');
+    if (userNodes.length === 0) return [];
+    
     const radius = 6; // Distance from center
     
     return userNodes.map((node, index) => {
-      const pos = calculateSpherePosition(index, Math.max(1, userNodes.length), radius);
+      const pos = calculateSpherePosition(index, userNodes.length, radius);
       return { node, position: [pos.x, pos.y, pos.z] as [number, number, number] };
     });
   }, [nodes]);
@@ -112,6 +123,11 @@ const NetworkScene = ({
     });
   }, [links, memberNodes, companyNodes]);
 
+  // Early return if no data
+  if (!bamasNode || nodes.length === 0) {
+    return null;
+  }
+
   return (
     <>
       {/* Lighting */}
@@ -121,7 +137,7 @@ const NetworkScene = ({
       <directionalLight position={[0, 10, 5]} intensity={0.5} />
 
       {/* BAMAS central sphere */}
-      {bamasNode && <BAMASSphere radius={2.5} />}
+      <BAMASSphere radius={2.5} />
 
       {/* Member nodes */}
       {memberNodes.map(({ node, position }) => (
@@ -296,6 +312,7 @@ export const NetworkGraph3D = ({ members, companies, width = 800, height = 700 }
     <div
       ref={containerRef}
       className="w-full h-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-lg border border-slate-700 overflow-hidden relative"
+      style={{ minHeight: '700px', position: 'relative' }}
     >
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-50">
@@ -307,13 +324,32 @@ export const NetworkGraph3D = ({ members, companies, width = 800, height = 700 }
       )}
       
       <Canvas
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'block',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0
+        }}
         dpr={deviceCapability.recommendedQuality === 'high' ? [1, 2] : [1, 1.5]}
         gl={{
           antialias: deviceCapability.recommendedQuality !== 'low',
           alpha: true,
           powerPreference: 'high-performance',
+          preserveDrawingBuffer: false,
         }}
         camera={{ position: [0, 0, 10], fov: 75 }}
+        onCreated={({ gl, size }) => {
+          gl.setClearColor('#0f172a', 1); // slate-900 background
+          // Ensure canvas is properly sized
+          if (gl.domElement) {
+            gl.domElement.style.width = '100%';
+            gl.domElement.style.height = '100%';
+          }
+        }}
       >
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={75} />
         
