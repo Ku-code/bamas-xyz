@@ -607,26 +607,26 @@ const NetworkContent = () => {
         <TabsList className="rounded-full">
           <TabsTrigger value="graph" className="rounded-full">
             <Network className="h-4 w-4 mr-2" />
-            {t("dashboard.network.view.graph") || "2D Network"}
+            {t("dashboard.network.view.graph")}
           </TabsTrigger>
           {deviceCapability.canHandle3D && (
             <TabsTrigger value="3d" className="rounded-full">
               <Box className="h-4 w-4 mr-2" />
-              {t("dashboard.network.view.3d") || "3D Network"}
+              {t("dashboard.network.view.3d")}
             </TabsTrigger>
           )}
           <TabsTrigger value="list" className="rounded-full">
             <List className="h-4 w-4 mr-2" />
-            {t("dashboard.network.view.list") || "Member List"}
+            {t("dashboard.network.view.list")}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="graph" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>{t("dashboard.network.graph.title") || "Interactive Network (2D)"}</CardTitle>
+              <CardTitle>{t("dashboard.network.graph.title")}</CardTitle>
               <CardDescription>
-                {t("dashboard.network.graph.description") || "Visual representation of BAMAS members and their companies"}
+                {t("dashboard.network.graph.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -655,9 +655,9 @@ const NetworkContent = () => {
           <TabsContent value="3d" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>{t("dashboard.network.graph3d.title") || "Interactive Network (3D)"}</CardTitle>
+                <CardTitle>{t("dashboard.network.graph3d.title")}</CardTitle>
                 <CardDescription>
-                  {t("dashboard.network.graph3d.description") || "Immersive 3D visualization of BAMAS network"}
+                  {t("dashboard.network.graph3d.description")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
