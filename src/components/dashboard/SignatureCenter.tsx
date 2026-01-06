@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -10,29 +9,30 @@ import { formatErrorForToast } from "@/lib/error-messages";
 import {
   loadDocuments,
   loadDocumentSignatures,
-  createDocumentSignature,
-  updateDocumentSignature,
   type Document,
-  type DocumentSignature,
 } from "@/lib/documents";
-import { getSubmissionForUser } from "@/lib/docuseal";
-import { DocusealForm } from '@docuseal/react';
-import { FileText, AlertCircle, CheckCircle2, Loader2, ExternalLink, X } from "lucide-react";
+import { saveSignature } from "@/lib/pdf-signatures";
+import { SignatureDialog } from "@/components/signature/SignatureDialog";
+import { FileText, CheckCircle2, Loader2, Download } from "lucide-react";
 import { format } from "date-fns";
+import { downloadSignedPDF } from "@/lib/pdf-signatures";
 
 const SignatureCenter = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const [pendingDocuments, setPendingDocuments] = useState<Document[]>([]);
+  const [completedDocuments, setCompletedDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [signingDocumentId, setSigningDocumentId] = useState<string | null>(null);
   const [showSigningDialog, setShowSigningDialog] = useState(false);
-  const [currentSigningDoc, setCurrentSigningDoc] = useState<Document | null>(null);
-  const [signingEmbedUrl, setSigningEmbedUrl] = useState<string | null>(null);
+  const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
+  const [signatureStep, setSignatureStep] = useState<'preview' | 'sign'>('preview');
+  const [isSigning, setIsSigning] = useState(false);
 
   useEffect(() => {
-    loadPendingDocuments();
+    if (user) {
+      loadPendingDocuments();
+    }
   }, [user]);
 
   const loadPendingDocuments = async () => {
@@ -44,9 +44,10 @@ const SignatureCenter = () => {
       
       // Filter documents that require this user's signature
       const pending: Document[] = [];
+      const completed: Document[] = [];
       
       for (const doc of allDocuments) {
-        if (doc.classification !== 'CRITICAL' || doc.signature_status === 'COMPLETED') {
+        if (doc.classification !== 'CRITICAL') {
           continue;
         }
 
@@ -68,13 +69,16 @@ const SignatureCenter = () => {
           const signatures = await loadDocumentSignatures(doc.id);
           const userSignature = signatures.find((s) => s.user_id === user.id);
           
-          if (!userSignature || userSignature.status === 'pending') {
+          if (doc.signature_status === 'COMPLETED') {
+            completed.push(doc);
+          } else if (!userSignature || userSignature.status === 'pending') {
             pending.push(doc);
           }
         }
       }
 
       setPendingDocuments(pending);
+      setCompletedDocuments(completed);
     } catch (error: any) {
       console.error("Error loading pending documents:", error);
       const errorInfo = formatErrorForToast(
@@ -92,55 +96,43 @@ const SignatureCenter = () => {
     }
   };
 
-  const handleSignDocument = async (document: Document) => {
-    if (!user) return;
+  const handleSignClick = (doc: Document) => {
+    setCurrentDocument(doc);
+    setSignatureStep('preview');
+    setShowSigningDialog(true);
+  };
 
-    setSigningDocumentId(document.id);
-
+  const handleSignatureSave = async (signatureDataUrl: string) => {
+    if (!currentDocument || !user) return;
+    
+    setIsSigning(true);
+    
     try {
-      // Get DocuSeal submission and user's specific embed URL
-      if (document.docuseal_submission_id && user.email) {
-        console.log('[SignatureCenter] Fetching submission for user:', user.email);
-        
-        const { submission, submitter } = await getSubmissionForUser(
-          document.docuseal_submission_id,
-          user.email
-        );
-        
-        console.log('[SignatureCenter] Submitter found:', submitter);
-        console.log('[SignatureCenter] Embed URL:', submitter.embed_src);
-        
-        // Create signature record if it doesn't exist
-        const signatures = await loadDocumentSignatures(document.id);
-        let signature = signatures.find((s) => s.user_id === user.id);
-
-        if (!signature) {
-          // Create signature record
-          signature = await createDocumentSignature({
-            document_id: document.id,
-            user_id: user.id,
-            status: 'pending',
-          });
-        }
-        
-        // Set the embed URL and open dialog
-        setSigningEmbedUrl(submitter.embed_src);
-        setCurrentSigningDoc(document);
-        setShowSigningDialog(true);
-        
-      } else {
+      const result = await saveSignature(
+        currentDocument.id,
+        user.id,
+        signatureDataUrl
+      );
+      
+      if (result.success) {
         toast({
-          title: t("dashboard.signatures.error.noSubmission") || "No Submission Found",
-          description: t("dashboard.signatures.error.noSubmissionDesc") || "This document does not have a DocuSeal submission configured. Please contact an administrator.",
-          variant: "destructive",
+          title: t("dashboard.signatures.success.title") || "Signature Recorded",
+          description: t("dashboard.signatures.success.description") || "Your signature has been saved. The document will be finalized when all signers complete.",
         });
+        
+        setShowSigningDialog(false);
+        setCurrentDocument(null);
+        setSignatureStep('preview');
+        await loadPendingDocuments();
+      } else {
+        throw new Error(result.error || 'Failed to save signature');
       }
     } catch (error: any) {
-      console.error("Error initiating signature:", error);
+      console.error("Error saving signature:", error);
       const errorInfo = formatErrorForToast(
         error,
-        t("dashboard.signatures.error.signFailed") || "Failed to Initiate Signature",
-        t("dashboard.signatures.error.signFailedDesc") || "Failed to start the signing process"
+        t("dashboard.signatures.error.signFailed") || "Signature Failed",
+        t("dashboard.signatures.error.signFailedDesc") || "Failed to save your signature"
       );
       toast({
         title: errorInfo.title,
@@ -148,55 +140,28 @@ const SignatureCenter = () => {
         variant: "destructive",
       });
     } finally {
-      setSigningDocumentId(null);
+      setIsSigning(false);
     }
   };
 
-  const handleSignatureComplete = async (data: any) => {
-    console.log("Signature completed:", data);
-    
-    if (!currentSigningDoc || !user) return;
+  const handleDownloadSignedPDF = async (doc: Document) => {
+    if (!user) return;
 
     try {
-      // Update signature record
-      const signatures = await loadDocumentSignatures(currentSigningDoc.id);
-      const userSignature = signatures.find((s) => s.user_id === user.id);
+      const result = await downloadSignedPDF(doc.id, user.id);
       
-      if (userSignature) {
-        await updateDocumentSignature(userSignature.id, {
-          status: 'completed',
-          signed_at: new Date().toISOString(),
-        });
+      if (result.success && result.url) {
+        // Open in new tab
+        window.open(result.url, '_blank');
+      } else {
+        throw new Error(result.error || 'Failed to download PDF');
       }
-
-      toast({
-        title: t("dashboard.signatures.success.title") || "Signature Completed",
-        description: t("dashboard.signatures.success.description") || "Your signature has been recorded successfully!",
-      });
-
-      // Close dialog and reload
-      setShowSigningDialog(false);
-      setCurrentSigningDoc(null);
-      setSigningDocumentId(null);
-      await loadPendingDocuments();
     } catch (error: any) {
-      console.error("Error updating signature:", error);
       toast({
-        title: t("dashboard.signatures.error.updateFailed") || "Update Failed",
-        description: "Signature completed but failed to update record. Please refresh the page.",
+        title: t("dashboard.signatures.error.downloadFailed") || "Download Failed",
+        description: error.message || "Could not download the signed PDF",
         variant: "destructive",
       });
-    }
-  };
-
-  const getSignatureProgress = async (document: Document): Promise<{ completed: number; total: number }> => {
-    try {
-      const signatures = await loadDocumentSignatures(document.id);
-      const completed = signatures.filter((s) => s.status === 'completed').length;
-      const total = signatures.length;
-      return { completed, total };
-    } catch (error) {
-      return { completed: 0, total: 0 };
     }
   };
 
@@ -268,21 +233,12 @@ const SignatureCenter = () => {
                         )}
                       </div>
                       <Button
-                        onClick={() => handleSignDocument(document)}
-                        disabled={signingDocumentId === document.id}
+                        onClick={() => handleSignClick(document)}
+                        disabled={isSigning}
                         className="ml-4"
                       >
-                        {signingDocumentId === document.id ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            {t("dashboard.signatures.signing") || "Signing..."}
-                          </>
-                        ) : (
-                          <>
-                            <FileText className="h-4 w-4 mr-2" />
-                            {t("dashboard.signatures.signNow") || "Sign Now"}
-                          </>
-                        )}
+                        <FileText className="h-4 w-4 mr-2" />
+                        {t("dashboard.signatures.signNow") || "Sign Now"}
                       </Button>
                     </div>
                   </CardContent>
@@ -292,6 +248,48 @@ const SignatureCenter = () => {
           )}
         </CardContent>
       </Card>
+
+      {completedDocuments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("dashboard.signatures.completed.title") || "Completed Documents"}</CardTitle>
+            <CardDescription>
+              {t("dashboard.signatures.completed.description") || "Documents you have signed"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {completedDocuments.map((document) => (
+                <Card key={document.id} className="border-l-4 border-l-green-500">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-lg">{document.title}</h3>
+                          <Badge variant="default" className="rounded-full bg-green-500">
+                            {t("dashboard.signatures.completed.badge") || "COMPLETED"}
+                          </Badge>
+                        </div>
+                        {document.description && (
+                          <p className="text-sm text-muted-foreground">{document.description}</p>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => handleDownloadSignedPDF(document)}
+                        className="ml-4"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        {t("dashboard.signatures.download.signed") || "Download Signed PDF"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -303,50 +301,27 @@ const SignatureCenter = () => {
               {t("dashboard.signatures.info.description") || "Critical documents require legally binding digital signatures from authorized members."}
             </p>
             <p>
-              {t("dashboard.signatures.info.process") || "Click 'Sign Now' to open the DocuSeal signing interface. After completing the signature, the document will be automatically updated."}
+              {t("dashboard.signatures.info.process") || "Click 'Sign Now' to preview the document, then draw your signature. The document will be finalized when all required signers complete."}
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* DocuSeal Signing Dialog */}
-      <Dialog open={showSigningDialog} onOpenChange={(open) => {
-        setShowSigningDialog(open);
-        if (!open) {
-          setCurrentSigningDoc(null);
-          setSigningEmbedUrl(null);
-        }
-      }}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>
-              {t("dashboard.signatures.dialog.title") || "Sign Document"}: {currentSigningDoc?.title}
-            </DialogTitle>
-            <DialogDescription>
-              {t("dashboard.signatures.dialog.description") || "Please review and sign the document below"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="overflow-y-auto max-h-[70vh]">
-            {signingEmbedUrl && user?.email ? (
-              <DocusealForm
-                src={signingEmbedUrl}
-                email={user.email}
-                onComplete={handleSignatureComplete}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-64 text-muted-foreground">
-                <div className="text-center">
-                  <AlertCircle className="h-12 w-12 mx-auto mb-4" />
-                  <p>{t("dashboard.signatures.error.noSubmission") || "Signature form not available"}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SignatureDialog
+        open={showSigningDialog}
+        onClose={() => {
+          setShowSigningDialog(false);
+          setCurrentDocument(null);
+          setSignatureStep('preview');
+        }}
+        document={currentDocument}
+        step={signatureStep}
+        onStepChange={setSignatureStep}
+        onSignatureSave={handleSignatureSave}
+        isSaving={isSigning}
+      />
     </div>
   );
 };
 
 export default SignatureCenter;
-

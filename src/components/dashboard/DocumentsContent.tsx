@@ -42,9 +42,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { loadDocuments, createDocument, updateDocument, deleteDocument, uploadDocumentFile, getDocumentFileUrl, convertBase64ToFileAndUpload, Document as SupabaseDocument } from "@/lib/documents";
-import { createDocuSealTemplate, createDocuSealSubmission } from "@/lib/docuseal";
+import { downloadSignedPDF } from "@/lib/pdf-signatures";
+import { createDocumentSignature } from "@/lib/documents";
 import { supabase } from "@/lib/supabase";
 import { FileText, Plus, ExternalLink, Search, Filter, X, File, Calendar, Edit, Save, Trash2, Grid3x3, Type, Upload, Download, HardDrive, Minus, LayoutGrid, List, Grid, AlertCircle } from "lucide-react";
+import { SignatureProgressBadge } from "@/components/documents/SignatureProgressBadge";
 import { format } from "date-fns";
 
 interface TableData {
@@ -339,144 +341,70 @@ const DocumentsContent = () => {
         await logHistory("document_created", user, createdDoc.id, createdDoc.title);
       }
 
-      // If Critical document, set up DocuSeal workflow
+      // If Critical document, create signature records for each signer
       if (newDocument.classification === 'CRITICAL' && newDocument.requiredSigners.length > 0) {
         try {
-          // Get all users who need to sign
-          const signers: Array<{ email: string; name: string; role: string }> = [];
+          // Build array of user IDs for signature records
+          const signerUserIds: string[] = [];
           
           for (const signerId of newDocument.requiredSigners) {
             if (signerId === 'all_board_members') {
               const { data: boardMembers } = await supabase
                 .from('users')
-                .select('email, name')
+                .select('id')
                 .eq('role', 'board_member')
                 .eq('status', 'approved');
               
               boardMembers?.forEach(member => {
-                if (member.email && !signers.find(s => s.email === member.email)) {
-                  signers.push({
-                    email: member.email,
-                    name: member.name || member.email,
-                    role: 'signer'
-                  });
+                if (!signerUserIds.includes(member.id)) {
+                  signerUserIds.push(member.id);
                 }
               });
             } else if (signerId === 'all_wg_leads') {
               const { data: wgLeads } = await supabase
                 .from('users')
-                .select('email, name')
+                .select('id')
                 .eq('role', 'wg_lead')
                 .eq('status', 'approved');
               
               wgLeads?.forEach(lead => {
-                if (lead.email && !signers.find(s => s.email === lead.email)) {
-                  signers.push({
-                    email: lead.email,
-                    name: lead.name || lead.email,
-                    role: 'signer'
-                  });
+                if (!signerUserIds.includes(lead.id)) {
+                  signerUserIds.push(lead.id);
                 }
               });
             } else {
               // Individual user ID
-              const { data: userData } = await supabase
-                .from('users')
-                .select('email, name')
-                .eq('id', signerId)
-                .single();
-              
-              if (userData?.email && !signers.find(s => s.email === userData.email)) {
-                signers.push({
-                  email: userData.email,
-                  name: userData.name || userData.email,
-                  role: 'signer'
-                });
+              if (!signerUserIds.includes(signerId)) {
+                signerUserIds.push(signerId);
               }
             }
           }
 
-          if (signers.length > 0) {
-            // Check if document has a file to create DocuSeal template from
-            if (createdDoc.file_path) {
+          // Create signature records for each signer
+          if (signerUserIds.length > 0) {
+            for (const userId of signerUserIds) {
               try {
-                // Get the file from Supabase Storage
-                const fileUrl = getDocumentFileUrl(createdDoc.file_path);
-                console.log('Fetching file from:', fileUrl);
-                
-                const response = await fetch(fileUrl);
-                if (!response.ok) {
-                  throw new Error(`Failed to fetch file: ${response.statusText}`);
-                }
-                const fileBlob = await response.blob();
-                console.log('File fetched, size:', fileBlob.size);
-                
-                // Create DocuSeal template from the file
-                console.log('Creating DocuSeal template...');
-                const template = await createDocuSealTemplate(
-                  `${createdDoc.title} - Signature Required`,
-                  fileBlob
-                );
-                console.log('Template created:', template.id);
-                
-                // Create DocuSeal submission with all signers
-                console.log('Creating DocuSeal submission with signers:', signers);
-                const submission = await createDocuSealSubmission(
-                  template.id,
-                  signers,
-                  createdDoc.id // external_id for tracking
-                );
-                console.log('Submission created:', submission.id);
-                
-                // Update document with DocuSeal IDs
-                await updateDocument(createdDoc.id, {
-                  docuseal_template_id: template.id,
-                  docuseal_submission_id: submission.id,
+                await createDocumentSignature({
+                  document_id: createdDoc.id,
+                  user_id: userId,
+                  status: 'pending',
                 });
-                
-                toast({
-                  title: t("dashboard.documents.docuseal.success") || "Signatures Configured",
-                  description: `Document ready for signatures. ${signers.length} signer(s) will receive notification.`,
-                });
-                
-              } catch (docusealApiError: any) {
-                console.error("DocuSeal API error:", docusealApiError);
-                
-                // Provide helpful error messages
-                if (docusealApiError.message?.includes('API key')) {
-                  toast({
-                    title: t("dashboard.documents.docuseal.error.apiKey") || "DocuSeal API Error",
-                    description: t("dashboard.documents.docuseal.error.apiKeyDesc") || "Invalid API key. Check your .env configuration.",
-                    variant: "destructive",
-                  });
-                } else if (docusealApiError.message?.includes('template')) {
-                  toast({
-                    title: t("dashboard.documents.docuseal.error.template") || "Template Creation Failed",
-                    description: t("dashboard.documents.docuseal.error.templateDesc") || "Could not create DocuSeal template. Ensure the file is a valid PDF.",
-                    variant: "destructive",
-                  });
-                } else {
-                  toast({
-                    title: t("dashboard.documents.docuseal.warning") || "Signature Setup Warning",
-                    description: `Document created but signature setup failed: ${docusealApiError.message || 'Unknown error'}`,
-                    variant: "default",
-                  });
-                }
+              } catch (sigError) {
+                console.error(`Failed to create signature record for user ${userId}:`, sigError);
+                // Continue with other signers even if one fails
               }
-            } else {
-              // No file attached - can't create DocuSeal template
-              toast({
-                title: t("dashboard.documents.docuseal.error.fileRequired") || "File Required",
-                description: t("dashboard.documents.docuseal.error.fileRequiredDesc") || "Critical documents must have a file (PDF, Word, etc.) attached to enable digital signatures.",
-                variant: "default",
-              });
             }
+            
+            toast({
+              title: t("dashboard.documents.signatures.ready") || "Signatures Required",
+              description: t("dashboard.documents.signatures.created") || `Document created. ${signerUserIds.length} signer(s) will be notified.`,
+            });
           }
-        } catch (docusealError: any) {
-          console.error("Error setting up DocuSeal:", docusealError);
-          // Don't fail the whole operation if DocuSeal setup fails
+        } catch (signatureError: any) {
+          console.error("Error setting up signatures:", signatureError);
+          // Don't fail the whole operation if signature setup fails
           toast({
-            title: t("dashboard.documents.docuseal.warning") || "Signature Setup Warning",
+            title: t("dashboard.documents.signatures.warning") || "Signature Setup Warning",
             description: "Document created but signature workflow needs manual setup.",
             variant: "default",
           });
@@ -592,6 +520,31 @@ const DocumentsContent = () => {
       toast({
         title: t("dashboard.documents.update.error.title") || "Error",
         description: error.message || t("dashboard.documents.update.error.description") || "Failed to update document. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadSignedPDF = async (doc: Document) => {
+    if (!user) return;
+
+    try {
+      const result = await downloadSignedPDF(doc.id, user.id);
+      
+      if (result.success && result.url) {
+        // Open in new tab
+        window.open(result.url, '_blank');
+        toast({
+          title: t("dashboard.signatures.download.success") || "Download Started",
+          description: t("dashboard.signatures.download.successDesc") || "The signed PDF is opening in a new tab.",
+        });
+      } else {
+        throw new Error(result.error || 'Failed to download PDF');
+      }
+    } catch (error: any) {
+      toast({
+        title: t("dashboard.signatures.error.downloadFailed") || "Download Failed",
+        description: error.message || "Could not download the signed PDF",
         variant: "destructive",
       });
     }
@@ -1843,6 +1796,9 @@ const DocumentsContent = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold truncate">{doc.title}</h3>
+                        {doc.classification === 'CRITICAL' && (
+                          <SignatureProgressBadge documentId={doc.id} />
+                        )}
                         <Badge variant="secondary" className="rounded-full text-xs">
                           {doc.category}
                         </Badge>
@@ -1870,6 +1826,17 @@ const DocumentsContent = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      {doc.classification === 'CRITICAL' && doc.signatureStatus === 'COMPLETED' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDownloadSignedPDF(doc)}
+                          className="rounded-full"
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          {t("dashboard.signatures.download.signed") || "Download Signed PDF"}
+                        </Button>
+                      )}
                       {doc.type === "googleDrive" && doc.googleDriveLink && (
                         <Button asChild variant="outline" size="sm" className="rounded-full">
                           <a href={doc.googleDriveLink} target="_blank" rel="noopener noreferrer">
@@ -1920,6 +1887,9 @@ const DocumentsContent = () => {
                           <File className="h-5 w-5 text-muted-foreground" />
                         )}
                         <CardTitle className="text-lg">{doc.title}</CardTitle>
+                        {doc.classification === 'CRITICAL' && (
+                          <SignatureProgressBadge documentId={doc.id} />
+                        )}
                       </div>
                       {doc.description && (
                         <CardDescription className="mt-2 line-clamp-2">{doc.description}</CardDescription>

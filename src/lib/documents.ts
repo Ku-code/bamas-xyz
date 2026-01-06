@@ -8,10 +8,11 @@ export interface DocumentSignature {
   id: string;
   document_id: string;
   user_id: string;
-  docuseal_submission_id?: string;
   status: 'pending' | 'completed' | 'declined';
   signed_at?: string;
   signed_pdf_url?: string;
+  signature_image_path?: string;
+  signature_data_url?: string;
   created_at: string;
   updated_at?: string;
 }
@@ -31,9 +32,7 @@ export interface Document {
   category: string;
   classification?: DocumentClassification;
   signature_status?: SignatureStatus;
-  docuseal_template_id?: string;
-  docuseal_submission_id?: string;
-  signed_pdf_url?: string;
+  signed_file_path?: string;
   required_signers?: string[]; // Array of user IDs or role names
   signatures?: any[]; // Array of signature records
   created_by: string;
@@ -281,7 +280,6 @@ export const createDocumentSignature = async (
   signatureData: {
     document_id: string;
     user_id: string;
-    docuseal_submission_id?: string;
     status?: 'pending' | 'completed' | 'declined';
   }
 ): Promise<DocumentSignature> => {
@@ -291,7 +289,6 @@ export const createDocumentSignature = async (
       .insert({
         document_id: signatureData.document_id,
         user_id: signatureData.user_id,
-        docuseal_submission_id: signatureData.docuseal_submission_id || null,
         status: signatureData.status || 'pending',
       })
       .select()
@@ -314,6 +311,8 @@ export const updateDocumentSignature = async (
     status?: 'pending' | 'completed' | 'declined';
     signed_at?: string;
     signed_pdf_url?: string;
+    signature_image_path?: string;
+    signature_data_url?: string;
   }
 ): Promise<DocumentSignature> => {
   try {
