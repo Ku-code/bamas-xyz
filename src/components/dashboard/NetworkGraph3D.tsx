@@ -1,5 +1,5 @@
-import { useMemo, useRef, useEffect, useState, useCallback } from 'react';
-import { Canvas, Suspense } from '@react-three/fiber';
+import { useMemo, useRef, useEffect, useState, useCallback, Suspense } from 'react';
+import { Canvas } from '@react-three/fiber';
 import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import type { User } from '@/contexts/AuthContext';
@@ -259,7 +259,9 @@ export const NetworkGraph3D = ({ members, companies, width = 800, height = 700 }
       }
     }
     
-    console.log('Node clicked:', node);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Node clicked:', node);
+    }
   }, [members, companies]);
 
   // Keyboard shortcuts

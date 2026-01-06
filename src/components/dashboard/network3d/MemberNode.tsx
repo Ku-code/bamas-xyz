@@ -38,7 +38,9 @@ export const MemberNode = ({
         undefined,
         (error) => {
           // Texture loading failed, will use fallback colored sphere
-          console.warn('Failed to load texture for node:', node.id, error);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Failed to load texture for node:', node.id, error);
+          }
           setTexture(null);
         }
       );

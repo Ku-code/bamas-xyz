@@ -38,7 +38,9 @@ export const CompanyNode = ({
         undefined,
         (error) => {
           // Texture loading failed, will use fallback colored box
-          console.warn('Failed to load texture for company:', node.id, error);
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Failed to load texture for company:', node.id, error);
+          }
           setTexture(null);
         }
       );
