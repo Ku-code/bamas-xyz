@@ -620,13 +620,22 @@ const NetworkContent = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full h-[600px] rounded-lg overflow-hidden" id="network-graph-container">
+              <div className="w-full h-[700px] rounded-lg overflow-hidden relative" id="network-graph-container">
                 <NetworkGraph 
                   members={approvedMembers} 
                   companies={companies}
                   width={typeof window !== 'undefined' ? Math.max(800, window.innerWidth - 300) : 1200}
-                  height={600}
+                  height={700}
                 />
+                <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-3 text-xs text-white border border-slate-700 max-w-xs">
+                  <div className="font-bold mb-2">💡 Tips</div>
+                  <ul className="space-y-1 text-slate-300">
+                    <li>• Hover over nodes to highlight connections</li>
+                    <li>• Click and drag nodes to rearrange</li>
+                    <li>• Scroll to zoom in/out</li>
+                    <li>• BAMAS core is fixed in center</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
