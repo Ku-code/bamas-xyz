@@ -80,6 +80,7 @@ interface Document {
   updatedAt?: string;
   fileType?: string;
   filePath?: string; // Supabase Storage path
+  signed_file_path?: string; // Path to signed PDF (for completed signatures)
 }
 const CATEGORIES = ["General", "Meeting Minutes", "Reports", "Policies", "Forms", "Presentations", "Notes", "Other"];
 
@@ -157,6 +158,7 @@ const DocumentsContent = () => {
         updatedAt: doc.updated_at || undefined,
         fileType: doc.mime_type || undefined,
         filePath: doc.file_path, // Store file path for later use
+        signed_file_path: (doc as any).signed_file_path || undefined, // Store signed file path for completed signatures
       }));
       setDocuments(convertedDocs);
     } catch (error) {
@@ -558,11 +560,39 @@ const DocumentsContent = () => {
     try {
       let url: string | null = null;
 
+      console.log('[Preview] Document:', {
+        id: doc.id,
+        title: doc.title,
+        signatureStatus: doc.signatureStatus,
+        signed_file_path: doc.signed_file_path,
+        file_path: doc.filePath,
+        type: doc.type
+      });
+
       // Check if document has a signed file path (completed signatures)
-      if (doc.signatureStatus === 'COMPLETED' && (doc as any).signed_file_path) {
-        url = await getDocumentFileUrl((doc as any).signed_file_path);
+      if (doc.signatureStatus === 'COMPLETED' && doc.signed_file_path) {
+        console.log('[Preview] Loading signed PDF from:', doc.signed_file_path);
+        try {
+          url = await getDocumentFileUrl(doc.signed_file_path);
+          console.log('[Preview] Signed PDF URL generated successfully:', url?.substring(0, 100));
+        } catch (signedError: any) {
+          console.error('[Preview] Failed to load signed PDF:', signedError);
+          console.error('[Preview] Error details:', {
+            message: signedError.message,
+            code: signedError.code,
+            statusCode: signedError.statusCode
+          });
+          // Fallback to original file if signed PDF fails
+          if (doc.filePath) {
+            console.log('[Preview] Falling back to original file:', doc.filePath);
+            url = await getDocumentFileUrl(doc.filePath);
+          } else {
+            throw new Error(`Failed to load signed PDF: ${signedError.message || 'Unknown error'}`);
+          }
+        }
       } else if (doc.filePath) {
         // Use original file path
+        console.log('[Preview] Loading original file from:', doc.filePath);
         url = await getDocumentFileUrl(doc.filePath);
       } else if (doc.type === 'googleDrive' && doc.googleDriveLink) {
         // For Google Drive, use embed URL
@@ -573,9 +603,11 @@ const DocumentsContent = () => {
       }
 
       if (url) {
+        console.log('[Preview] Setting preview URL:', url.substring(0, 100) + '...');
         setPreviewUrl(url);
         setPreviewDocument(doc);
       } else {
+        console.error('[Preview] No URL generated for document');
         toast({
           title: t("dashboard.documents.preview.error.title") || "Preview Unavailable",
           description: t("dashboard.documents.preview.error.description") || "This document cannot be previewed.",
@@ -583,7 +615,7 @@ const DocumentsContent = () => {
         });
       }
     } catch (error: any) {
-      console.error('Error previewing document:', error);
+      console.error('[Preview] Error previewing document:', error);
       toast({
         title: t("dashboard.documents.preview.error.title") || "Preview Failed",
         description: error.message || t("dashboard.documents.preview.error.description") || "Failed to load document preview.",
@@ -597,7 +629,7 @@ const DocumentsContent = () => {
 
     try {
       // If document is signed and completed, download signed version
-      if (doc.signatureStatus === 'COMPLETED' && (doc as any).signed_file_path) {
+      if (doc.signatureStatus === 'COMPLETED' && doc.signed_file_path) {
         await handleDownloadSignedPDF(doc);
         return;
       }

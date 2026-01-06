@@ -11,10 +11,13 @@ import {
   loadWorkingGroups,
   getUserWGMemberships,
   joinWorkingGroup,
+  loadWGMembers,
   type WorkingGroup,
   type WGMember,
+  type WGMemberWithUser,
 } from "@/lib/working-groups";
 import { Briefcase, Users, UserPlus, Loader2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import WorkingGroupView from "./WorkingGroupView";
 
 const WorkingGroupsContent = () => {
@@ -25,6 +28,7 @@ const WorkingGroupsContent = () => {
   const [userMemberships, setUserMemberships] = useState<WGMember[]>([]);
   const [selectedWG, setSelectedWG] = useState<WorkingGroup | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [wgMembersMap, setWgMembersMap] = useState<Record<string, WGMemberWithUser[]>>({});
 
   useEffect(() => {
     loadData();
@@ -39,6 +43,21 @@ const WorkingGroupsContent = () => {
       ]);
       setWorkingGroups(groups);
       setUserMemberships(memberships);
+
+      // Load members for each working group
+      const membersMap: Record<string, WGMemberWithUser[]> = {};
+      await Promise.all(
+        groups.map(async (wg) => {
+          try {
+            const members = await loadWGMembers(wg.id);
+            membersMap[wg.id] = members;
+          } catch (error) {
+            console.error(`Error loading members for WG ${wg.id}:`, error);
+            membersMap[wg.id] = [];
+          }
+        })
+      );
+      setWgMembersMap(membersMap);
     } catch (error: any) {
       console.error("Error loading working groups:", error);
       const errorInfo = formatErrorForToast(
@@ -143,9 +162,36 @@ const WorkingGroupsContent = () => {
                       {wg.description || wg.mission_statement || t("dashboard.workinggroups.noDescription") || "No description available."}
                     </CardDescription>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{t("dashboard.workinggroups.members") || "Members"}</span>
+                      <div className="flex items-center gap-2">
+                        {wgMembersMap[wg.id] && wgMembersMap[wg.id].length > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <div className="flex -space-x-2">
+                              {wgMembersMap[wg.id].slice(0, 5).map((member) => (
+                                <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
+                                  <AvatarImage src={member.user?.image || undefined} />
+                                  <AvatarFallback className="text-xs">
+                                    {member.user?.name?.charAt(0).toUpperCase() || "U"}
+                                  </AvatarFallback>
+                                </Avatar>
+                              ))}
+                              {wgMembersMap[wg.id].length > 5 && (
+                                <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium">
+                                  +{wgMembersMap[wg.id].length - 5}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {wgMembersMap[wg.id].length} {wgMembersMap[wg.id].length === 1 
+                                ? (t("dashboard.workinggroups.member") || "member")
+                                : (t("dashboard.workinggroups.members") || "members")}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            <span>{t("dashboard.workinggroups.members") || "Members"}</span>
+                          </div>
+                        )}
                       </div>
                       {!member && user && (
                         <Button

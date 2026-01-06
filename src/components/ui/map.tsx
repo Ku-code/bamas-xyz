@@ -72,6 +72,8 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   const [isLoaded, setIsLoaded] = useState(false);
   // Default to light mode (false = light, true = dark)
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const previousCompaniesCount = useRef<number>(0);
+  const fitBoundsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize map (only once on mount)
   useEffect(() => {
@@ -234,33 +236,46 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
           el.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #666;">${company.name.charAt(0).toUpperCase()}</div>`;
         }
 
-        // Hover effect
+        // Hover effect - make marker more prominent and easier to interact with
         el.addEventListener('mouseenter', () => {
-          el.style.transform = 'scale(1.2)';
+          el.style.transform = 'scale(1.3)';
           el.style.zIndex = '1000';
+          el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
         });
         el.addEventListener('mouseleave', () => {
-          el.style.transform = 'scale(1)';
-          el.style.zIndex = 'auto';
+          el.style.transform = selectedCompanyId === company.id ? 'scale(1.2)' : 'scale(1)';
+          el.style.zIndex = selectedCompanyId === company.id ? '1000' : 'auto';
+          el.style.boxShadow = selectedCompanyId === company.id 
+            ? '0 4px 12px rgba(239, 68, 68, 0.5)' 
+            : '0 2px 8px rgba(0,0,0,0.3)';
         });
 
-        // Click handler
-        el.addEventListener('click', () => {
+        // Click handler - prevent event bubbling to stop map interactions
+        el.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent map click events
+          e.preventDefault(); // Prevent default behavior
           if (onCompanyClick) {
             onCompanyClick(company);
           }
         });
+        
+        // Make marker easier to click
+        el.style.pointerEvents = 'auto';
+        el.style.position = 'relative';
 
         // Highlight selected company
         if (selectedCompanyId === company.id) {
-          el.style.border = '3px solid #ef4444';
-          el.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.5)';
-          el.style.transform = 'scale(1.15)';
+          el.style.border = '4px solid #ef4444';
+          el.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.6)';
+          el.style.transform = 'scale(1.2)';
+          el.style.zIndex = '1000';
         }
 
         const marker = new maplibregl.Marker({
           element: el,
           anchor: 'center',
+          // Prevent marker from being dragged
+          draggable: false,
         })
           .setLngLat([company.headquarters_longitude, company.headquarters_latitude])
           .addTo(map.current!);
@@ -268,7 +283,18 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         markersRef.current.set(company.id, marker);
       });
 
-      // Fit map to show all companies if there are any
+      // Fit map to show all companies - but only if it makes sense
+      // Don't auto-fit if only one company was just added (prevents aggressive panning)
+      const currentCount = companies.filter(c => c.headquarters_latitude && c.headquarters_longitude).length;
+      const wasFirstLoad = previousCompaniesCount.current === 0;
+      const isNewCompanyAdded = currentCount > previousCompaniesCount.current && currentCount === 1;
+      
+      // Clear any pending fitBounds
+      if (fitBoundsTimeoutRef.current) {
+        clearTimeout(fitBoundsTimeoutRef.current);
+        fitBoundsTimeoutRef.current = null;
+      }
+
       if (companies.length > 0 && companies.some(c => c.headquarters_latitude && c.headquarters_longitude)) {
         const bounds = new maplibregl.LngLatBounds();
         companies.forEach((company) => {
@@ -278,21 +304,81 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         });
 
         if (bounds.isEmpty() === false) {
-          try {
-            map.current.fitBounds(bounds, {
-              padding: 50,
-              maxZoom: 12,
-            });
-          } catch (e) {
-            // Ignore fitBounds errors
+          // Only auto-fit if:
+          // 1. It's the first load (no companies before)
+          // 2. There are multiple companies (not just one new one)
+          // 3. Or if there's only one company but it's the first time loading
+          const shouldFitBounds = wasFirstLoad || currentCount > 1 || (currentCount === 1 && !isNewCompanyAdded);
+          
+          if (shouldFitBounds) {
+            // Debounce fitBounds to prevent rapid re-fitting
+            fitBoundsTimeoutRef.current = setTimeout(() => {
+              try {
+                // Calculate padding based on panel state
+                // Add more padding on the left if panel is open to prevent markers from being hidden
+                const leftPadding = isPanelOpen ? 400 : 150;
+                const rightPadding = 150;
+                const topPadding = 150;
+                const bottomPadding = 150;
+
+                map.current?.fitBounds(bounds, {
+                  padding: {
+                    top: topPadding,
+                    bottom: bottomPadding,
+                    left: leftPadding,
+                    right: rightPadding,
+                  },
+                  maxZoom: 11, // Reduced from 12 to show more context
+                  duration: 1500, // Slower, smoother animation (1.5 seconds)
+                  easing: (t: number) => {
+                    // Ease-in-out-cubic for very smooth animation
+                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                  },
+                });
+              } catch (e) {
+                // Ignore fitBounds errors
+              }
+            }, 300); // Small delay to batch rapid updates
+          } else if (isNewCompanyAdded && currentCount === 1) {
+            // If a single new company was added, smoothly pan to it instead of fitting all bounds
+            // This prevents the map from jumping around
+            const newCompany = companies.find(c => c.headquarters_latitude && c.headquarters_longitude);
+            if (newCompany && map.current) {
+              fitBoundsTimeoutRef.current = setTimeout(() => {
+                try {
+                  map.current?.easeTo({
+                    center: [newCompany.headquarters_longitude, newCompany.headquarters_latitude],
+                    zoom: 10, // Reasonable zoom level to see the company
+                    duration: 1000, // Smooth 1 second animation
+                    easing: (t: number) => {
+                      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+                    },
+                  });
+                } catch (e) {
+                  // Ignore errors
+                }
+              }, 500); // Small delay to let marker render first
+            }
           }
         }
       }
+      
+      // Update previous count
+      previousCompaniesCount.current = currentCount;
     } catch (error) {
       console.error('Error updating markers:', error);
       // Don't throw - just log the error
     }
-  }, [companies, isLoaded, selectedCompanyId, onCompanyClick]);
+  }, [companies, isLoaded, selectedCompanyId, onCompanyClick, isPanelOpen]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (fitBoundsTimeoutRef.current) {
+        clearTimeout(fitBoundsTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Resize map when fullscreen or panel state changes
   useEffect(() => {

@@ -24,17 +24,33 @@ export function PDFViewer({ fileUrl, documentTitle, enableFullscreen = true }: P
   const [scale, setScale] = useState<number>(1.0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Log when fileUrl changes
+  React.useEffect(() => {
+    if (fileUrl) {
+      console.log('[PDFViewer] File URL set:', fileUrl.substring(0, 100));
+      setLoading(true);
+      setError(null);
+    }
+  }, [fileUrl]);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    console.log('[PDFViewer] Document loaded successfully, pages:', numPages);
     setNumPages(numPages);
     setLoading(false);
     setError(null);
   };
 
   const onDocumentLoadError = (error: Error) => {
-    console.error('PDF load error:', error);
-    setError('Failed to load PDF document');
+    console.error('[PDFViewer] PDF load error:', error);
+    console.error('[PDFViewer] File URL:', fileUrl?.substring(0, 100));
+    console.error('[PDFViewer] Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
+    setError(`Failed to load PDF document: ${error.message || 'Unknown error'}`);
     setLoading(false);
   };
 

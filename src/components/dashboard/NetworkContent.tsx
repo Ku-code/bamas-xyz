@@ -48,14 +48,17 @@ import { logHistory } from "@/lib/history";
 import { db } from "@/lib/database";
 import { suspendMember, restoreMember, banMember, deleteMember } from "@/lib/members";
 import { formatErrorForToast } from "@/lib/error-messages";
-import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw } from "lucide-react";
+import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw, Network, List } from "lucide-react";
 import { format } from "date-fns";
+import { loadCompanies, type Company } from "@/lib/companies";
+import { NetworkGraph } from "./NetworkGraph";
 
 const NetworkContent = () => {
   const { t } = useLanguage();
   const { user, isAdmin, isSuperAdmin } = useAuth();
   const { toast } = useToast();
   const [members, setMembers] = useState<User[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [rejectMemberId, setRejectMemberId] = useState<string | null>(null);
   const [suspendMemberId, setSuspendMemberId] = useState<string | null>(null);
@@ -63,6 +66,7 @@ const NetworkContent = () => {
   const [deleteMemberId, setDeleteMemberId] = useState<string | null>(null);
   const [restoreMemberId, setRestoreMemberId] = useState<string | null>(null);
   const [actionReason, setActionReason] = useState("");
+  const [activeTab, setActiveTab] = useState<"graph" | "list">("graph");
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -70,10 +74,14 @@ const NetworkContent = () => {
     role: "member" as UserRole,
   });
 
-  // Load members from Supabase
+  // Load members and companies from Supabase
   useEffect(() => {
-    loadMembers();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    await Promise.all([loadMembers(), loadCompaniesData()]);
+  };
 
   const loadMembers = async () => {
     try {
@@ -111,6 +119,16 @@ const NetworkContent = () => {
         description: errorInfo.description,
         variant: "destructive",
       });
+    }
+  };
+
+  const loadCompaniesData = async () => {
+    try {
+      const companiesData = await loadCompanies();
+      setCompanies(companiesData);
+    } catch (error) {
+      console.error("Error loading companies:", error);
+      // Don't show error toast for companies - it's not critical
     }
   };
 
@@ -580,6 +598,41 @@ const NetworkContent = () => {
         )}
       </div>
 
+      {/* Main View Tabs - Graph or List */}
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "graph" | "list")} className="space-y-4">
+        <TabsList className="rounded-full">
+          <TabsTrigger value="graph" className="rounded-full">
+            <Network className="h-4 w-4 mr-2" />
+            {t("dashboard.network.view.graph") || "Network Graph"}
+          </TabsTrigger>
+          <TabsTrigger value="list" className="rounded-full">
+            <List className="h-4 w-4 mr-2" />
+            {t("dashboard.network.view.list") || "Member List"}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="graph" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("dashboard.network.graph.title") || "Interactive Network"}</CardTitle>
+              <CardDescription>
+                {t("dashboard.network.graph.description") || "Visual representation of BAMAS members and their companies"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="w-full h-[600px] rounded-lg overflow-hidden" id="network-graph-container">
+                <NetworkGraph 
+                  members={approvedMembers} 
+                  companies={companies}
+                  width={typeof window !== 'undefined' ? Math.max(800, window.innerWidth - 300) : 1200}
+                  height={600}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="list" className="space-y-4">
       <Tabs defaultValue="approved" className="space-y-4">
         <TabsList className="rounded-full">
           <TabsTrigger value="approved" className="rounded-full">
@@ -1030,6 +1083,8 @@ const NetworkContent = () => {
             )}
           </>
         )}
+      </Tabs>
+        </TabsContent>
       </Tabs>
 
       {/* Suspend Confirmation Dialog */}

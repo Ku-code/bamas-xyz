@@ -218,9 +218,18 @@ export const uploadDocumentFile = async (
  */
 export const getDocumentFileUrl = async (filePath: string): Promise<string> => {
   try {
-    return await storage.getSignedUrl('documents', filePath, 3600); // 1 hour expiry
-  } catch (error) {
-    console.error('Error getting file URL:', error);
+    console.log('[getDocumentFileUrl] Requesting signed URL for:', filePath);
+    const url = await storage.getSignedUrl('documents', filePath, 3600); // 1 hour expiry
+    console.log('[getDocumentFileUrl] Signed URL generated:', url?.substring(0, 100));
+    return url;
+  } catch (error: any) {
+    console.error('[getDocumentFileUrl] Error getting file URL:', error);
+    console.error('[getDocumentFileUrl] Error details:', {
+      message: error.message,
+      code: error.code,
+      statusCode: error.statusCode,
+      filePath
+    });
     throw error;
   }
 };
