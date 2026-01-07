@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { LogOut, User, Settings } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -51,6 +52,29 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close menu on scroll (mobile only)
+  useEffect(() => {
+    if (isMenuOpen) {
+      const handleScroll = () => {
+        setIsMenuOpen(false);
+      };
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [isMenuOpen]);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
   const navLinks = [
     { name: t("nav.home"), href: "#home" },
@@ -285,99 +309,151 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <>
-          {/* Backdrop overlay - click to close */}
-          <div 
-            className="md:hidden fixed inset-0 bg-black/50 z-40 animate-in fade-in"
-            onClick={closeMenu}
-            aria-hidden="true"
-          />
-          {/* Mobile menu */}
-          <div className="md:hidden bg-background shadow-lg border-t border-border fixed left-0 right-0 bottom-0 z-50 animate-in slide-in-from-top overflow-y-auto" style={{ top: isScrolled ? '64px' : '80px' }}>
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            {/* Backdrop overlay - click to close */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              onClick={closeMenu}
+              aria-hidden="true"
+            />
+            {/* Mobile menu */}
+            <motion.div 
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="md:hidden fixed right-0 top-0 bottom-0 w-full max-w-sm bg-background shadow-2xl border-l border-border z-50 overflow-y-auto overscroll-contain"
+              style={{ 
+                height: '100vh',
+                paddingTop: isScrolled ? '64px' : '80px'
+              }}
+            >
             {/* Close button inside menu - always visible at top */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-background sticky top-0 z-10">
-              <span className="text-lg font-semibold text-foreground">{t("nav.menu") || "Menu"}</span>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
+              <span className="text-xl font-bold text-foreground">{t("nav.menu") || "Menu"}</span>
               <button
-                className="text-foreground hover:text-destructive active:text-destructive p-2 -mr-2 transition-all active:scale-95 touch-manipulation"
+                className="text-foreground hover:text-destructive active:text-destructive p-2 -mr-2 rounded-lg transition-all active:scale-95 touch-manipulation hover:bg-muted/50"
                 onClick={closeMenu}
                 aria-label="Close menu"
               >
                 <X size={24} />
               </button>
             </div>
-            <nav className="container mx-auto px-4 py-4">
-            <ul className="space-y-4">
-              {navLinks.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    className={`block text-lg font-medium transition-colors py-2 ${activeSection === link.href.substring(1)
-                      ? "text-destructive"
-                      : "text-foreground hover:text-primary"
-                      }`}
-                    onClick={closeMenu}
+            
+            <nav className="px-6 py-6">
+              <ul className="space-y-2">
+                {navLinks.map((link, index) => (
+                  <motion.li 
+                    key={link.name}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.3 }}
                   >
-                    {link.name}
-                  </a>
+                    <a
+                      href={link.href}
+                      className={`block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg ${
+                        activeSection === link.href.substring(1)
+                          ? "text-primary bg-primary/10 border-l-4 border-primary"
+                          : "text-foreground hover:text-primary hover:bg-muted/50"
+                      }`}
+                      onClick={closeMenu}
+                    >
+                      {link.name}
+                      {activeSection === link.href.substring(1) && (
+                        <span className="ml-2 text-primary">●</span>
+                      )}
+                    </a>
+                  </motion.li>
+                ))}
+                
+                <li className="pt-4 mt-4 border-t border-border/50">
+                  {isAuthenticated ? (
+                    <div className="space-y-2">
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
+                      >
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
+                          onClick={closeMenu}
+                        >
+                          <User className="h-5 w-5" />
+                          {t("nav.dashboard") || "Dashboard"}
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
+                      >
+                        <Link
+                          to="/settings"
+                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
+                          onClick={closeMenu}
+                        >
+                          <Settings className="h-5 w-5" />
+                          {t("nav.settings") || "Settings"}
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (navLinks.length + 2) * 0.05, duration: 0.3 }}
+                      >
+                        <button
+                          onClick={() => { handleLogout(); closeMenu(); }}
+                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-destructive hover:bg-destructive/10 w-full text-left py-3 px-4 rounded-lg"
+                        >
+                          <LogOut className="h-5 w-5" />
+                          {t("nav.logout") || "Logout"}
+                        </button>
+                      </motion.div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 pt-2">
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
+                      >
+                        <Link
+                          to="/login"
+                          className="block text-center text-lg font-medium transition-all duration-200 text-foreground hover:text-primary border-2 border-border hover:border-primary py-3 px-6 rounded-lg"
+                          onClick={closeMenu}
+                        >
+                          {t("nav.login")}
+                        </Link>
+                      </motion.div>
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
+                      >
+                        <Link
+                          to="/register"
+                          className="block text-center text-lg font-semibold transition-all duration-200 text-primary-foreground bg-primary hover:bg-primary/90 py-3 px-6 rounded-lg shadow-lg hover:shadow-xl"
+                          onClick={closeMenu}
+                        >
+                          {t("nav.register")}
+                        </Link>
+                      </motion.div>
+                    </div>
+                  )}
                 </li>
-              ))}
-              {isAuthenticated ? (
-                <>
-                  <li>
-                    <Link
-                      to="/dashboard"
-                      className="block text-lg font-medium transition-colors text-foreground hover:text-primary"
-                      onClick={closeMenu}
-                    >
-                      {t("nav.dashboard") || "Dashboard"}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/settings"
-                      className="block text-lg font-medium transition-colors text-foreground hover:text-primary"
-                      onClick={closeMenu}
-                    >
-                      {t("nav.settings") || "Settings"}
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => { handleLogout(); closeMenu(); }}
-                      className="block text-lg font-medium transition-colors text-foreground hover:text-destructive w-full text-left"
-                    >
-                      {t("nav.logout") || "Logout"}
-                    </button>
-                  </li>
-                </>
-              ) : (
-                <>
-              <li>
-                <Link
-                  to="/login"
-                  className="block text-lg font-medium transition-colors text-foreground hover:text-primary"
-                  onClick={closeMenu}
-                >
-                  {t("nav.login")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/register"
-                  className="block text-lg font-medium transition-colors text-foreground hover:text-primary"
-                  onClick={closeMenu}
-                >
-                  {t("nav.register")}
-                </Link>
-              </li>
-                </>
-              )}
-            </ul>
-          </nav>
-        </div>
-        </>
-      )}
+              </ul>
+            </nav>
+          </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
