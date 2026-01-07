@@ -56,6 +56,11 @@ try {
 
 export { supabase };
 
+// Export URL for use in other modules
+export const getSupabaseUrl = (): string => {
+  return supabaseUrl;
+};
+
 // Helper to check if Supabase is properly configured
 export const isSupabaseConfigured = (): boolean => {
   return !!(supabaseUrl && supabaseAnonKey && 

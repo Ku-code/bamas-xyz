@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured, getSupabaseUrl } from '@/lib/supabase';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { db } from '@/lib/database';
 
@@ -400,6 +400,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (functionError) {
           console.error('Error creating user profile:', functionError);
           throw functionError;
+        }
+
+        // Send welcome email via Edge Function (non-blocking)
+        // The database trigger should also fire, but we call it explicitly as a backup
+        try {
+          const supabaseUrl = getSupabaseUrl();
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+          
+          if (supabaseUrl && supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey) {
+            const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-welcome-email`;
+            
+            // Call Edge Function asynchronously (don't wait for response)
+            fetch(edgeFunctionUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseAnonKey}`,
+              },
+              body: JSON.stringify({
+                email: email,
+                name: name,
+                user_id: data.user.id,
+              }),
+            }).catch((error) => {
+              // Don't fail registration if email fails
+              console.warn('Failed to send welcome email (non-critical):', error);
+            });
+          }
+        } catch (emailError) {
+          // Don't fail registration if email fails
+          console.warn('Welcome email error (non-critical):', emailError);
         }
 
         // Wait a bit for the session to be established
