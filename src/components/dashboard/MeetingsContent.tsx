@@ -88,14 +88,17 @@ const MeetingsContent = () => {
       if (filterStatus !== "all") filters.status = filterStatus;
 
       const loadedMeetings = await loadMeetings(filters);
-      setMeetings(loadedMeetings);
+      setMeetings(loadedMeetings || []);
     } catch (error) {
       console.error("Error loading meetings:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast({
-        title: translate("dashboard.meetings.error.title", "Възникна проблем"),
-        description: translate("dashboard.meetings.error.loadFailed", "Срещите не могат да бъдат заредени. Обновете страницата или опитайте по-късно."),
+        title: translate("dashboard.meetings.error.title", "Something went wrong"),
+        description: translate("dashboard.meetings.error.loadFailed", "We couldn't load meetings. Please refresh the page or try again shortly.") + ` (${errorMessage})`,
         variant: "destructive",
       });
+      // Set empty array on error to prevent UI issues
+      setMeetings([]);
     }
   };
 
@@ -351,10 +354,16 @@ const MeetingsContent = () => {
       <div className="flex gap-4">
         <Select value={filterType} onValueChange={(value) => setFilterType(value as MeetingType | "all")}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder={t("dashboard.meetings.filter.type") || "All Types"} />
+            <SelectValue>
+              {filterType === "all"
+                ? t("dashboard.meetings.filter.allTypes") || "All meeting types"
+                : filterType === "general_assembly"
+                ? t("dashboard.meetings.type.general_assembly") || "General Assembly"
+                : t("dashboard.meetings.type.board_meeting") || "Board Meeting"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t("dashboard.meetings.filter.allTypes") || "All Types"}</SelectItem>
+            <SelectItem value="all">{t("dashboard.meetings.filter.allTypes") || "All meeting types"}</SelectItem>
             <SelectItem value="general_assembly">
               {t("dashboard.meetings.type.general_assembly") || "General Assembly"}
             </SelectItem>
@@ -365,10 +374,22 @@ const MeetingsContent = () => {
         </Select>
         <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as MeetingStatus | "all")}>
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder={t("dashboard.meetings.filter.status") || "All Statuses"} />
+            <SelectValue>
+              {filterStatus === "all"
+                ? t("dashboard.meetings.filter.allStatuses") || "All statuses"
+                : filterStatus === "draft"
+                ? t("dashboard.meetings.status.draft") || "Draft"
+                : filterStatus === "scheduled"
+                ? t("dashboard.meetings.status.scheduled") || "Scheduled"
+                : filterStatus === "in_progress"
+                ? t("dashboard.meetings.status.in_progress") || "In Progress"
+                : filterStatus === "completed"
+                ? t("dashboard.meetings.status.completed") || "Completed"
+                : t("dashboard.meetings.status.cancelled") || "Cancelled"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t("dashboard.meetings.filter.allStatuses") || "All Statuses"}</SelectItem>
+            <SelectItem value="all">{t("dashboard.meetings.filter.allStatuses") || "All statuses"}</SelectItem>
             <SelectItem value="draft">{t("dashboard.meetings.status.draft") || "Draft"}</SelectItem>
             <SelectItem value="scheduled">{t("dashboard.meetings.status.scheduled") || "Scheduled"}</SelectItem>
             <SelectItem value="in_progress">{t("dashboard.meetings.status.in_progress") || "In Progress"}</SelectItem>
