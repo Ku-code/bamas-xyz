@@ -19,13 +19,14 @@ import { DotGlobeHero } from "@/components/ui/globe-hero";
 import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
-import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon } from "lucide-react";
+import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const { toast } = useToast();
   const { t, language, setLanguage } = useLanguage();
   const isMobile = useIsMobile();
+  const [expandedCard, setExpandedCard] = useState<'vision' | 'mission' | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -246,19 +247,44 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100"
               >
-                <Card className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300">
+                <Card 
+                  className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
+                  onClick={() => setExpandedCard(expandedCard === 'vision' ? null : 'vision')}
+                >
                   <div className="p-8">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                        <Target className="h-6 w-6 text-primary" />
+                    <div className="flex items-center justify-between gap-4 mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                          <Target className="h-6 w-6 text-primary" />
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                          {t("mission.vision.title")}
+                        </h3>
                       </div>
-                      <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                        {t("mission.vision.title")}
-                      </h3>
+                      {expandedCard === 'vision' ? (
+                        <ChevronUp className="h-5 w-5 text-primary flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-primary/60 flex-shrink-0" />
+                      )}
                     </div>
-                    <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
-                      {t("mission.vision.description")}
-                    </p>
+                    <div className="space-y-3">
+                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+                        {t("mission.vision.short")}
+                      </p>
+                      {expandedCard === 'vision' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 pt-2 border-t border-primary/20">
+                            {t("mission.vision.description")}
+                          </p>
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
                 </Card>
               </motion.div>
@@ -270,31 +296,43 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200"
               >
-                <Card className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300">
+                <Card 
+                  className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
+                  onClick={() => setExpandedCard(expandedCard === 'mission' ? null : 'mission')}
+                >
                   <div className="p-8">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                        <RocketIcon className="h-6 w-6 text-primary" />
-                      </div>
-                      <h3 className="text-2xl md:text-3xl font-bold text-foreground">
-                        {t("mission.mission.title")}
-                      </h3>
-                    </div>
-                    <p className="text-base text-foreground/70 mb-4">
-                      {t("mission.mission.subtitle")}
-                    </p>
-                    <div className="space-y-3">
-                      {[
-                        t("mission.mission.item1"),
-                        t("mission.mission.item2"),
-                        t("mission.mission.item3"),
-                        t("mission.mission.item4")
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                          <p className="text-sm text-foreground/80 leading-relaxed">{item}</p>
+                    <div className="flex items-center justify-between gap-4 mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                          <RocketIcon className="h-6 w-6 text-primary" />
                         </div>
-                      ))}
+                        <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                          {t("mission.mission.title")}
+                        </h3>
+                      </div>
+                      {expandedCard === 'mission' ? (
+                        <ChevronUp className="h-5 w-5 text-primary flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-primary/60 flex-shrink-0" />
+                      )}
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+                        {t("mission.mission.short")}
+                      </p>
+                      {expandedCard === 'mission' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 pt-2 border-t border-primary/20">
+                            {t("mission.mission.description")}
+                          </p>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
                 </Card>

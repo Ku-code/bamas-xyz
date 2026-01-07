@@ -20,8 +20,11 @@
   
   "mission.section.title": "BULGARIAN ADDITIVE HUB",
   "mission.vision.title": "Our Vision",
-  "mission.vision.description": "To unify and amplify the Bulgarian additive manufacturing sector's capabilities in the global arena, establishing Bulgaria as a recognized center of excellence for 3D printing innovation and implementation.",
+  "mission.vision.short": "To establish Bulgaria as a premier European hub for high-tech additive innovation and digital industrial excellence.",
+  "mission.vision.description": "To position Bulgaria as a high-tech frontier and a core European hub for additive technologies and industrial transformation. We envision a future where a robust national network of Digital Innovation Hubs (DIH) and Centers of Excellence drives the development of proprietary materials, advanced mechatronics, and decentralized manufacturing models. Our goal is for the Bulgarian AM sector to be internationally recognized as a hallmark of innovation, providing the critical infrastructure and specialized talent necessary to lead the global shift toward Industry 4.0 and agile supply chains.",
   "mission.mission.title": "Our Mission",
+  "mission.mission.short": "To drive Bulgaria's global competitiveness by unifying and advancing the national additive manufacturing ecosystem.",
+  "mission.mission.description": "To serve as the definitive national authority and strategic catalyst for the additive manufacturing (AM) ecosystem in Bulgaria. The organization is dedicated to consolidating the expertise of industrial stakeholders, academic institutions, and R&D centers to accelerate the integration of 3D printing, digital twinning, and industrial automation. By providing high-level technical advocacy, facilitating technology transfer, and establishing frameworks for certification and standardization, the Association empowers Bulgarian enterprises to achieve global competitiveness through advanced digital production and sustainable, circular economy solutions.",
   "mission.mission.subtitle": "Our mission is the path to an innovative future",
   "mission.purpose.badge": "Our Purpose",
   "mission.mission.item1": "Facilitate collaboration between companies, researchers, and institutions",
