@@ -3,11 +3,14 @@
 -- Migration 013: Complete meeting and agenda infrastructure
 -- ============================================
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- ============================================
 -- MEETINGS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS meetings (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type TEXT NOT NULL CHECK (type IN ('general_assembly', 'board_meeting')),
   title TEXT NOT NULL,
   scheduled_date DATE NOT NULL,
@@ -34,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_meetings_created_at ON meetings(created_at DESC);
 -- AGENDAS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS agendas (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
   version INTEGER NOT NULL DEFAULT 1,
   rules JSONB, -- Procedural framework (e.g., quorum requirements, voting rules)
@@ -80,7 +83,7 @@ CREATE INDEX IF NOT EXISTS idx_agenda_items_proposed_by ON agenda_items(proposed
 -- AGENDA PROPOSALS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS agenda_proposals (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
   agenda_id UUID REFERENCES agendas(id) ON DELETE SET NULL,
   parent_item_id UUID REFERENCES agenda_items(id) ON DELETE SET NULL, -- null for top-level, UUID for sub-item
@@ -107,7 +110,7 @@ CREATE INDEX IF NOT EXISTS idx_agenda_proposals_proposed_at ON agenda_proposals(
 -- MEETING MINUTES TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS meeting_minutes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   meeting_id UUID NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
   agenda_item_id UUID NOT NULL REFERENCES agenda_items(id) ON DELETE CASCADE,
   discussion_summary TEXT,
@@ -134,7 +137,7 @@ CREATE INDEX IF NOT EXISTS idx_meeting_minutes_created_at ON meeting_minutes(cre
 -- POLL AGENDA LINKS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS poll_agenda_links (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   poll_id UUID NOT NULL REFERENCES polls(id) ON DELETE CASCADE,
   agenda_item_id UUID NOT NULL REFERENCES agenda_items(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -149,7 +152,7 @@ CREATE INDEX IF NOT EXISTS idx_poll_agenda_links_agenda_item_id ON poll_agenda_l
 -- AGENDA AUDIT LOG TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS agenda_audit_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   meeting_id UUID REFERENCES meetings(id) ON DELETE CASCADE,
   agenda_id UUID REFERENCES agendas(id) ON DELETE CASCADE,
   agenda_item_id UUID REFERENCES agenda_items(id) ON DELETE CASCADE,
