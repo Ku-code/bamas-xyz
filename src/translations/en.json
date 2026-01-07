@@ -1075,5 +1075,23 @@
   "settings.logout.error.title": "Logout Failed",
   "settings.logout.error.description": "Failed to logout. Please try again.",
   "settings.profile.imageError.notLoggedIn": "You must be logged in to upload images.",
-  "settings.profile.imageError.uploadFailed": "Failed to upload image. Please try again."
+  "settings.profile.imageError.uploadFailed": "Failed to upload image. Please try again.",
+  
+  "dashboard.pendingApproval.title": "Account Pending Approval",
+  "dashboard.pendingApproval.description": "Your account is waiting for administrator approval.",
+  "dashboard.pendingApproval.message": "What happens next?",
+  "dashboard.pendingApproval.step1": "A superadmin will review your registration",
+  "dashboard.pendingApproval.step2": "You'll receive access once approved",
+  "dashboard.pendingApproval.step3": "You can browse menu items but cannot access content yet",
+  "dashboard.pendingApproval.contact": "If you have questions, please contact an administrator.",
+  "dashboard.rejected.title": "Account Rejected",
+  "dashboard.rejected.description": "Your account registration has been rejected.",
+  "dashboard.rejected.contact": "If you believe this is an error, please contact an administrator.",
+  "dashboard.suspended.title": "Account Suspended",
+  "dashboard.suspended.description": "Your account has been suspended. Please contact an administrator.",
+  "dashboard.suspended.contact": "For more information about your suspension, please contact an administrator.",
+  "dashboard.status.pending": "Pending",
+  "dashboard.status.approved": "Approved",
+  "dashboard.status.rejected": "Rejected",
+  "dashboard.status.suspended": "Suspended"
 } 

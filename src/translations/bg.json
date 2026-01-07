@@ -994,5 +994,23 @@
   "settings.save.success.description": "Вашите настройки са актуализирани успешно!",
   "settings.logout.button": "Изход",
   "settings.logout.success": "Излязохте",
-  "settings.logout.description": "Успешно излязохте от акаунта си."
+  "settings.logout.description": "Успешно излязохте от акаунта си.",
+  
+  "dashboard.pendingApproval.title": "Акаунт в очакване на одобрение",
+  "dashboard.pendingApproval.description": "Вашият акаунт чака одобрение от администратор.",
+  "dashboard.pendingApproval.message": "Какво следва?",
+  "dashboard.pendingApproval.step1": "Супер администраторът ще прегледа вашата регистрация",
+  "dashboard.pendingApproval.step2": "Ще получите достъп след одобрение",
+  "dashboard.pendingApproval.step3": "Можете да разглеждате менютата, но не можете да достъпите съдържанието все още",
+  "dashboard.pendingApproval.contact": "Ако имате въпроси, моля, свържете се с администратор.",
+  "dashboard.rejected.title": "Акаунтът е отхвърлен",
+  "dashboard.rejected.description": "Регистрацията на вашия акаунт е отхвърлена.",
+  "dashboard.rejected.contact": "Ако смятате, че това е грешка, моля, свържете се с администратор.",
+  "dashboard.suspended.title": "Акаунтът е спрян",
+  "dashboard.suspended.description": "Вашият акаунт е спрян. Моля, свържете се с администратор.",
+  "dashboard.suspended.contact": "За повече информация относно спирането, моля, свържете се с администратор.",
+  "dashboard.status.pending": "В очакване",
+  "dashboard.status.approved": "Одобрен",
+  "dashboard.status.rejected": "Отхвърлен",
+  "dashboard.status.suspended": "Спрян"
 }

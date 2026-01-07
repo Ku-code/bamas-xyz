@@ -140,16 +140,16 @@ const WorkingGroupsContent = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
             {workingGroups.map((wg) => {
               const member = userMemberships.find((m) => m.working_group_id === wg.id);
               return (
-                <Card key={wg.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setSelectedWG(wg)}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-lg">{wg.name}</CardTitle>
+                <Card key={wg.id} className="cursor-pointer hover:shadow-lg transition-shadow flex flex-col h-full" onClick={() => setSelectedWG(wg)}>
+                  <CardHeader className="flex-shrink-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-lg flex-1">{wg.name}</CardTitle>
                       {member && (
-                        <Badge variant="secondary">
+                        <Badge variant="secondary" className="flex-shrink-0">
                           {member.role === 'lead' 
                             ? (t("dashboard.workinggroups.role.lead") || "Lead")
                             : (t("dashboard.workinggroups.role.member") || "Member")}
@@ -157,15 +157,15 @@ const WorkingGroupsContent = () => {
                       )}
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <CardDescription className="line-clamp-3 mb-4">
+                  <CardContent className="flex flex-col flex-grow">
+                    <CardDescription className="line-clamp-3 mb-4 flex-shrink-0">
                       {wg.description || wg.mission_statement || t("dashboard.workinggroups.noDescription") || "No description available."}
                     </CardDescription>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-3 mt-auto pt-4">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         {wgMembersMap[wg.id] && wgMembersMap[wg.id].length > 0 ? (
-                          <div className="flex items-center gap-2">
-                            <div className="flex -space-x-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex -space-x-2 flex-shrink-0">
                               {wgMembersMap[wg.id].slice(0, 5).map((member) => (
                                 <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
                                   <AvatarImage src={member.user?.image || undefined} />
@@ -180,7 +180,7 @@ const WorkingGroupsContent = () => {
                                 </div>
                               )}
                             </div>
-                            <span className="text-sm text-muted-foreground">
+                            <span className="text-sm text-muted-foreground truncate">
                               {wgMembersMap[wg.id].length} {wgMembersMap[wg.id].length === 1 
                                 ? (t("dashboard.workinggroups.member") || "member")
                                 : (t("dashboard.workinggroups.members") || "members")}
@@ -188,7 +188,7 @@ const WorkingGroupsContent = () => {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
+                            <Users className="h-4 w-4 flex-shrink-0" />
                             <span>{t("dashboard.workinggroups.members") || "Members"}</span>
                           </div>
                         )}
@@ -197,13 +197,14 @@ const WorkingGroupsContent = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="flex-shrink-0 whitespace-nowrap"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleJoinWG(wg.id);
                           }}
                         >
-                          <UserPlus className="h-4 w-4 mr-2" />
-                          {t("dashboard.workinggroups.join") || "Join"}
+                          <UserPlus className="h-4 w-4 sm:mr-2" />
+                          <span>{t("dashboard.workinggroups.join") || "Join"}</span>
                         </Button>
                       )}
                     </div>
