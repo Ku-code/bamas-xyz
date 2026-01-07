@@ -27,41 +27,34 @@ const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || '';
 // If no API key is provided, uses OpenFreeMap/OSM styles as fallback
 const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecification => {
   if (MAPTILER_API_KEY) {
-    // Use Maptiler Dataviz styles with API key
-    // dataviz-v4 is the light style, dataviz-v4-dark is the dark style
-    if (isDark) {
-      return `https://api.maptiler.com/maps/dataviz-v4-dark/style.json?key=${MAPTILER_API_KEY}`;
-    } else {
-      // Use dataviz-v4-light for light mode (or base dataviz-v4 if light variant doesn't exist)
-      // Try dataviz-v4-light first, fallback to base dataviz-v4
-      return `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
-    }
-  } else {
-    // Fallback to OpenFreeMap/OSM styles (no API key required)
-    if (isDark) {
-      return 'https://tiles.openfreemap.org/styles/dark';
-    } else {
-      // Use OSM standard style for light mode fallback
-      return {
-        version: 8,
-        sources: {
-          'osm-tiles': {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [
-          {
-            id: 'osm-tiles-layer',
-            type: 'raster',
-            source: 'osm-tiles',
-          },
-        ],
-      };
-    }
+    return isDark
+      ? `https://api.maptiler.com/maps/dataviz-v4-dark/style.json?key=${MAPTILER_API_KEY}`
+      : `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
   }
+
+  const lightTiles = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  const darkTiles = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png';
+
+  return {
+    version: 8,
+    sources: {
+      'osm-tiles': {
+        type: 'raster',
+        tiles: [isDark ? darkTiles : lightTiles],
+        tileSize: 256,
+        attribution: isDark
+          ? '© Stadia Maps, © OpenMapTiles © OpenStreetMap contributors'
+          : '© OpenStreetMap contributors',
+      },
+    },
+    layers: [
+      {
+        id: 'osm-tiles-layer',
+        type: 'raster',
+        source: 'osm-tiles',
+      },
+    ],
+  };
 };
 
 export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = '', isFullscreen = false, isPanelOpen = true }: MapProps) => {
@@ -145,11 +138,20 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         }
       });
 
+      // Ensure map resizes correctly (useful on mobile/orientation changes)
+      const handleResize = () => {
+        try {
+          map.current?.resize();
+        } catch (_) {}
+      };
+      window.addEventListener('resize', handleResize);
+
       return () => {
         if (map.current) {
           map.current.remove();
           map.current = null;
         }
+        window.removeEventListener('resize', handleResize);
       };
     } catch (error) {
       console.error('Error initializing map:', error);

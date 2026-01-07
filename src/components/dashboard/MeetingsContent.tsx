@@ -54,6 +54,10 @@ const MeetingsContent = () => {
   const { t } = useLanguage();
   const { user, isSuperAdmin, isAdmin, isBoardMember } = useAuth();
   const { toast } = useToast();
+  const translate = (key: string, fallback: string) => {
+    const value = t(key);
+    return value === key ? fallback : value;
+  };
   const [searchParams, setSearchParams] = useSearchParams();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -88,8 +92,8 @@ const MeetingsContent = () => {
     } catch (error) {
       console.error("Error loading meetings:", error);
       toast({
-        title: t("dashboard.meetings.error.title") || "Error",
-        description: t("dashboard.meetings.error.loadFailed") || "Failed to load meetings. Please try again.",
+        title: translate("dashboard.meetings.error.title", "Възникна проблем"),
+        description: translate("dashboard.meetings.error.loadFailed", "Срещите не могат да бъдат заредени. Обновете страницата или опитайте по-късно."),
         variant: "destructive",
       });
     }
