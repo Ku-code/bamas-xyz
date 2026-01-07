@@ -67,6 +67,7 @@ const AgendaContent = () => {
 
   const loadAgendaItemsFromDatabase = async () => {
     try {
+      // Load all agenda items (can be filtered by meeting/agenda later)
       const items = await loadAgendaItems();
       // Convert to component format
       const convertedItems: AgendaItem[] = items.map((item) => ({

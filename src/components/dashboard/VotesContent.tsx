@@ -39,8 +39,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { logHistory } from "@/lib/history";
 import { loadPolls, createPoll, updatePoll, deletePoll, submitVotes, getUserVotes, Poll, PollOption } from "@/lib/polls";
-import { CheckSquare, Plus, Vote, BarChart3, Users, X, Edit, Trash2, MoreVertical } from "lucide-react";
+import { linkPollToAgendaItem, loadLinkedAgendaItems, unlinkPoll, isPollLinked } from "@/lib/poll-agenda-links";
+import { loadAgendaItems } from "@/lib/agenda";
+import { CheckSquare, Plus, Vote, BarChart3, Users, X, Edit, Trash2, MoreVertical, Link as LinkIcon, Unlink } from "lucide-react";
 import { format } from "date-fns";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const VotesContent = () => {
   const { t } = useLanguage();
@@ -53,6 +62,10 @@ const VotesContent = () => {
   const [deletePollId, setDeletePollId] = useState<string | null>(null);
   const [selectedVotes, setSelectedVotes] = useState<{ [pollId: string]: string[] }>({});
   const [showResults, setShowResults] = useState<{ [pollId: string]: boolean }>({});
+  const [linkingPollId, setLinkingPollId] = useState<string | null>(null);
+  const [availableAgendaItems, setAvailableAgendaItems] = useState<Array<{ id: string; title: string }>>([]);
+  const [selectedAgendaItemId, setSelectedAgendaItemId] = useState<string>("");
+  const [linkedAgendaItems, setLinkedAgendaItems] = useState<Record<string, Array<{ id: string; title: string }>>>({});
   const [newPoll, setNewPoll] = useState({
     title: "",
     description: "",
@@ -65,6 +78,31 @@ const VotesContent = () => {
   useEffect(() => {
     loadPollsFromDatabase();
   }, []);
+
+  useEffect(() => {
+    if (polls.length > 0) {
+      loadAgendaItemsForLinking();
+    }
+  }, [polls]);
+
+  const loadAgendaItemsForLinking = async () => {
+    try {
+      const items = await loadAgendaItems();
+      setAvailableAgendaItems(items.map(item => ({ id: item.id, title: item.title })));
+      
+      // Load linked items for all polls
+      const linkedMap: Record<string, Array<{ id: string; title: string }>> = {};
+      for (const poll of polls) {
+        const linked = await loadLinkedAgendaItems(poll.id);
+        if (linked.length > 0) {
+          linkedMap[poll.id] = linked;
+        }
+      }
+      setLinkedAgendaItems(linkedMap);
+    } catch (error) {
+      console.error("Error loading agenda items:", error);
+    }
+  };
 
   const loadPollsFromDatabase = async () => {
     try {
@@ -363,6 +401,53 @@ const VotesContent = () => {
       toast({
         title: t("dashboard.votes.vote.error.title") || "Error",
         description: error.message || t("dashboard.votes.vote.error.description") || "Failed to submit vote. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLinkToAgendaItem = async (pollId: string) => {
+    if (!selectedAgendaItemId) {
+      toast({
+        title: t("dashboard.votes.link.error.title") || "Error",
+        description: t("dashboard.votes.link.error.noItem") || "Please select an agenda item.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await linkPollToAgendaItem(pollId, selectedAgendaItemId);
+      toast({
+        title: t("dashboard.votes.link.success.title") || "Poll Linked",
+        description: t("dashboard.votes.link.success.description") || "Poll has been linked to agenda item.",
+      });
+      setLinkingPollId(null);
+      setSelectedAgendaItemId("");
+      await loadAgendaItemsForLinking();
+    } catch (error) {
+      console.error("Error linking poll:", error);
+      toast({
+        title: t("dashboard.votes.link.error.title") || "Error",
+        description: t("dashboard.votes.link.error.description") || "Failed to link poll.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUnlinkFromAgendaItem = async (pollId: string, agendaItemId: string) => {
+    try {
+      await unlinkPoll(pollId, agendaItemId);
+      toast({
+        title: t("dashboard.votes.unlink.success.title") || "Poll Unlinked",
+        description: t("dashboard.votes.unlink.success.description") || "Poll has been unlinked from agenda item.",
+      });
+      await loadAgendaItemsForLinking();
+    } catch (error) {
+      console.error("Error unlinking poll:", error);
+      toast({
+        title: t("dashboard.votes.unlink.error.title") || "Error",
+        description: t("dashboard.votes.unlink.error.description") || "Failed to unlink poll.",
         variant: "destructive",
       });
     }
@@ -674,6 +759,51 @@ const VotesContent = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Link to Agenda Item Dialog */}
+      <Dialog open={linkingPollId !== null} onOpenChange={(open) => {
+        if (!open) {
+          setLinkingPollId(null);
+          setSelectedAgendaItemId("");
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("dashboard.votes.link.dialog.title") || "Link Poll to Agenda Item"}</DialogTitle>
+            <DialogDescription>
+              {t("dashboard.votes.link.dialog.description") || "Connect this poll to a specific agenda item for meeting voting."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t("dashboard.votes.link.dialog.selectItem") || "Select Agenda Item"}</Label>
+              <Select value={selectedAgendaItemId} onValueChange={setSelectedAgendaItemId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("dashboard.votes.link.dialog.selectPlaceholder") || "Choose an agenda item..."} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableAgendaItems.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setLinkingPollId(null);
+              setSelectedAgendaItemId("");
+            }}>
+              {t("dashboard.votes.link.cancel") || "Cancel"}
+            </Button>
+            <Button onClick={() => linkingPollId && handleLinkToAgendaItem(linkingPollId)}>
+              {t("dashboard.votes.link.submit") || "Link Poll"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {polls.length === 0 ? (
         <Card>

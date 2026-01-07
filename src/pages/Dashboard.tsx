@@ -32,6 +32,7 @@ import {
   Map,
   Briefcase,
   PenTool,
+  Gavel,
 } from "lucide-react";
 import HistoryContent from "@/components/dashboard/HistoryContent";
 import VotesContent from "@/components/dashboard/VotesContent";
@@ -43,17 +44,29 @@ import ResourcesContent from "@/components/dashboard/ResourcesContent";
 import AdditiveMapContent from "@/components/dashboard/AdditiveMapContent";
 import WorkingGroupsContent from "@/components/dashboard/WorkingGroupsContent";
 import SignatureCenter from "@/components/dashboard/SignatureCenter";
+import MeetingsContent from "@/components/dashboard/MeetingsContent";
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeItem, setActiveItem] = useState<MenuItem>("history");
+
+  // Check if we should show meeting detail view
+  useEffect(() => {
+    const meetingId = searchParams.get("meeting");
+    if (meetingId) {
+      setActiveItem("meetings");
+      // MeetingDetailView will handle loading the meeting
+    }
+  }, [searchParams]);
 
   const menuItems = [
     { id: "history" as MenuItem, icon: Clock, label: t("dashboard.menu.history") || "History" },
+    { id: "meetings" as MenuItem, icon: Gavel, label: t("dashboard.menu.meetings") || "Meetings" },
     { id: "votes" as MenuItem, icon: CheckSquare, label: t("dashboard.menu.votes") || "Votes" },
     { id: "agenda" as MenuItem, icon: Calendar, label: t("dashboard.menu.agenda") || "Agenda" },
     { id: "documents" as MenuItem, icon: FileText, label: t("dashboard.menu.documents") || "Documents" },
@@ -69,6 +82,8 @@ const Dashboard = () => {
     switch (activeItem) {
       case "history":
         return <HistoryContent />;
+      case "meetings":
+        return <MeetingsContent />;
       case "votes":
         return <VotesContent />;
       case "agenda":
