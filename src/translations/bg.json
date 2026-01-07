@@ -430,6 +430,13 @@
   "dashboard.signatures.info.title": "За цифровите подписи",
   "dashboard.signatures.info.description": "Критичните документи изискват юридически обвързващи цифрови подписи от упълномощени членове.",
   "dashboard.signatures.info.process": "Кликнете 'Подпиши сега', за да прегледате документа, след което начертайте подписа си. Документът ще бъде финализиран, когато всички задължителни подписващи завършат.",
+
+  "dashboard.meetings.title": "Срещи и дневни редове",
+  "dashboard.meetings.description": "Планирайте, провеждайте и документирайте срещите на асоциацията",
+  "dashboard.meetings.filter.type": "Тип среща",
+  "dashboard.meetings.filter.allTypes": "Всички типове срещи",
+  "dashboard.meetings.filter.status": "Статус на срещата",
+  "dashboard.meetings.filter.allStatuses": "Всички статуси",
   "dashboard.signatures.preview.title": "Преглед на документа",
   "dashboard.signatures.preview.description": "Прегледайте документа преди подписване",
   "dashboard.signatures.preview.continue": "Продължи към подписване",
