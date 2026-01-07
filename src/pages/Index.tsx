@@ -222,17 +222,18 @@ const Index = () => {
       </section>
 
       <section id="mission" className="py-16 md:py-24 bg-gradient-to-b from-background via-muted/20 to-background relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+        {/* Background decorative elements - Green bloom effects */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-pulse"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none animate-pulse"></div>
+        <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           {/* Section Header */}
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
             <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
-              {t("mission.vision.title")} & {t("mission.mission.title")}
+              {t("mission.section.title")}
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto shadow-lg shadow-primary/50"></div>
           </div>
 
           {/* Vision and Mission Side by Side */}
@@ -245,7 +246,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100"
               >
-                <Card className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Card className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300">
                   <div className="p-8">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -269,11 +270,11 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200"
               >
-                <Card className="h-full bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border-2 border-accent/20 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Card className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300">
                   <div className="p-8">
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                        <RocketIcon className="h-6 w-6 text-accent-foreground" />
+                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <RocketIcon className="h-6 w-6 text-primary" />
                       </div>
                       <h3 className="text-2xl md:text-3xl font-bold text-foreground">
                         {t("mission.mission.title")}
@@ -304,7 +305,7 @@ const Index = () => {
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-300">
                 <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
-                  {t("mission.mission.title")} {t("mission.mission.subtitle").split(" ").slice(-2).join(" ")}
+                  {t("mission.mission.subtitle")}
                 </h3>
               </div>
 
@@ -313,15 +314,15 @@ const Index = () => {
                   {
                     icon: <Users className="h-7 w-7" />,
                     text: t("mission.mission.item1"),
-                    color: "from-accent/20 to-accent/10",
-                    borderColor: "border-accent/30",
-                    iconBg: "bg-accent/20",
-                    iconColor: "text-accent-foreground"
+                    color: "from-primary/20 to-primary/10",
+                    borderColor: "border-primary/30",
+                    iconBg: "bg-primary/20",
+                    iconColor: "text-primary"
                   },
                   {
                     icon: <Rocket className="h-7 w-7" />,
                     text: t("mission.mission.item2"),
-                    color: "from-primary/20 to-primary/10",
+                    color: "from-primary/25 to-primary/15",
                     borderColor: "border-primary/30",
                     iconBg: "bg-primary/20",
                     iconColor: "text-primary"
@@ -329,15 +330,15 @@ const Index = () => {
                   {
                     icon: <Lightbulb className="h-7 w-7" />,
                     text: t("mission.mission.item3"),
-                    color: "from-secondary/20 to-secondary/10",
-                    borderColor: "border-secondary/30",
-                    iconBg: "bg-secondary/20",
-                    iconColor: "text-secondary-foreground"
+                    color: "from-primary/20 to-primary/10",
+                    borderColor: "border-primary/30",
+                    iconBg: "bg-primary/20",
+                    iconColor: "text-primary"
                   },
                   {
                     icon: <Globe className="h-7 w-7" />,
                     text: t("mission.mission.item4"),
-                    color: "from-primary/20 via-primary/15 to-primary/10",
+                    color: "from-primary/25 via-primary/20 to-primary/15",
                     borderColor: "border-primary/30",
                     iconBg: "bg-primary/20",
                     iconColor: "text-primary"
@@ -351,7 +352,7 @@ const Index = () => {
                     className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out"
                     style={{transitionDelay: `${400 + index * 100}ms`}}
                   >
-                    <Card className={`h-full bg-card border-2 ${item.borderColor} hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${item.color}`}>
+                    <Card className={`h-full bg-card border-2 ${item.borderColor} hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${item.color}`}>
                       <div className="p-6">
                         <div className={`w-14 h-14 rounded-xl ${item.iconBg} flex items-center justify-center mb-4 ${item.iconColor}`}>
                           {item.icon}
