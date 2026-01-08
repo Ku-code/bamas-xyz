@@ -166,18 +166,29 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
       
+      // Handle both string (Maptiler) and object (fallback) styles
       if (typeof newStyle === 'string') {
-        // Set the new style
+        // Set the new style for Maptiler
         map.current.setStyle(newStyle);
         
         // Re-add markers after style change
         map.current.once('styledata', () => {
           // Markers will be re-added by the markers effect
+          // Force resize to ensure proper rendering
+          map.current?.resize();
         });
         
         // Handle style loading errors (only log, don't interfere)
         map.current.once('error', (e: any) => {
           console.error('Map style load error:', e);
+        });
+      } else {
+        // Handle object style (fallback when no API key)
+        map.current.setStyle(newStyle);
+        
+        // Wait for style to load, then resize and ensure markers are visible
+        map.current.once('styledata', () => {
+          map.current?.resize();
         });
       }
     } catch (error) {
