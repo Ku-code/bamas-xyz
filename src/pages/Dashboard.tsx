@@ -36,6 +36,7 @@ import {
   Briefcase,
   PenTool,
   Gavel,
+  BookOpen,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -50,6 +51,7 @@ const AdditiveMapContent = lazy(() => import("@/components/dashboard/AdditiveMap
 const WorkingGroupsContent = lazy(() => import("@/components/dashboard/WorkingGroupsContent"));
 const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCenter"));
 const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
+const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent"));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -58,7 +60,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -85,6 +87,7 @@ const Dashboard = () => {
     { id: "budget" as MenuItem, icon: DollarSign, label: t("dashboard.menu.budget") || "Budget" },
     { id: "network" as MenuItem, icon: Users, label: t("dashboard.menu.network") || "Network" },
     { id: "resources" as MenuItem, icon: Package, label: t("dashboard.menu.resources") || "Resources" },
+    { id: "terminology" as MenuItem, icon: BookOpen, label: t("dashboard.menu.terminology") || "Terminology" },
     { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
     { id: "workinggroups" as MenuItem, icon: Briefcase, label: t("dashboard.menu.workinggroups") || "Working Groups" },
     { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
@@ -142,6 +145,8 @@ const Dashboard = () => {
           return <NetworkContent />;
         case "resources":
           return <ResourcesContent />;
+        case "terminology":
+          return <TerminologyContent />;
         case "additivemap":
           return <AdditiveMapContent />;
         case "workinggroups":
