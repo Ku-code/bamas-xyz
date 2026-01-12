@@ -50,6 +50,7 @@ export const TerminologyContent = () => {
   const [showSuggestionsPanel, setShowSuggestionsPanel] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [tablesMissing, setTablesMissing] = useState(false);
 
   const canManage = isAdmin || isSuperAdmin || isBoardMember;
 
@@ -68,17 +69,42 @@ export const TerminologyContent = () => {
       } else {
         setTerms(prev => [...prev, ...termsData]);
       }
-      setStats(statsData);
-      setUserFavoritesCount(favorites.length);
-      setPendingSuggestionsCount(suggestions.length);
-      setHasMore(termsData.length === 50);
-    } catch (error) {
-      console.error("Error loading data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load terminology data",
-        variant: "destructive",
+      setStats(statsData || {
+        total_terms: 0,
+        translation_progress: 0,
+        terms_by_category: {} as Record<string, number>,
+        terms_by_status: {} as Record<string, number>,
+        terms_by_difficulty: {} as Record<string, number>,
+        expert_verified_count: 0,
+        pending_suggestions: 0,
+        total_favorites: 0,
+        total_views: 0,
       });
+      setUserFavoritesCount(favorites?.length || 0);
+      setPendingSuggestionsCount(suggestions?.length || 0);
+      setHasMore(termsData?.length === 50);
+    } catch (error: any) {
+      console.error("Error loading data:", error);
+      const errorMessage = error?.message || error?.error?.message || '';
+      const errorCode = error?.code || error?.error?.code;
+      
+      // Check if tables don't exist
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        setTablesMissing(true);
+        toast({
+          title: "Database Setup Required",
+          description: "Terminology tables not found. Please run migration 016_terminology_dictionary.sql in Supabase.",
+          variant: "destructive",
+          duration: 10000,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load terminology data",
+          variant: "destructive",
+        });
+      }
+      
       // Set default stats on error
       setStats({
         total_terms: 0,
@@ -91,6 +117,7 @@ export const TerminologyContent = () => {
         total_favorites: 0,
         total_views: 0,
       });
+      setTerms([]);
     } finally {
       setLoading(false);
     }
@@ -155,8 +182,37 @@ export const TerminologyContent = () => {
         </div>
       </div>
 
+      {/* Database Setup Message */}
+      {tablesMissing && (
+        <Card className="border-orange-500 bg-orange-50 dark:bg-orange-950">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg mb-2">Database Setup Required</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  The terminology dictionary tables have not been created yet. To use this feature, please run the database migration.
+                </p>
+                <div className="bg-muted p-3 rounded text-sm font-mono mb-4">
+                  <p className="mb-1">Run this migration in Supabase SQL Editor:</p>
+                  <p className="text-muted-foreground">016_terminology_dictionary.sql</p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setTablesMissing(false);
+                    loadData();
+                  }}
+                >
+                  Retry After Migration
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Statistics */}
-      {stats && (
+      {stats && !tablesMissing && (
         <StatsComponent
           stats={stats}
           userFavoritesCount={userFavoritesCount}

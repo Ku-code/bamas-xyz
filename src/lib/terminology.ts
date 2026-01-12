@@ -205,28 +205,46 @@ export const loadTerms = async (filters?: SearchFilters, limit = 50, offset = 0)
 
     const { data, error } = await query;
 
-    if (error) throw error;
+    // Handle table doesn't exist error gracefully
+    if (error) {
+      const errorCode = (error as any)?.code;
+      const errorMessage = (error as any)?.message || '';
+      
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        console.warn('Terminology tables do not exist yet. Please run migration 016_terminology_dictionary.sql');
+        return [];
+      }
+      throw error;
+    }
+
+    if (!data) return [];
 
     // Load favorites if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user && data) {
-      const termIds = data.map(t => t.id);
-      const { data: favorites } = await supabase
-        .from('terminology_favorites')
-        .select('term_id')
-        .eq('user_id', user.id)
-        .in('term_id', termIds);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && data.length > 0) {
+        const termIds = data.map(t => t.id);
+        const { data: favorites } = await supabase
+          .from('terminology_favorites')
+          .select('term_id')
+          .eq('user_id', user.id)
+          .in('term_id', termIds);
 
-      const favoriteIds = new Set(favorites?.map(f => f.term_id) || []);
-      data.forEach(term => {
-        (term as TerminologyTerm).is_favorited = favoriteIds.has(term.id);
-      });
+        const favoriteIds = new Set(favorites?.map(f => f.term_id) || []);
+        data.forEach(term => {
+          (term as TerminologyTerm).is_favorited = favoriteIds.has(term.id);
+        });
+      }
+    } catch (favError) {
+      // Silently fail favorites loading - not critical
+      console.warn('Could not load favorites:', favError);
     }
 
     return data as TerminologyTerm[];
   } catch (error) {
     console.error('Error loading terms:', error);
-    throw error;
+    // Return empty array instead of throwing to prevent React errors
+    return [];
   }
 };
 
@@ -777,10 +795,19 @@ export const loadFavorites = async (): Promise<TerminologyTerm[]> => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return [];
 
-    const { data: favorites } = await supabase
+    const { data: favorites, error: favError } = await supabase
       .from('terminology_favorites')
       .select('term_id')
       .eq('user_id', user.id);
+
+    // Handle table doesn't exist
+    if (favError) {
+      const errorCode = (favError as any)?.code;
+      const errorMessage = (favError as any)?.message || '';
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        return [];
+      }
+    }
 
     if (!favorites || favorites.length === 0) return [];
 
@@ -790,7 +817,14 @@ export const loadFavorites = async (): Promise<TerminologyTerm[]> => {
       .select('*')
       .in('id', termIds);
 
-    if (error) throw error;
+    if (error) {
+      const errorCode = (error as any)?.code;
+      const errorMessage = (error as any)?.message || '';
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        return [];
+      }
+      throw error;
+    }
 
     return (terms || []).map(t => ({ ...t, is_favorited: true })) as TerminologyTerm[];
   } catch (error) {
@@ -1057,14 +1091,39 @@ export const rejectSuggestion = async (suggestionId: string, notes: string): Pro
 
 export const getStatistics = async (): Promise<TerminologyStats> => {
   try {
-    const { data: terms } = await supabase
+    const { data: terms, error: termsError } = await supabase
       .from('terminology_terms')
       .select('category, translation_status, difficulty_level, is_expert_verified, term_bg');
 
-    const { data: suggestions } = await supabase
+    // Handle table doesn't exist
+    if (termsError) {
+      const errorCode = (termsError as any)?.code;
+      const errorMessage = (termsError as any)?.message || '';
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        return {
+          total_terms: 0,
+          translation_progress: 0,
+          terms_by_category: {} as Record<TermCategory, number>,
+          terms_by_status: {} as Record<TranslationStatus, number>,
+          terms_by_difficulty: {} as Record<DifficultyLevel, number>,
+          expert_verified_count: 0,
+          pending_suggestions: 0,
+          total_favorites: 0,
+          total_views: 0,
+        };
+      }
+      throw termsError;
+    }
+
+    const { data: suggestions, error: suggestionsError } = await supabase
       .from('terminology_suggestions')
       .select('status')
       .eq('status', 'pending');
+
+    // Ignore suggestions error if table doesn't exist
+    if (suggestionsError) {
+      console.warn('Could not load suggestions:', suggestionsError);
+    }
 
     if (!terms || terms.length === 0) {
       return {
@@ -1094,15 +1153,27 @@ export const getStatistics = async (): Promise<TerminologyStats> => {
       difficultyCount[term.difficulty_level] = (difficultyCount[term.difficulty_level] || 0) + 1;
     });
 
-    const { data: favoritesData } = await supabase
-      .from('terminology_favorites')
-      .select('id', { count: 'exact', head: true });
+    let totalFavorites = 0;
+    try {
+      const { data: favoritesData } = await supabase
+        .from('terminology_favorites')
+        .select('id', { count: 'exact', head: true });
+      totalFavorites = favoritesData?.length || 0;
+    } catch (favError) {
+      // Ignore if table doesn't exist
+      console.warn('Could not load favorites count:', favError);
+    }
 
-    const { data: viewsData } = await supabase
-      .from('terminology_terms')
-      .select('view_count');
-
-    const totalViews = viewsData?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0;
+    let totalViews = 0;
+    try {
+      const { data: viewsData } = await supabase
+        .from('terminology_terms')
+        .select('view_count');
+      totalViews = viewsData?.reduce((sum, t) => sum + (t.view_count || 0), 0) || 0;
+    } catch (viewsError) {
+      // Ignore if query fails
+      console.warn('Could not load views count:', viewsError);
+    }
 
     return {
       total_terms: total,
@@ -1112,7 +1183,7 @@ export const getStatistics = async (): Promise<TerminologyStats> => {
       terms_by_difficulty: difficultyCount as Record<DifficultyLevel, number>,
       expert_verified_count: terms.filter(t => t.is_expert_verified).length,
       pending_suggestions: suggestions?.length || 0,
-      total_favorites: favoritesData?.length || 0,
+      total_favorites: totalFavorites,
       total_views: totalViews,
     };
   } catch (error) {
