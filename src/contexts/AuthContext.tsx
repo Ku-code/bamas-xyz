@@ -29,6 +29,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  isBoardMember: boolean;
   login: (userData: User) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
@@ -537,6 +538,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isSuperAdmin = user?.role === 'superadmin';
+  const isBoardMember = user?.role === 'board_member';
+
+  // Log user state changes for debugging
+  useEffect(() => {
+    if (user) {
+      console.log('AuthContext: User state:', {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        status: user.status,
+        hasId: !!user.id,
+        idType: typeof user.id
+      });
+    } else {
+      console.log('AuthContext: No user (logged out)');
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider
@@ -545,6 +564,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated: !!user,
         isAdmin,
         isSuperAdmin,
+        isBoardMember,
         login,
         logout,
         updateUser,

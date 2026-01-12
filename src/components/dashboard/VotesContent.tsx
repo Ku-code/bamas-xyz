@@ -387,9 +387,19 @@ const VotesContent = () => {
     }
 
     try {
-      console.log('Submitting vote:', { pollId, optionIds, userId: user.id });
+      console.log('=== VOTE HANDLER START ===');
+      console.log('User from context:', user);
+      console.log('User ID:', user?.id);
+      console.log('Poll ID:', pollId);
+      console.log('Option IDs:', optionIds);
+      
+      if (!user?.id) {
+        throw new Error('User ID is missing from context');
+      }
+      
+      console.log('Calling submitVotes with:', { pollId, optionIds, userId: user.id });
       await submitVotes(pollId, optionIds, user.id);
-      console.log('Vote submitted successfully');
+      console.log('✅ Vote submitted successfully');
 
       // Log history
       const poll = polls.find((p) => p.id === pollId);
