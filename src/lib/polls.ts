@@ -262,6 +262,31 @@ export const submitVotes = async (
   userId: string
 ): Promise<void> => {
   try {
+    console.log('=== VOTE SUBMISSION START ===');
+    console.log('Poll ID:', pollId);
+    console.log('Option IDs:', optionIds);
+    console.log('User ID:', userId);
+    
+    // Check if user is authenticated in Supabase
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    console.log('Auth user:', authUser);
+    console.log('Auth user ID:', authUser?.id);
+    console.log('User ID match:', authUser?.id === userId);
+    
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw new Error(`Authentication error: ${authError.message}`);
+    }
+    
+    if (!authUser) {
+      throw new Error('Not authenticated. Please log in again.');
+    }
+    
+    if (authUser.id !== userId) {
+      console.warn('User ID mismatch! Using auth user ID instead.');
+      userId = authUser.id; // Use the authenticated user's ID
+    }
+    
     if (!pollId || !userId || !optionIds || optionIds.length === 0) {
       throw new Error('Missing required parameters: pollId, userId, or optionIds');
     }
@@ -364,9 +389,11 @@ export const submitVotes = async (
       throw new Error('Votes were not inserted. Please try again.');
     }
 
-    console.log('Successfully inserted votes:', insertedVotes);
+    console.log('✅ Successfully inserted votes:', insertedVotes);
+    console.log('=== VOTE SUBMISSION SUCCESS ===');
   } catch (error) {
-    console.error('Error submitting votes:', error);
+    console.error('❌ Error submitting votes:', error);
+    console.error('=== VOTE SUBMISSION FAILED ===');
     throw error;
   }
 };
