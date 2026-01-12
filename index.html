@@ -11,7 +11,18 @@
     <!-- Performance hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <!-- Supabase API preconnect for faster auth/database requests -->
+    <link rel="preconnect" href="https://api.supabase.co" />
+    <link rel="dns-prefetch" href="https://api.supabase.co" />
+    <!-- Google OAuth preconnect -->
+    <link rel="preconnect" href="https://accounts.google.com" />
+    <link rel="dns-prefetch" href="https://accounts.google.com" />
+    <!-- CDN preconnect for third-party scripts -->
+    <link rel="dns-prefetch" href="https://cdn.gpteng.co" />
     <link rel="preload" href="/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" as="image" />
+    <link rel="preload" href="/lovable-uploads/BAMAS_Logo_bg.png" as="image" />
+    <!-- Preload default language translation (bg) -->
+    <link rel="modulepreload" href="/src/translations/bg.json" />
     <title>БАЗАП - Българска Асоциация за Адитивно Производство</title>
     <meta name="description" content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
     <meta property="og:title" content="БАЗАП - Българска Асоциация за Адитивно Производство" />
@@ -47,7 +58,7 @@
     </script>
     <div id="root" style="min-height: 100vh;"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module" defer></script>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       // Function to update favicon based on language

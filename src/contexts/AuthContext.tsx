@@ -75,7 +75,8 @@ const convertSupabaseUserToUser = (dbUser: any): User => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Start with isLoading=false to avoid blocking initial render
+  const [isLoading, setIsLoading] = useState(false);
 
   // Load user from Supabase on mount and listen for auth changes
   useEffect(() => {
@@ -89,25 +90,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:87',message:'Supabase not configured, setting isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       console.warn('⚠️ Supabase is not configured. Authentication features will not work.');
-      setIsLoading(false);
       return;
     }
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:95',message:'Starting getSession with timeout',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
-    // Add timeout to prevent infinite loading
-    const sessionTimeout = setTimeout(() => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:100',message:'getSession timeout, forcing isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      console.warn('⚠️ Supabase session check timed out. Continuing without session.');
-      setIsLoading(false);
-    }, 10000); // 10 second timeout
+    // Defer session check to avoid blocking initial render
+    // Use requestIdleCallback if available, otherwise setTimeout
+    const deferSessionCheck = (callback: () => void) => {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(callback, { timeout: 2000 });
+      } else {
+        setTimeout(callback, 0);
+      }
+    };
 
-    // Get initial session
-    supabase.auth.getSession()
+    deferSessionCheck(() => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:95',message:'Starting getSession with timeout',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      
+      // Add timeout to prevent infinite loading
+      const sessionTimeout = setTimeout(() => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:100',message:'getSession timeout, forcing isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        console.warn('⚠️ Supabase session check timed out. Continuing without session.');
+        setIsLoading(false);
+      }, 10000); // 10 second timeout
+
+      // Get initial session
+      supabase.auth.getSession()
       .then(({ data: { session }, error }) => {
         clearTimeout(sessionTimeout);
         // #region agent log
@@ -141,6 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error('Failed to get session:', error);
         setIsLoading(false);
       });
+    });
 
     // Listen for auth changes
     const {

@@ -262,47 +262,109 @@ export const submitVotes = async (
   userId: string
 ): Promise<void> => {
   try {
-    // Get poll to check type
-    const { data: poll } = await supabase
+    if (!pollId || !userId || !optionIds || optionIds.length === 0) {
+      throw new Error('Missing required parameters: pollId, userId, or optionIds');
+    }
+
+    // Validate UUIDs
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(pollId)) {
+      throw new Error('Invalid poll ID format');
+    }
+    if (!uuidRegex.test(userId)) {
+      throw new Error('Invalid user ID format');
+    }
+    optionIds.forEach((id) => {
+      if (!uuidRegex.test(id)) {
+        throw new Error(`Invalid option ID format: ${id}`);
+      }
+    });
+
+    // Get poll to check type and verify it exists
+    const { data: poll, error: pollError } = await supabase
       .from('polls')
-      .select('type')
+      .select('type, is_active')
       .eq('id', pollId)
       .single();
 
-    if (!poll) throw new Error('Poll not found');
+    if (pollError) {
+      console.error('Error fetching poll:', pollError);
+      throw new Error(`Failed to fetch poll: ${pollError.message}`);
+    }
+
+    if (!poll) {
+      throw new Error('Poll not found');
+    }
+
+    if (!poll.is_active) {
+      throw new Error('This poll is no longer active');
+    }
 
     // For single choice, ensure only one vote
     if (poll.type === 'single' && optionIds.length > 1) {
       optionIds = [optionIds[0]];
     }
 
+    // Verify all option IDs belong to this poll
+    const { data: pollOptions, error: optionsError } = await supabase
+      .from('poll_options')
+      .select('id')
+      .eq('poll_id', pollId)
+      .in('id', optionIds);
+
+    if (optionsError) {
+      console.error('Error verifying poll options:', optionsError);
+      throw new Error(`Failed to verify poll options: ${optionsError.message}`);
+    }
+
+    if (!pollOptions || pollOptions.length !== optionIds.length) {
+      throw new Error('One or more option IDs are invalid for this poll');
+    }
+
     // Remove existing votes for this user in this poll
-    const { data: existingVotes } = await supabase
+    const { error: deleteError } = await supabase
       .from('poll_votes')
-      .select('option_id')
+      .delete()
       .eq('poll_id', pollId)
       .eq('user_id', userId);
 
-    if (existingVotes && existingVotes.length > 0) {
-      const existingOptionIds = existingVotes.map((v) => v.option_id);
-      await supabase
-        .from('poll_votes')
-        .delete()
-        .eq('poll_id', pollId)
-        .eq('user_id', userId);
+    if (deleteError) {
+      console.error('Error deleting existing votes:', deleteError);
+      // Don't throw - continue to insert new votes
     }
 
-    // Insert new votes
-    if (optionIds.length > 0) {
-      const votesToInsert = optionIds.map((optionId) => ({
-        poll_id: pollId,
-        option_id: optionId,
-        user_id: userId,
-      }));
+    // Insert new votes - ensure UUIDs are properly formatted
+    const votesToInsert = optionIds.map((optionId) => ({
+      poll_id: pollId,
+      option_id: optionId,
+      user_id: userId, // Supabase will handle UUID conversion
+    }));
 
-      const { error } = await supabase.from('poll_votes').insert(votesToInsert);
-      if (error) throw error;
+    console.log('Inserting votes:', votesToInsert);
+    
+    const { data: insertedVotes, error: insertError } = await supabase
+      .from('poll_votes')
+      .insert(votesToInsert)
+      .select();
+
+    if (insertError) {
+      console.error('Error inserting votes:', insertError);
+      console.error('Error details:', {
+        code: insertError.code,
+        message: insertError.message,
+        details: insertError.details,
+        hint: insertError.hint
+      });
+      console.error('Votes to insert:', votesToInsert);
+      throw new Error(`Failed to submit votes: ${insertError.message}. Code: ${insertError.code || 'UNKNOWN'}`);
     }
+
+    if (!insertedVotes || insertedVotes.length === 0) {
+      console.warn('No votes were inserted, but no error was returned');
+      throw new Error('Votes were not inserted. Please try again.');
+    }
+
+    console.log('Successfully inserted votes:', insertedVotes);
   } catch (error) {
     console.error('Error submitting votes:', error);
     throw error;

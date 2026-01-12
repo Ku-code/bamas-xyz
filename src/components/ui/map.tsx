@@ -32,18 +32,20 @@ const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecificati
       : `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
   }
 
+  // Use reliable tile sources that work without API keys
   const lightTiles = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  const darkTiles = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png';
+  // Use CartoDB dark tiles as fallback (more reliable than Stadia Maps)
+  const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
 
   return {
     version: 8,
     sources: {
       'osm-tiles': {
         type: 'raster',
-        tiles: [isDark ? darkTiles : lightTiles],
+        tiles: isDark ? [darkTiles] : [lightTiles],
         tileSize: 256,
         attribution: isDark
-          ? '© Stadia Maps, © OpenMapTiles © OpenStreetMap contributors'
+          ? '© CARTO, © OpenStreetMap contributors'
           : '© OpenStreetMap contributors',
       },
     },
@@ -126,6 +128,14 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         }, 100);
       });
 
+      // Handle styledata event (fires when style is fully loaded and ready)
+      map.current.on('styledata', () => {
+        setIsLoaded(true);
+        setTimeout(() => {
+          map.current?.resize();
+        }, 50);
+      });
+
       map.current.on('error', (e: any) => {
         console.error('Map error:', e);
         // Only use fallback during initial load, not for subsequent style changes
@@ -161,26 +171,60 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
 
   // Update map style when dark mode changes
   useEffect(() => {
-    if (!map.current || !isLoaded) return;
+    if (!map.current) return;
 
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
       
+      // Remove all existing markers before style change
+      markersRef.current.forEach((marker) => {
+        try {
+          marker.remove();
+        } catch (e) {
+          // Ignore errors when removing markers
+        }
+      });
+      markersRef.current.clear();
+      
+      // Temporarily set isLoaded to false to prevent markers from being added during style change
+      setIsLoaded(false);
+
       // Handle both string (Maptiler) and object (fallback) styles
       if (typeof newStyle === 'string') {
         // Set the new style for Maptiler
         map.current.setStyle(newStyle);
         
-        // Re-add markers after style change
+        // Wait for style to load, then re-add markers and resize
         map.current.once('styledata', () => {
-          // Markers will be re-added by the markers effect
           // Force resize to ensure proper rendering
-          map.current?.resize();
+          setTimeout(() => {
+            map.current?.resize();
+            // Mark as loaded so markers can be re-added by the markers effect
+            setIsLoaded(true);
+          }, 200);
         });
         
-        // Handle style loading errors (only log, don't interfere)
+        // Handle style loading errors
         map.current.once('error', (e: any) => {
           console.error('Map style load error:', e);
+          // Try to recover by using fallback
+          const fallbackStyle = getMaptilerStyle(isDarkMode);
+          if (typeof fallbackStyle !== 'string') {
+            try {
+              map.current?.setStyle(fallbackStyle);
+              map.current.once('styledata', () => {
+                setTimeout(() => {
+                  map.current?.resize();
+                  setIsLoaded(true);
+                }, 200);
+              });
+            } catch (fallbackError) {
+              console.error('Fallback style also failed:', fallbackError);
+              setIsLoaded(true); // Still mark as loaded to prevent blocking
+            }
+          } else {
+            setIsLoaded(true); // Still mark as loaded to prevent blocking
+          }
         });
       } else {
         // Handle object style (fallback when no API key)
@@ -188,20 +232,36 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         
         // Wait for style to load, then resize and ensure markers are visible
         map.current.once('styledata', () => {
-          map.current?.resize();
+          setTimeout(() => {
+            map.current?.resize();
+            // Mark as loaded so markers can be re-added
+            setIsLoaded(true);
+          }, 200);
         });
       }
     } catch (error) {
       console.error('Error changing map style:', error);
-      // Don't throw - just log the error
+      // Still mark as loaded to prevent blocking
+      setIsLoaded(true);
     }
-  }, [isDarkMode, isLoaded]);
+  }, [isDarkMode]);
 
-  // Update markers when companies change
+  // Update markers when companies change or when map style changes
   useEffect(() => {
-    if (!map.current || !isLoaded) return;
+    if (!map.current) return;
 
-    try {
+    // Function to add markers - will be called when style is ready
+    const addMarkers = () => {
+      if (!map.current) return;
+
+      // Ensure style is loaded before adding markers
+      if (!map.current.isStyleLoaded()) {
+        // Wait for style to load
+        map.current.once('styledata', addMarkers);
+        return;
+      }
+
+      try {
       // Remove existing markers
       markersRef.current.forEach((marker) => {
         try {
@@ -376,13 +436,24 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         }
       }
       
-      // Update previous count
-      previousCompaniesCount.current = currentCount;
-    } catch (error) {
-      console.error('Error updating markers:', error);
-      // Don't throw - just log the error
-    }
-  }, [companies, isLoaded, selectedCompanyId, onCompanyClick, isPanelOpen]);
+        // Update previous count
+        previousCompaniesCount.current = currentCount;
+      } catch (error) {
+        console.error('Error updating markers:', error);
+        // Don't throw - just log the error
+      }
+    };
+
+    // Start adding markers
+    addMarkers();
+
+    // Cleanup function
+    return () => {
+      if (map.current) {
+        map.current.off('styledata', addMarkers);
+      }
+    };
+  }, [companies, isLoaded, selectedCompanyId, onCompanyClick, isPanelOpen, isDarkMode]);
 
   // Cleanup timeout on unmount
   useEffect(() => {

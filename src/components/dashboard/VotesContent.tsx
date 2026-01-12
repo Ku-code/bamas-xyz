@@ -377,13 +377,29 @@ const VotesContent = () => {
       return;
     }
 
+    if (!optionIds || optionIds.length === 0) {
+      toast({
+        title: t("dashboard.votes.vote.error.title") || "Error",
+        description: t("dashboard.votes.vote.error.noSelection") || "Please select at least one option.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      console.log('Submitting vote:', { pollId, optionIds, userId: user.id });
       await submitVotes(pollId, optionIds, user.id);
+      console.log('Vote submitted successfully');
 
       // Log history
       const poll = polls.find((p) => p.id === pollId);
       if (poll && user) {
-        await logHistory("vote_submitted", user, pollId, poll.title);
+        try {
+          await logHistory("vote_submitted", user, pollId, poll.title);
+        } catch (historyError) {
+          console.warn('Failed to log history:', historyError);
+          // Don't fail the vote if history logging fails
+        }
       }
 
       setSelectedVotes({ ...selectedVotes, [pollId]: optionIds });
@@ -398,9 +414,32 @@ const VotesContent = () => {
       await loadPollsFromDatabase();
     } catch (error: any) {
       console.error("Error submitting vote:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        pollId,
+        optionIds,
+        userId: user.id
+      });
+      
+      let errorMessage = error.message || t("dashboard.votes.vote.error.description") || "Failed to submit vote. Please try again.";
+      
+      // Provide more specific error messages
+      if (error.code === '42501') {
+        errorMessage = "Permission denied. Please ensure you are logged in and have permission to vote.";
+      } else if (error.code === '23505') {
+        errorMessage = "You have already voted on this poll. Your vote has been updated.";
+      } else if (error.message?.includes('Poll not found')) {
+        errorMessage = "This poll no longer exists.";
+      } else if (error.message?.includes('Invalid')) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: t("dashboard.votes.vote.error.title") || "Error",
-        description: error.message || t("dashboard.votes.vote.error.description") || "Failed to submit vote. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     }

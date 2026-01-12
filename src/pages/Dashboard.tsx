@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import {
   Sidebar,
@@ -37,17 +37,26 @@ import {
   PenTool,
   Gavel,
 } from "lucide-react";
-import HistoryContent from "@/components/dashboard/HistoryContent";
-import VotesContent from "@/components/dashboard/VotesContent";
-import AgendaContent from "@/components/dashboard/AgendaContent";
-import DocumentsContent from "@/components/dashboard/DocumentsContent";
-import BudgetContent from "@/components/dashboard/BudgetContent";
-import NetworkContent from "@/components/dashboard/NetworkContent";
-import ResourcesContent from "@/components/dashboard/ResourcesContent";
-import AdditiveMapContent from "@/components/dashboard/AdditiveMapContent";
-import WorkingGroupsContent from "@/components/dashboard/WorkingGroupsContent";
-import SignatureCenter from "@/components/dashboard/SignatureCenter";
-import MeetingsContent from "@/components/dashboard/MeetingsContent";
+
+// Lazy load all dashboard content components
+const HistoryContent = lazy(() => import("@/components/dashboard/HistoryContent"));
+const VotesContent = lazy(() => import("@/components/dashboard/VotesContent"));
+const AgendaContent = lazy(() => import("@/components/dashboard/AgendaContent"));
+const DocumentsContent = lazy(() => import("@/components/dashboard/DocumentsContent"));
+const BudgetContent = lazy(() => import("@/components/dashboard/BudgetContent"));
+const NetworkContent = lazy(() => import("@/components/dashboard/NetworkContent"));
+const ResourcesContent = lazy(() => import("@/components/dashboard/ResourcesContent"));
+const AdditiveMapContent = lazy(() => import("@/components/dashboard/AdditiveMapContent"));
+const WorkingGroupsContent = lazy(() => import("@/components/dashboard/WorkingGroupsContent"));
+const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCenter"));
+const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
+
+// Loading fallback component
+const ContentLoadingFallback = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+  </div>
+);
 
 type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings";
 
@@ -114,33 +123,41 @@ const Dashboard = () => {
       return <PendingApproval />;
     }
     
-    // Normal content rendering for approved users
-    switch (activeItem) {
-      case "history":
-        return <HistoryContent />;
-      case "meetings":
-        return <MeetingsContent />;
-      case "votes":
-        return <VotesContent />;
-      case "agenda":
-        return <AgendaContent />;
-      case "documents":
-        return <DocumentsContent />;
-      case "budget":
-        return <BudgetContent />;
-      case "network":
-        return <NetworkContent />;
-      case "resources":
-        return <ResourcesContent />;
-      case "additivemap":
-        return <AdditiveMapContent />;
-      case "workinggroups":
-        return <WorkingGroupsContent />;
-      case "signatures":
-        return <SignatureCenter />;
-      default:
-        return <HistoryContent />;
-    }
+    // Normal content rendering for approved users - wrapped in Suspense for lazy loading
+    const renderLazyContent = () => {
+      switch (activeItem) {
+        case "history":
+          return <HistoryContent />;
+        case "meetings":
+          return <MeetingsContent />;
+        case "votes":
+          return <VotesContent />;
+        case "agenda":
+          return <AgendaContent />;
+        case "documents":
+          return <DocumentsContent />;
+        case "budget":
+          return <BudgetContent />;
+        case "network":
+          return <NetworkContent />;
+        case "resources":
+          return <ResourcesContent />;
+        case "additivemap":
+          return <AdditiveMapContent />;
+        case "workinggroups":
+          return <WorkingGroupsContent />;
+        case "signatures":
+          return <SignatureCenter />;
+        default:
+          return <HistoryContent />;
+      }
+    };
+
+    return (
+      <Suspense fallback={<ContentLoadingFallback />}>
+        {renderLazyContent()}
+      </Suspense>
+    );
   };
 
   const logoPath = language === 'bg' 
