@@ -177,12 +177,12 @@ export const TerminologyCard = ({
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                {term.view_count}
+                {term.view_count || 0}
               </span>
-              {term.favorite_count > 0 && (
+              {(term.favorite_count || 0) > 0 && (
                 <span className="flex items-center gap-1">
                   <Star className="h-3 w-3" />
-                  {term.favorite_count}
+                  {term.favorite_count || 0}
                 </span>
               )}
               {term.related_terms && term.related_terms.length > 0 && (

@@ -18,6 +18,16 @@ export const TerminologyStats = ({
 }: TerminologyStatsProps) => {
   const { t } = useLanguage();
 
+  // Add early return if stats is invalid
+  if (!stats || typeof stats.total_terms !== 'number') {
+    return null;
+  }
+
+  // Ensure all values are numbers with safe defaults
+  const totalTerms = stats.total_terms || 0;
+  const translationProgress = stats.translation_progress || 0;
+  const totalViews = stats.total_views || 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Card>
@@ -28,7 +38,7 @@ export const TerminologyStats = ({
           <BookOpen className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.total_terms}</div>
+          <div className="text-2xl font-bold">{totalTerms}</div>
           <p className="text-xs text-muted-foreground">
             Across all categories
           </p>
@@ -43,10 +53,10 @@ export const TerminologyStats = ({
           <Languages className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.translation_progress}%</div>
-          <Progress value={stats.translation_progress} className="mt-2" />
+          <div className="text-2xl font-bold">{translationProgress}%</div>
+          <Progress value={translationProgress} className="mt-2" />
           <p className="text-xs text-muted-foreground mt-1">
-            {stats.total_terms - Math.round((stats.translation_progress / 100) * stats.total_terms)} terms need translation
+            {totalTerms - Math.round((translationProgress / 100) * totalTerms)} terms need translation
           </p>
         </CardContent>
       </Card>
@@ -74,7 +84,7 @@ export const TerminologyStats = ({
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{(stats.total_views || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
           <p className="text-xs text-muted-foreground">
             Total views
           </p>

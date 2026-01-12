@@ -39,7 +39,17 @@ export const TerminologyContent = () => {
     sort_order: "asc",
     language_view: "both",
   });
-  const [stats, setStats] = useState<TerminologyStats | null>(null);
+  const [stats, setStats] = useState<TerminologyStats>({
+    total_terms: 0,
+    translation_progress: 0,
+    terms_by_category: {} as Record<string, number>,
+    terms_by_status: {} as Record<string, number>,
+    terms_by_difficulty: {} as Record<string, number>,
+    expert_verified_count: 0,
+    pending_suggestions: 0,
+    total_favorites: 0,
+    total_views: 0,
+  });
   const [userFavoritesCount, setUserFavoritesCount] = useState(0);
   const [pendingSuggestionsCount, setPendingSuggestionsCount] = useState(0);
   const [selectedTerm, setSelectedTerm] = useState<TerminologyTerm | null>(null);
@@ -65,9 +75,9 @@ export const TerminologyContent = () => {
       ]);
 
       if (page === 0) {
-        setTerms(termsData);
+        setTerms(termsData || []);
       } else {
-        setTerms(prev => [...prev, ...termsData]);
+        setTerms(prev => [...prev, ...(termsData || [])]);
       }
       setStats(statsData || {
         total_terms: 0,
@@ -212,7 +222,7 @@ export const TerminologyContent = () => {
       )}
 
       {/* Statistics */}
-      {stats && !tablesMissing && (
+      {!tablesMissing && stats.total_terms !== undefined && (
         <StatsComponent
           stats={stats}
           userFavoritesCount={userFavoritesCount}
