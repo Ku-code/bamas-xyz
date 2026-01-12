@@ -49,16 +49,39 @@ const Register = () => {
       });
       navigate("/dashboard");
     } catch (error: any) {
-      const errorInfo = formatErrorForToast(
-        error,
-        t("auth.register.error.title") || "Registration Failed",
-        t("auth.register.error.description") || "Failed to create account"
-      );
-      toast({
-        title: errorInfo.title,
-        description: errorInfo.description,
-        variant: "destructive",
-      });
+      // Handle special case for rejected users being reactivated
+      if (error.message?.includes('reactivated') || error.message?.includes('Forgot Password')) {
+        toast({
+          title: t("auth.register.reactivated.title") || "Account Reactivated",
+          description: error.message,
+          variant: "default",
+        });
+        // Give them time to read the message before redirecting
+        setTimeout(() => {
+          navigate("/forgot-password");
+        }, 3000);
+      } else if (error.message?.includes('already exists')) {
+        toast({
+          title: t("auth.register.error.exists.title") || "Account Already Exists",
+          description: error.message,
+          variant: "default",
+        });
+        // Give them time to read the message before redirecting
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        const errorInfo = formatErrorForToast(
+          error,
+          t("auth.register.error.title") || "Registration Failed",
+          t("auth.register.error.description") || "Failed to create account"
+        );
+        toast({
+          title: errorInfo.title,
+          description: errorInfo.description,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

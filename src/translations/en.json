@@ -134,6 +134,8 @@
   "auth.register.error.title": "Registration Failed",
   "auth.register.error.description": "Failed to create account. Please check your information and try again.",
   "auth.register.error.passwordMatch": "Passwords do not match. Please make sure both password fields are identical.",
+  "auth.register.error.exists.title": "Account Already Exists",
+  "auth.register.reactivated.title": "Account Reactivated",
   "auth.email": "Email",
   "auth.email.placeholder": "name@example.com",
   "auth.password": "Password",

@@ -388,6 +388,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signUpWithEmail = async (email: string, password: string, name: string) => {
     try {
+      // First, check if a user with this email already exists and was rejected
+      const { data: existingUsers, error: checkError } = await supabase
+        .from('users')
+        .select('id, status, email')
+        .eq('email', email.trim().toLowerCase())
+        .limit(1);
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 = not found, which is fine
+        console.error('Error checking for existing user:', checkError);
+      }
+
+      // If user exists and was rejected, reset them to pending
+      if (existingUsers && existingUsers.length > 0) {
+        const existingUser = existingUsers[0];
+        
+        if (existingUser.status === 'rejected') {
+          console.log('User was previously rejected. Resetting to pending status...');
+          
+          // Update their status back to pending and update their name
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({
+              status: 'pending',
+              name: name,
+              approved_at: null,
+              approved_by: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existingUser.id);
+
+          if (updateError) {
+            console.error('Error updating rejected user:', updateError);
+            throw new Error('Failed to reactivate your account. Please contact support.');
+          }
+
+          // Now sign them in with their existing account
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password,
+          });
+
+          if (signInError) {
+            // If password doesn't work, they need to reset it
+            if (signInError.message.includes('Invalid') || signInError.message.includes('credentials')) {
+              throw new Error('Your account has been reactivated, but the password is incorrect. Please use "Forgot Password" to reset your password.');
+            }
+            throw signInError;
+          }
+
+          if (signInData.user) {
+            await loadUserFromDatabase(signInData.user.id);
+          }
+          
+          return;
+        } else if (existingUser.status === 'pending' || existingUser.status === 'approved') {
+          // User already exists and is not rejected - they should login instead
+          throw new Error('An account with this email already exists. Please login instead.');
+        }
+      }
+
+      // Normal signup flow for new users
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -513,6 +575,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (functionError) {
             console.error('Error creating user profile:', functionError);
             throw functionError;
+          }
+        } else if (dbUser.status === 'rejected') {
+          // If user was previously rejected, reset them to pending
+          console.log('Google OAuth: User was previously rejected. Resetting to pending status...');
+          
+          const { error: updateError } = await supabase
+            .from('users')
+            .update({
+              status: 'pending',
+              approved_at: null,
+              approved_by: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', dbUser.id);
+
+          if (updateError) {
+            console.error('Error updating rejected Google user:', updateError);
+            throw new Error('Failed to reactivate your account. Please contact support.');
           }
         }
 

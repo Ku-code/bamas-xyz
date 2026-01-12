@@ -134,6 +134,8 @@
   "auth.register.success.description": "Вашият акаунт е създаден успешно!",
   "auth.register.error.title": "Грешка",
   "auth.register.error.passwordMatch": "Паролите не съвпадат",
+  "auth.register.error.exists.title": "Акаунтът вече съществува",
+  "auth.register.reactivated.title": "Акаунтът е реактивиран",
   "auth.email": "Имейл",
   "auth.email.placeholder": "име@example.com",
   "auth.password": "Парола",
