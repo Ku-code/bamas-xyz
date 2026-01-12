@@ -74,7 +74,7 @@ export const TerminologyStats = ({
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.total_views.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(stats.total_views || 0).toLocaleString()}</div>
           <p className="text-xs text-muted-foreground">
             Total views
           </p>

@@ -1059,14 +1059,14 @@ export const getStatistics = async (): Promise<TerminologyStats> => {
   try {
     const { data: terms } = await supabase
       .from('terminology_terms')
-      .select('category, translation_status, difficulty_level, is_expert_verified');
+      .select('category, translation_status, difficulty_level, is_expert_verified, term_bg');
 
     const { data: suggestions } = await supabase
       .from('terminology_suggestions')
       .select('status')
       .eq('status', 'pending');
 
-    if (!terms) {
+    if (!terms || terms.length === 0) {
       return {
         total_terms: 0,
         translation_progress: 0,
@@ -1074,7 +1074,7 @@ export const getStatistics = async (): Promise<TerminologyStats> => {
         terms_by_status: {} as Record<TranslationStatus, number>,
         terms_by_difficulty: {} as Record<DifficultyLevel, number>,
         expert_verified_count: 0,
-        pending_suggestions: 0,
+        pending_suggestions: suggestions?.length || 0,
         total_favorites: 0,
         total_views: 0,
       };
@@ -1117,7 +1117,18 @@ export const getStatistics = async (): Promise<TerminologyStats> => {
     };
   } catch (error) {
     console.error('Error getting statistics:', error);
-    throw error;
+    // Return safe default instead of throwing
+    return {
+      total_terms: 0,
+      translation_progress: 0,
+      terms_by_category: {} as Record<TermCategory, number>,
+      terms_by_status: {} as Record<TranslationStatus, number>,
+      terms_by_difficulty: {} as Record<DifficultyLevel, number>,
+      expert_verified_count: 0,
+      pending_suggestions: 0,
+      total_favorites: 0,
+      total_views: 0,
+    };
   }
 };
 

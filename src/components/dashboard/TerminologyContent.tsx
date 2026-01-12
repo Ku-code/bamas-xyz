@@ -63,7 +63,11 @@ export const TerminologyContent = () => {
         canManage ? loadSuggestions("pending") : Promise.resolve([]),
       ]);
 
-      setTerms(page === 0 ? termsData : [...terms, ...termsData]);
+      if (page === 0) {
+        setTerms(termsData);
+      } else {
+        setTerms(prev => [...prev, ...termsData]);
+      }
       setStats(statsData);
       setUserFavoritesCount(favorites.length);
       setPendingSuggestionsCount(suggestions.length);
@@ -75,14 +79,26 @@ export const TerminologyContent = () => {
         description: "Failed to load terminology data",
         variant: "destructive",
       });
+      // Set default stats on error
+      setStats({
+        total_terms: 0,
+        translation_progress: 0,
+        terms_by_category: {} as Record<string, number>,
+        terms_by_status: {} as Record<string, number>,
+        terms_by_difficulty: {} as Record<string, number>,
+        expert_verified_count: 0,
+        pending_suggestions: 0,
+        total_favorites: 0,
+        total_views: 0,
+      });
     } finally {
       setLoading(false);
     }
-  }, [filters, languageView, page, canManage]);
+  }, [filters, languageView, page, canManage, toast]);
 
   useEffect(() => {
     loadData();
-  }, [filters, languageView, page]);
+  }, [loadData]);
 
   const handleSearch = useCallback((query: string) => {
     setFilters((prev) => ({ ...prev, query }));
