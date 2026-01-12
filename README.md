@@ -43,6 +43,7 @@ Create a `.env` file in the root directory with:
 VITE_SUPABASE_URL=your-supabase-project-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 VITE_GOOGLE_CLIENT_ID=your-google-client-id (optional)
+VITE_CLARITY_PROJECT_ID=your-clarity-project-id (optional)
 ```
 
 4. Run database migrations:
