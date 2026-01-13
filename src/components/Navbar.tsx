@@ -81,6 +81,7 @@ const Navbar = () => {
     { name: t("nav.about"), href: "#about" },
     { name: t("nav.mission"), href: "#mission" },
     { name: t("nav.membership"), href: "#membership" },
+    { name: t("nav.documents"), href: "/documents", isRoute: true },
     { name: t("nav.events"), href: "#events" },
     { name: t("nav.contact"), href: "#contact" },
   ];
@@ -177,18 +178,27 @@ const Navbar = () => {
           <ul className="flex space-x-6">
             {navLinks.map((link) => (
               <li key={link.name}>
-                <a
-                  href={link.href}
-                  className={`text-sm font-medium transition-colors ${activeSection === link.href.substring(1)
-                    ? "text-destructive"
-                    : "text-foreground hover:text-primary"
-                    }`}
-                >
-                  {link.name}
-                  {activeSection === link.href.substring(1) && (
-                    <span className="block h-0.5 mt-1 bg-destructive"></span>
-                  )}
-                </a>
+                {link.isRoute ? (
+                  <Link
+                    to={link.href}
+                    className="text-sm font-medium transition-colors text-foreground hover:text-primary"
+                  >
+                    {link.name}
+                  </Link>
+                ) : (
+                  <a
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors ${activeSection === link.href.substring(1)
+                      ? "text-destructive"
+                      : "text-foreground hover:text-primary"
+                      }`}
+                  >
+                    {link.name}
+                    {activeSection === link.href.substring(1) && (
+                      <span className="block h-0.5 mt-1 bg-destructive"></span>
+                    )}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -355,20 +365,30 @@ const Navbar = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05, duration: 0.3 }}
                   >
-                    <a
-                      href={link.href}
-                      className={`block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg ${
-                        activeSection === link.href.substring(1)
-                          ? "text-primary bg-primary/10 border-l-4 border-primary"
-                          : "text-foreground hover:text-primary hover:bg-muted/50"
-                      }`}
-                      onClick={closeMenu}
-                    >
-                      {link.name}
-                      {activeSection === link.href.substring(1) && (
-                        <span className="ml-2 text-primary">●</span>
-                      )}
-                    </a>
+                    {link.isRoute ? (
+                      <Link
+                        to={link.href}
+                        className="block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg text-foreground hover:text-primary hover:bg-muted/50"
+                        onClick={closeMenu}
+                      >
+                        {link.name}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className={`block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg ${
+                          activeSection === link.href.substring(1)
+                            ? "text-primary bg-primary/10 border-l-4 border-primary"
+                            : "text-foreground hover:text-primary hover:bg-muted/50"
+                        }`}
+                        onClick={closeMenu}
+                      >
+                        {link.name}
+                        {activeSection === link.href.substring(1) && (
+                          <span className="ml-2 text-primary">●</span>
+                        )}
+                      </a>
+                    )}
                   </motion.li>
                 ))}
                 
