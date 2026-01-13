@@ -205,6 +205,12 @@
   "documents.next_match": "Следващо съвпадение",
   "documents.clear_search": "Изчисти търсенето",
   "documents.read_official_pdf": "Прочетете официалния документ на Устава",
+  "documents.scroll_to_top": "Обратно нагоре",
+  "documents.showing_results": "Показване на",
+  "documents.of": "от",
+  "documents.results": "резултата",
+  "documents.no_results": "Няма намерени резултати",
+  "documents.search_tip": "Съвет: Натиснете Enter за следващ резултат, Escape за изчистване",
   
   "nav.dashboard": "Табло",
   "nav.settings": "Настройки",

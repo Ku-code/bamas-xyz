@@ -22,6 +22,7 @@ const OfficialDocuments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [matchCount, setMatchCount] = useState(0);
   const [currentMatch, setCurrentMatch] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Detect dark mode state
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -171,6 +172,32 @@ const OfficialDocuments = () => {
     setSearchTerm('');
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Show/hide scroll to top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Navigate to home when clicking other nav items
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash && window.location.pathname === '/documents') {
+        navigate('/' + window.location.hash);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
       <Navbar />
@@ -186,63 +213,18 @@ const OfficialDocuments = () => {
         <X className="h-5 w-5" />
       </Button>
 
-      {/* Search Bar - Fixed Position */}
-      <div className="fixed top-32 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]">
-        <Card className="shadow-lg border-border/40 bg-background/95 backdrop-blur-sm">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder={t("documents.search_placeholder") || "Search in document..."}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              {searchTerm && (
-                <>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                    <span className="font-medium">{currentMatch}/{matchCount}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => navigateMatch('prev')}
-                      disabled={matchCount === 0}
-                      title={t("documents.previous_match") || "Previous"}
-                    >
-                      <ChevronUp className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => navigateMatch('next')}
-                      disabled={matchCount === 0}
-                      title={t("documents.next_match") || "Next"}
-                    >
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={clearSearch}
-                      title={t("documents.clear_search") || "Clear"}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Scroll to Top Button - Fixed Position */}
+      {showScrollTop && (
+        <Button
+          variant="default"
+          size="icon"
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-4 z-50 h-12 w-12 rounded-full bg-primary shadow-lg hover:shadow-xl hover:scale-110 transition-all animate-in fade-in slide-in-from-bottom-5"
+          title={t("documents.scroll_to_top") || "Back to Top"}
+        >
+          <ChevronUp className="h-6 w-6" />
+        </Button>
+      )}
       
       {/* Hero Header */}
       <section className="pt-32 pb-16 px-4 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
@@ -290,7 +272,7 @@ const OfficialDocuments = () => {
             </Button>
           </div>
           
-          {/* Commercial Register Link - Moved to text link below */}
+          {/* Commercial Register Link */}
           <div className="mt-6 text-center">
             <a
               href="https://portal.registryagency.bg/CR/en/Reports/ActiveConditionTabResult?uic=208630654"
@@ -302,6 +284,87 @@ const OfficialDocuments = () => {
               {t("documents.commercial_register") || "View Commercial Register"}
               <ExternalLink className="h-3 w-3" />
             </a>
+          </div>
+
+          {/* Search Bar - Positioned below Commercial Register */}
+          <div className="mt-8 max-w-3xl mx-auto">
+            <Card className="shadow-md border-border/40">
+              <CardContent className="p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder={t("documents.search_placeholder") || "Search in document..."}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && matchCount > 0) {
+                            navigateMatch('next');
+                          } else if (e.key === 'Escape') {
+                            clearSearch();
+                          }
+                        }}
+                        className="w-full pl-10 pr-3 py-2.5 text-sm bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                      />
+                    </div>
+                    {searchTerm && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10 shrink-0"
+                        onClick={clearSearch}
+                        title={t("documents.clear_search") || "Clear"}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {searchTerm && (
+                    <div className="flex items-center justify-between gap-3 pt-2 border-t">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Search className="h-4 w-4" />
+                        {matchCount > 0 ? (
+                          <span>
+                            {t("documents.showing_results") || "Showing"} <strong className="text-foreground">{currentMatch}</strong> {t("documents.of") || "of"} <strong className="text-foreground">{matchCount}</strong> {t("documents.results") || "results"}
+                          </span>
+                        ) : (
+                          <span>{t("documents.no_results") || "No results found"}</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigateMatch('prev')}
+                          disabled={matchCount === 0}
+                          title={t("documents.previous_match") || "Previous"}
+                          className="h-8"
+                        >
+                          <ChevronUp className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigateMatch('next')}
+                          disabled={matchCount === 0}
+                          title={t("documents.next_match") || "Next"}
+                          className="h-8"
+                        >
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground text-center">
+                    💡 {t("documents.search_tip") || "Tip: Press Enter to jump to next result, Escape to clear search"}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

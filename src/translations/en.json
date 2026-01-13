@@ -204,6 +204,12 @@
   "documents.next_match": "Next match",
   "documents.clear_search": "Clear search",
   "documents.read_official_pdf": "Read the Official Articles of Association Document",
+  "documents.scroll_to_top": "Back to Top",
+  "documents.showing_results": "Showing",
+  "documents.of": "of",
+  "documents.results": "results",
+  "documents.no_results": "No results found",
+  "documents.search_tip": "Tip: Press Enter to jump to next result, Escape to clear search",
   
   "nav.dashboard": "Dashboard",
   "nav.settings": "Settings",
