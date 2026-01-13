@@ -289,19 +289,8 @@ const OfficialDocuments = () => {
             {t("documents.subtitle") || "Articles of Association and Official Registry Information"}
           </p>
           
-          {/* Action Buttons */}
-          <div className="flex flex-wrap justify-center gap-4">
-            <Button
-              size="lg"
-              variant="default"
-              className="rounded-full shadow-lg hover:shadow-xl transition-all"
-              onClick={() => window.open('https://portal.registryagency.bg/CR/en/Reports/ActiveConditionTabResult?uic=208630654', '_blank')}
-            >
-              <Building2 className="mr-2 h-5 w-5" />
-              {t("documents.commercial_register") || "Commercial Register"}
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </Button>
-            
+          {/* Action Button */}
+          <div className="flex justify-center">
             <Button
               size="lg"
               variant="default"
@@ -311,6 +300,20 @@ const OfficialDocuments = () => {
               <FileText className="mr-2 h-5 w-5" />
               {t("documents.download_official_pdf") || "Download Official PDF"}
             </Button>
+          </div>
+          
+          {/* Commercial Register Link - Moved to text link below */}
+          <div className="mt-6 text-center">
+            <a
+              href="https://portal.registryagency.bg/CR/en/Reports/ActiveConditionTabResult?uic=208630654"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1"
+            >
+              <Building2 className="h-4 w-4" />
+              {t("documents.commercial_register") || "View Commercial Register"}
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </div>
       </section>
