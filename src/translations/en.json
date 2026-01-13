@@ -198,6 +198,11 @@
   "documents.generating_pdf": "Generating PDF...",
   "documents.html_desc": "Standalone HTML file",
   "documents.pdf_desc": "PDF from current view",
+  "documents.close": "Close",
+  "documents.search_placeholder": "Search in document...",
+  "documents.previous_match": "Previous match",
+  "documents.next_match": "Next match",
+  "documents.clear_search": "Clear search",
   
   "nav.dashboard": "Dashboard",
   "nav.settings": "Settings",

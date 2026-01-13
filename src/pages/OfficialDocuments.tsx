@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
 import { FooterSection } from "@/components/ui/footer-section";
@@ -6,23 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   FileText, 
-  Download, 
   ExternalLink, 
-  FileCode,
-  Building2 
+  Building2,
+  X,
+  Search,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 const OfficialDocuments = () => {
   const { t, language } = useLanguage();
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [matchCount, setMatchCount] = useState(0);
+  const [currentMatch, setCurrentMatch] = useState(0);
 
   // Detect dark mode state
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -61,90 +59,6 @@ const OfficialDocuments = () => {
     }
   }, [language, isDarkMode]);
 
-  const downloadHTML = () => {
-    const htmlContent = document.getElementById('ustav-content')?.outerHTML || '';
-    const fullHTML = `
-<!DOCTYPE html>
-<html lang="bg">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Устав на БАЗАП | BAMAS Official Documents</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bamas-blue: #0056b3;
-            --bamas-dark: #1a1a1a;
-            --text-gray: #4a4a4a;
-            --bg-light: #f8f9fa;
-            --white: #ffffff;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--bamas-dark);
-            line-height: 1.7;
-            margin: 0;
-            padding: 40px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        h1 { color: var(--bamas-dark); font-size: 1.8rem; border-left: 4px solid var(--bamas-blue); padding-left: 15px; margin-top: 40px; }
-        h2 { color: var(--bamas-blue); font-size: 1.4rem; margin-top: 30px; text-transform: uppercase; letter-spacing: 1px; }
-        .article-box {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 6px;
-            background: white;
-            border: 1px solid #e0e0e0;
-        }
-        .article-title { font-weight: 700; color: var(--bamas-dark); display: block; margin-bottom: 8px; font-size: 1.1rem; }
-        ul { padding-left: 20px; }
-        li { margin-bottom: 10px; }
-        .logo-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
-            background: var(--bamas-dark);
-            color: white;
-            border-radius: 8px;
-        }
-        .logo-container {
-            font-weight: 800;
-            font-size: 2.2rem;
-            letter-spacing: -1px;
-            margin-bottom: 10px;
-        }
-        .logo-container span {
-            color: var(--bamas-blue);
-        }
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.8;
-        }
-    </style>
-</head>
-<body>
-    <div class="logo-header">
-        <div class="logo-container">БАЗАП <span>BAMAS</span></div>
-        <div class="subtitle">БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО</div>
-        <div class="subtitle">National Association for Additive Manufacturing in Bulgaria</div>
-    </div>
-    ${htmlContent}
-</body>
-</html>`;
-
-    const blob = new Blob([fullHTML], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'BAMAS-Ustav-Articles-of-Association.html';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const downloadPDF = () => {
     // Download the official PDF from public folder
     const link = document.createElement('a');
@@ -155,40 +69,192 @@ const OfficialDocuments = () => {
     document.body.removeChild(link);
   };
 
-  const generatePDF = async () => {
-    setIsGeneratingPDF(true);
-    try {
-      const element = document.getElementById('ustav-content');
-      if (!element) return;
+  // Search functionality
+  const highlightText = (text: string, search: string) => {
+    if (!search.trim()) return text;
+    
+    const parts = text.split(new RegExp(`(${search})`, 'gi'));
+    return parts.map((part, index) => 
+      part.toLowerCase() === search.toLowerCase() 
+        ? `<mark class="bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white rounded px-0.5">${part}</mark>`
+        : part
+    ).join('');
+  };
 
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
+  // Search functionality
+  const highlightText = (text: string, search: string) => {
+    if (!search.trim()) return text;
+    
+    const parts = text.split(new RegExp(`(${search})`, 'gi'));
+    return parts.map((part, index) => 
+      part.toLowerCase() === search.toLowerCase() 
+        ? `<mark class="bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white rounded px-0.5">${part}</mark>`
+        : part
+    ).join('');
+  };
 
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('BAMAS-Ustav-Web-Version.pdf');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-    } finally {
-      setIsGeneratingPDF(false);
+  // Effect to count and highlight matches
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setMatchCount(0);
+      setCurrentMatch(0);
+      // Remove all highlights
+      const content = document.getElementById('ustav-content');
+      if (content) {
+        const marks = content.querySelectorAll('mark');
+        marks.forEach(mark => {
+          const parent = mark.parentNode;
+          if (parent) {
+            parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+            parent.normalize();
+          }
+        });
+      }
+      return;
     }
+
+    const content = document.getElementById('ustav-content');
+    if (!content) return;
+
+    const textContent = content.innerText.toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
+    const regex = new RegExp(searchLower, 'gi');
+    const matches = textContent.match(regex);
+    setMatchCount(matches ? matches.length : 0);
+    setCurrentMatch(matches && matches.length > 0 ? 1 : 0);
+
+    // Highlight all matches
+    const walker = document.createTreeWalker(
+      content,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    const textNodes: Text[] = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      textNodes.push(node as Text);
+    }
+
+    textNodes.forEach(textNode => {
+      const text = textNode.textContent || '';
+      if (regex.test(text)) {
+        const span = document.createElement('span');
+        span.innerHTML = text.replace(regex, (match) => 
+          `<mark class="bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white rounded px-0.5 transition-colors">${match}</mark>`
+        );
+        textNode.parentNode?.replaceChild(span, textNode);
+      }
+    });
+
+    // Scroll to first match
+    const firstMark = content.querySelector('mark');
+    if (firstMark) {
+      firstMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      firstMark.classList.add('ring-2', 'ring-primary');
+    }
+  }, [searchTerm]);
+
+  const navigateMatch = (direction: 'next' | 'prev') => {
+    const content = document.getElementById('ustav-content');
+    if (!content) return;
+
+    const marks = Array.from(content.querySelectorAll('mark'));
+    if (marks.length === 0) return;
+
+    // Remove current highlight
+    marks.forEach(mark => mark.classList.remove('ring-2', 'ring-primary'));
+
+    let newIndex = currentMatch - 1; // Convert to 0-based
+    if (direction === 'next') {
+      newIndex = (newIndex + 1) % marks.length;
+    } else {
+      newIndex = (newIndex - 1 + marks.length) % marks.length;
+    }
+
+    setCurrentMatch(newIndex + 1); // Convert back to 1-based
+    const targetMark = marks[newIndex];
+    targetMark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    targetMark.classList.add('ring-2', 'ring-primary');
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
       <Navbar />
+      
+      {/* Close Button - Fixed Position */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => navigate('/')}
+        className="fixed top-20 right-4 z-50 h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 shadow-lg hover:bg-background hover:scale-110 transition-all"
+        title={t("documents.close") || "Close"}
+      >
+        <X className="h-5 w-5" />
+      </Button>
+
+      {/* Search Bar - Fixed Position */}
+      <div className="fixed top-32 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]">
+        <Card className="shadow-lg border-border/40 bg-background/95 backdrop-blur-sm">
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder={t("documents.search_placeholder") || "Search in document..."}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              {searchTerm && (
+                <>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                    <span className="font-medium">{currentMatch}/{matchCount}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => navigateMatch('prev')}
+                      disabled={matchCount === 0}
+                      title={t("documents.previous_match") || "Previous"}
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => navigateMatch('next')}
+                      disabled={matchCount === 0}
+                      title={t("documents.next_match") || "Next"}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={clearSearch}
+                      title={t("documents.clear_search") || "Clear"}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       
       {/* Hero Header */}
       <section className="pt-32 pb-16 px-4 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
@@ -199,7 +265,7 @@ const OfficialDocuments = () => {
                 key={`${logoPath}-${isDarkMode}`}
                 src={logoPath}
                 alt={language === "bg" ? "БАЗАП Лого" : "BAMAS Logo"}
-                style={{ borderRadius: '1rem' }}
+                style={{ borderRadius: '1.5rem' }}
                 className="w-full h-full object-contain transition-opacity duration-300 shadow-lg"
                 loading="eager"
                 fetchPriority="high"
@@ -245,39 +311,6 @@ const OfficialDocuments = () => {
               <FileText className="mr-2 h-5 w-5" />
               {t("documents.download_official_pdf") || "Download Official PDF"}
             </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full shadow-lg hover:shadow-xl transition-all"
-                  disabled={isGeneratingPDF}
-                >
-                  <Download className="mr-2 h-5 w-5" />
-                  {isGeneratingPDF 
-                    ? t("documents.generating") || "Generating..." 
-                    : t("documents.more_options") || "More Options"
-                  }
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuItem onClick={downloadHTML}>
-                  <FileCode className="mr-2 h-4 w-4" />
-                  <div className="flex flex-col">
-                    <span>{t("documents.download_html") || "Download as HTML"}</span>
-                    <span className="text-xs text-muted-foreground">{t("documents.html_desc") || "Web version"}</span>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={generatePDF} disabled={isGeneratingPDF}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  <div className="flex flex-col">
-                    <span>{t("documents.generate_pdf") || "Generate PDF from Page"}</span>
-                    <span className="text-xs text-muted-foreground">{t("documents.pdf_desc") || "Current view"}</span>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </section>

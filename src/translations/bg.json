@@ -199,6 +199,11 @@
   "documents.generating_pdf": "Генериране на PDF...",
   "documents.html_desc": "Самостоятелен HTML файл",
   "documents.pdf_desc": "PDF от текущия изглед",
+  "documents.close": "Затвори",
+  "documents.search_placeholder": "Търсене в документа...",
+  "documents.previous_match": "Предишно съвпадение",
+  "documents.next_match": "Следващо съвпадение",
+  "documents.clear_search": "Изчисти търсенето",
   
   "nav.dashboard": "Табло",
   "nav.settings": "Настройки",
