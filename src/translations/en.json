@@ -919,6 +919,13 @@
   "dashboard.budget.empty": "No budget information available.",
   
   "dashboard.network.title": "Network",
+  "dashboard.network.members": "members",
+  "dashboard.network.reload": "Reload network data",
+  "dashboard.network.search.placeholder": "Search by name, email, or company...",
+  "dashboard.network.search.results": "Showing results for",
+  "dashboard.network.search.showing": "Showing",
+  "dashboard.network.search.results_of": "of",
+  "dashboard.network.search.members": "members",
   "dashboard.network.members": "Network Members",
   "dashboard.network.description": "Connect with other association members",
   "dashboard.network.empty": "No network connections to display.",

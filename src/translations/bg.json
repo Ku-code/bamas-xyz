@@ -852,6 +852,13 @@
   "dashboard.budget.empty": "Няма налична информация за бюджета.",
   
   "dashboard.network.title": "Мрежа",
+  "dashboard.network.members": "членове",
+  "dashboard.network.reload": "Презареди мрежови данни",
+  "dashboard.network.search.placeholder": "Търси по име, имейл или компания...",
+  "dashboard.network.search.results": "Показване на резултати за",
+  "dashboard.network.search.showing": "Показване",
+  "dashboard.network.search.results_of": "от",
+  "dashboard.network.search.members": "членове",
   "dashboard.network.members": "Членове на мрежата",
   "dashboard.network.description": "Свържете се с други членове на асоциацията",
   "dashboard.network.empty": "Няма мрежови връзки за показване.",

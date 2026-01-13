@@ -71,6 +71,7 @@ const NetworkContent = () => {
   const [actionReason, setActionReason] = useState("");
   const [activeTab, setActiveTab] = useState<"graph" | "3d" | "list">("graph");
   const [deviceCapability] = useState(() => detectDeviceCapability());
+  const [searchQuery, setSearchQuery] = useState("");
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -352,10 +353,33 @@ const NetworkContent = () => {
     }
   };
 
-  const pendingMembers = members.filter(m => m.status === 'pending');
-  const approvedMembers = members.filter(m => m.status === 'approved');
-  const rejectedMembers = members.filter(m => m.status === 'rejected');
-  const suspendedMembers = members.filter(m => m.status === 'suspended');
+  // Filter members by search query
+  const filterMembersBySearch = (membersList: User[]) => {
+    if (!searchQuery.trim()) return membersList;
+    
+    const query = searchQuery.toLowerCase().trim();
+    
+    return membersList.filter(member => {
+      // Search by member name
+      const nameMatch = member.name.toLowerCase().includes(query);
+      
+      // Search by member email
+      const emailMatch = member.email.toLowerCase().includes(query);
+      
+      // Search by company name (companies created by this user)
+      const userCompanies = companies.filter(c => c.created_by === member.id);
+      const companyMatch = userCompanies.some(company => 
+        company.name.toLowerCase().includes(query)
+      );
+      
+      return nameMatch || emailMatch || companyMatch;
+    });
+  };
+
+  const pendingMembers = filterMembersBySearch(members.filter(m => m.status === 'pending'));
+  const approvedMembers = filterMembersBySearch(members.filter(m => m.status === 'approved'));
+  const rejectedMembers = filterMembersBySearch(members.filter(m => m.status === 'rejected'));
+  const suspendedMembers = filterMembersBySearch(members.filter(m => m.status === 'suspended'));
 
   const getRoleBadgeVariant = (role?: UserRole) => {
     switch (role) {
@@ -519,15 +543,26 @@ const NetworkContent = () => {
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6" />
           <h2 className="text-2xl font-bold">{t("dashboard.network.title") || "Network"}</h2>
+          <Badge variant="secondary" className="ml-2">{approvedMembers.length} {t("dashboard.network.members") || "members"}</Badge>
         </div>
-        {isAdmin && (
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="rounded-full">
-                <Plus className="mr-2 h-4 w-4" />
-                {t("dashboard.network.add.button") || "Add Member"}
-              </Button>
-            </DialogTrigger>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={loadData} 
+            className="rounded-full"
+            title={t("dashboard.network.reload") || "Reload network data"}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+          {isAdmin && (
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="rounded-full">
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t("dashboard.network.add.button") || "Add Member"}
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>{t("dashboard.network.add.title") || "Add New Member"}</DialogTitle>
@@ -598,8 +633,9 @@ const NetworkContent = () => {
                 </Button>
               </DialogFooter>
             </DialogContent>
-          </Dialog>
-        )}
+            </Dialog>
+          )}
+        </div>
       </div>
 
       {/* Main View Tabs - Graph, 3D, or List */}
@@ -622,6 +658,39 @@ const NetworkContent = () => {
         </TabsList>
 
         <TabsContent value="graph" className="space-y-4">
+          {/* Search Bar for Graph View */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    type="text"
+                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="rounded-full pl-10"
+                  />
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery("")}
+                    className="rounded-full"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {searchQuery && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>{t("dashboard.network.graph.title")}</CardTitle>
@@ -653,6 +722,39 @@ const NetworkContent = () => {
 
         {deviceCapability.canHandle3D && (
           <TabsContent value="3d" className="space-y-4">
+            {/* Search Bar for 3D View */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      type="text"
+                      placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="rounded-full pl-10"
+                    />
+                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchQuery("")}
+                      className="rounded-full"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {searchQuery && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>{t("dashboard.network.graph3d.title")}</CardTitle>
@@ -677,6 +779,39 @@ const NetworkContent = () => {
         )}
 
         <TabsContent value="list" className="space-y-4">
+          {/* Search Bar */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    type="text"
+                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="rounded-full pl-10"
+                  />
+                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery("")}
+                    className="rounded-full"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              {searchQuery && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {t("dashboard.network.search.results") || "Showing results for"}: <span className="font-medium">{searchQuery}</span>
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
       <Tabs defaultValue="approved" className="space-y-4">
         <TabsList className="rounded-full">
           <TabsTrigger value="approved" className="rounded-full">
@@ -741,7 +876,14 @@ const NetworkContent = () => {
                                     .slice(0, 2)}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="font-medium">{member.name}</span>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{member.name}</span>
+                                {companies.filter(c => c.created_by === member.id).length > 0 && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {companies.filter(c => c.created_by === member.id).map(c => c.name).join(", ")}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell>
