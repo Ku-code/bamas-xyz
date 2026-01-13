@@ -131,9 +131,9 @@ function FooterSection({
     if (isDarkMode) {
       // Dark mode: use existing logos
       if (currentLanguage === "bg") {
-        return "/lovable-uploads/BAMAS_Logo_bg.png";
+        return "/bamas-uploads/BAMAS_Logo_bg.png";
       } else {
-        return "/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
+        return "/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
       }
     } else {
       // Light mode: use logos from /logos folder
@@ -151,8 +151,8 @@ function FooterSection({
   
   // Fallback paths if primary doesn't exist (for dark mode)
   const fallbackLogoPath = currentLanguage === "bg" 
-    ? "/lovable-uploads/BAMAS_Logo_bg.png"
-    : "/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
+    ? "/bamas-uploads/BAMAS_Logo_bg.png"
+    : "/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
 
   return (
     <footer className="relative border-t bg-background text-foreground transition-colors duration-300">

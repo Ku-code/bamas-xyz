@@ -67,8 +67,8 @@ const Index = () => {
 
   const logoPath = useMemo(() => {
     return language === 'bg' 
-      ? '/lovable-uploads/BAMAS_Logo_bg.png'
-      : '/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+      ? '/bamas-uploads/BAMAS_Logo_bg.png'
+      : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
   }, [language]);
 
   return (

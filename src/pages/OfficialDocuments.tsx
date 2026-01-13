@@ -49,10 +49,10 @@ const OfficialDocuments = () => {
   // Use same logo logic as navbar
   const logoPath = useMemo(() => {
     if (isDarkMode) {
-      // Dark mode: use white logos from /lovable-uploads
+      // Dark mode: use white logos from /bamas-uploads
       return language === 'bg' 
-        ? '/lovable-uploads/BAMAS_Logo_bg.png'
-        : '/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+        ? '/bamas-uploads/BAMAS_Logo_bg.png'
+        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
     } else {
       // Light mode: use dark logos from /logos folder
       return language === 'bg'
@@ -244,8 +244,8 @@ const OfficialDocuments = () => {
                   // Fallback to dark mode logos if light mode logos fail
                   if (!isDarkMode) {
                     const fallbackPath = language === 'bg'
-                      ? '/lovable-uploads/BAMAS_Logo_bg.png'
-                      : '/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+                      ? '/bamas-uploads/BAMAS_Logo_bg.png'
+                      : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
                     e.currentTarget.src = fallbackPath;
                   }
                 }}
