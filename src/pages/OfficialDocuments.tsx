@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
 import { FooterSection } from "@/components/ui/footer-section";
@@ -23,6 +23,43 @@ import jsPDF from 'jspdf';
 const OfficialDocuments = () => {
   const { t, language } = useLanguage();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  // Detect dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return true; // Default to dark mode
+  });
+
+  // Listen for dark mode changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Use same logo logic as navbar
+  const logoPath = useMemo(() => {
+    if (isDarkMode) {
+      // Dark mode: use white logos from /lovable-uploads
+      return language === 'bg' 
+        ? '/lovable-uploads/BAMAS_Logo_bg.png'
+        : '/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+    } else {
+      // Light mode: use dark logos from /logos folder
+      return language === 'bg'
+        ? '/logos/BAMAS_LOGO_inkscape_file_6.PNG'
+        : '/logos/BAMAS_LOGO_inkscape_file_4 2.PNG';
+    }
+  }, [language, isDarkMode]);
 
   const downloadHTML = () => {
     const htmlContent = document.getElementById('ustav-content')?.outerHTML || '';
@@ -156,12 +193,28 @@ const OfficialDocuments = () => {
       {/* Hero Header */}
       <section className="pt-32 pb-16 px-4 bg-gradient-to-br from-primary/5 via-background to-background border-b border-border/40">
         <div className="container mx-auto max-w-4xl text-center">
-          <div className="mb-6 flex justify-center">
-            <img
-              src="/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png"
-              alt="BAMAS Logo"
-              className="h-24 w-24 object-contain"
-            />
+          <div className="mb-8 flex justify-center">
+            <div className="h-32 w-32 md:h-40 md:w-40">
+              <img
+                key={`${logoPath}-${isDarkMode}`}
+                src={logoPath}
+                alt={language === "bg" ? "БАЗАП Лого" : "BAMAS Logo"}
+                style={{ borderRadius: '1rem' }}
+                className="w-full h-full object-contain transition-opacity duration-300 shadow-lg"
+                loading="eager"
+                fetchPriority="high"
+                onError={(e) => {
+                  console.warn('Documents page logo failed to load:', e.currentTarget.src);
+                  // Fallback to dark mode logos if light mode logos fail
+                  if (!isDarkMode) {
+                    const fallbackPath = language === 'bg'
+                      ? '/lovable-uploads/BAMAS_Logo_bg.png'
+                      : '/lovable-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+                    e.currentTarget.src = fallbackPath;
+                  }
+                }}
+              />
+            </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
             {t("documents.title") || "Official Documents"}
