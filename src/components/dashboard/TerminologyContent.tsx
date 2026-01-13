@@ -31,6 +31,10 @@ export const TerminologyContent = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
 
+  // #region agent log H3
+  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TerminologyContent.tsx:29',message:'Component mounted',data:{hasUser:!!user,userId:user?.id,userRole:user?.role,isAdmin,isSuperAdmin,isBoardMember},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
+  // #endregion
+
   const [terms, setTerms] = useState<TerminologyTerm[]>([]);
   const [loading, setLoading] = useState(true);
   const [languageView, setLanguageView] = useState<LanguageView>("both");
@@ -65,6 +69,9 @@ export const TerminologyContent = () => {
   const canManage = isAdmin || isSuperAdmin || isBoardMember;
 
   const loadData = useCallback(async () => {
+    // #region agent log H3,H5
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TerminologyContent.tsx:67',message:'loadData called',data:{hasUser:!!user,userId:user?.id,userRole:user?.role,isAdmin,canManage,page,languageView,filters},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3,H5'})}).catch(()=>{});
+    // #endregion
     try {
       setLoading(true);
       const [termsData, statsData, favorites, suggestions] = await Promise.all([
@@ -73,6 +80,10 @@ export const TerminologyContent = () => {
         loadFavorites(),
         canManage ? loadSuggestions("pending") : Promise.resolve([]),
       ]);
+
+      // #region agent log H5
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TerminologyContent.tsx:77',message:'Data loaded successfully',data:{termsCount:termsData?.length,hasStats:!!statsData,favoritesCount:favorites?.length,suggestionsCount:suggestions?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H5'})}).catch(()=>{});
+      // #endregion
 
       if (page === 0) {
         setTerms(termsData || []);
@@ -97,6 +108,10 @@ export const TerminologyContent = () => {
       console.error("Error loading data:", error);
       const errorMessage = error?.message || error?.error?.message || '';
       const errorCode = error?.code || error?.error?.code;
+      
+      // #region agent log H1,H2,H4
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TerminologyContent.tsx:96',message:'Error in loadData',data:{errorCode,errorMessage,errorStack:error?.stack,fullError:JSON.stringify(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2,H4'})}).catch(()=>{});
+      // #endregion
       
       // Check if tables don't exist
       if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {

@@ -150,6 +150,9 @@ export interface SearchFilters {
 // ============================================
 
 export const loadTerms = async (filters?: SearchFilters, limit = 50, offset = 0): Promise<TerminologyTerm[]> => {
+  // #region agent log H1,H4
+  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:152',message:'loadTerms called',data:{filters,limit,offset},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H4'})}).catch(()=>{});
+  // #endregion
   try {
     let query = supabase
       .from('terminology_terms')
@@ -205,10 +208,18 @@ export const loadTerms = async (filters?: SearchFilters, limit = 50, offset = 0)
 
     const { data, error } = await query;
 
+    // #region agent log H1,H2
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:206',message:'Query result',data:{hasData:!!data,hasError:!!error,errorCode:error?.code,errorMessage:error?.message,dataCount:data?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+    // #endregion
+
     // Handle table doesn't exist error gracefully
     if (error) {
       const errorCode = (error as any)?.code;
       const errorMessage = (error as any)?.message || '';
+      
+      // #region agent log H1
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:214',message:'Error detected in loadTerms',data:{errorCode,errorMessage,is42P01:errorCode==='42P01'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+      // #endregion
       
       if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
         console.warn('Terminology tables do not exist yet. Please run migration 016_terminology_dictionary.sql');
@@ -1090,15 +1101,25 @@ export const rejectSuggestion = async (suggestionId: string, notes: string): Pro
 // ============================================
 
 export const getStatistics = async (): Promise<TerminologyStats> => {
+  // #region agent log H1,H4
+  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:1084',message:'getStatistics called',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H4'})}).catch(()=>{});
+  // #endregion
   try {
     const { data: terms, error: termsError } = await supabase
       .from('terminology_terms')
       .select('category, translation_status, difficulty_level, is_expert_verified, term_bg');
 
     // Handle table doesn't exist
+    // #region agent log H1,H2
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:1095',message:'Statistics query result',data:{hasTerms:!!terms,hasError:!!termsError,errorCode:termsError?.code,errorMessage:termsError?.message,termsCount:terms?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1,H2'})}).catch(()=>{});
+    // #endregion
+
     if (termsError) {
       const errorCode = (termsError as any)?.code;
       const errorMessage = (termsError as any)?.message || '';
+      // #region agent log H1
+      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'terminology.ts:1105',message:'Statistics error detected',data:{errorCode,errorMessage,is42P01:errorCode==='42P01'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+      // #endregion
       if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
         return {
           total_terms: 0,
