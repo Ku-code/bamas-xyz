@@ -185,8 +185,13 @@ export const loadJobPostings = async (filters?: JobFilters): Promise<JobPosting[
       company_name: item.company?.name,
       company_logo_url: item.company?.logo_url,
     })) as JobPosting[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading job postings:', error);
+    // Check if tables don't exist
+    if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
+      console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+      return []; // Return empty array instead of throwing
+    }
     throw error;
   }
 };
@@ -203,8 +208,25 @@ export const loadRecentJobs = async (limit: number = 10): Promise<JobPosting[]> 
 
     if (error) throw error;
     return (data || []) as JobPosting[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading recent jobs:', error);
+    // If view doesn't exist, try loading from job_postings directly
+    if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
+      try {
+        const { data, error: fallbackError } = await supabase
+          .from('job_postings')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(limit);
+        if (fallbackError) throw fallbackError;
+        return (data || []) as JobPosting[];
+      } catch {
+        // If tables don't exist, return empty array
+        console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+        return [];
+      }
+    }
     throw error;
   }
 };
@@ -461,8 +483,13 @@ export const loadJobSeekerProfiles = async (filters?: ProfileFilters): Promise<J
       user_image: item.user?.image,
       user_email: item.user?.email,
     })) as JobSeekerProfile[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading job seeker profiles:', error);
+    // Check if tables don't exist
+    if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
+      console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+      return []; // Return empty array instead of throwing
+    }
     throw error;
   }
 };
@@ -689,8 +716,13 @@ export const getMyApplications = async (): Promise<JobApplication[]> => {
       ...item,
       job_title: item.job?.title,
     })) as JobApplication[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading applications:', error);
+    // Check if tables don't exist
+    if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
+      console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+      return []; // Return empty array instead of throwing
+    }
     throw error;
   }
 };
@@ -927,8 +959,13 @@ export const getFavorites = async (type: 'job' | 'profile'): Promise<string[]> =
 
     if (error) throw error;
     return (data || []).map((item: any) => item[type === 'job' ? 'job_id' : 'profile_id']).filter(Boolean);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error loading favorites:', error);
+    // Check if tables don't exist
+    if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
+      console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+      return []; // Return empty array instead of throwing
+    }
     throw error;
   }
 };

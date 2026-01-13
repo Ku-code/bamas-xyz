@@ -1217,6 +1217,8 @@
   "jobboard.error.loadFailedDesc": "Неуспешно зареждане на данни",
   "jobboard.error.favoriteFailed": "Грешка",
   "jobboard.error.favoriteFailedDesc": "Неуспешно актуализиране на любими",
+  "jobboard.error.tablesMissing": "Изисква се настройка на базата данни",
+  "jobboard.error.tablesMissingDesc": "Таблиците на обявите за работа не са намерени. Моля, изпълнете миграцията 020_job_board.sql в SQL Editor на Supabase.",
   
   "jobboard.form.editTitle": "Редактирай Обява за Работа",
   "jobboard.form.createTitle": "Създай Обява за Работа",
@@ -1371,5 +1373,6 @@
   "common.edit": "Редактирай",
   "common.close": "Затвори",
   "common.optional": "По избор",
-  "common.uploading": "Качване..."
+  "common.uploading": "Качване...",
+  "common.retry": "Опитай отново"
 }

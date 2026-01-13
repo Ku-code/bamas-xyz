@@ -55,6 +55,7 @@ export const JobBoardContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [tablesMissing, setTablesMissing] = useState(false);
 
   // Data
   const [jobs, setJobs] = useState<JobPosting[]>([]);
@@ -137,11 +138,25 @@ export const JobBoardContent = () => {
       }
     } catch (error: any) {
       console.error("Error loading job board data:", error);
-      toast({
-        title: t("jobboard.error.loadFailed") || "Error",
-        description: error.message || t("jobboard.error.loadFailedDesc") || "Failed to load data",
-        variant: "destructive",
-      });
+      const errorMessage = error?.message || error?.error?.message || '';
+      const errorCode = error?.code || error?.error?.code;
+      
+      // Check if tables don't exist
+      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+        setTablesMissing(true);
+        toast({
+          title: t("jobboard.error.tablesMissing") || "Database Setup Required",
+          description: t("jobboard.error.tablesMissingDesc") || "Job board tables not found. Please run migration 020_job_board.sql in Supabase.",
+          variant: "destructive",
+          duration: 10000,
+        });
+      } else {
+        toast({
+          title: t("jobboard.error.loadFailed") || "Error",
+          description: errorMessage || t("jobboard.error.loadFailedDesc") || "Failed to load data",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -221,18 +236,59 @@ export const JobBoardContent = () => {
         </div>
       </div>
 
+      {/* Database Setup Message */}
+      {tablesMissing && (
+        <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <h3 className="font-semibold mb-2">
+                  {t("jobboard.error.tablesMissing") || "Database Setup Required"}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("jobboard.error.tablesMissingDesc") || "Job board tables not found. Please run migration 020_job_board.sql in Supabase SQL Editor."}
+                </p>
+                <div className="text-sm space-y-2">
+                  <p className="font-medium">Steps to fix:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>Open Supabase Dashboard → SQL Editor</li>
+                    <li>Copy the contents of <code className="bg-muted px-1 rounded">supabase/migrations/020_job_board.sql</code></li>
+                    <li>Paste and run the migration</li>
+                    <li>Create the storage bucket <code className="bg-muted px-1 rounded">job-files</code> (Private, no size limit)</li>
+                    <li>Refresh this page</li>
+                  </ol>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setTablesMissing(false);
+                  loadData();
+                }}
+              >
+                {t("common.retry") || "Retry"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10 rounded-full"
-        />
-      </div>
+      {!tablesMissing && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="pl-10 rounded-full"
+          />
+        </div>
+      )}
 
       {/* Recent Jobs Sidebar & Main Content */}
+      {!tablesMissing && (
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Recent Jobs Sidebar */}
         {activeTab === "all" && recentJobs.length > 0 && (
@@ -551,6 +607,7 @@ export const JobBoardContent = () => {
           </Tabs>
         </div>
       </div>
+      )}
 
       {/* Dialogs */}
       {showJobForm && (

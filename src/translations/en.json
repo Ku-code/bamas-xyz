@@ -1259,6 +1259,8 @@
   "jobboard.error.loadFailedDesc": "Failed to load data",
   "jobboard.error.favoriteFailed": "Error",
   "jobboard.error.favoriteFailedDesc": "Failed to update favorite",
+  "jobboard.error.tablesMissing": "Database Setup Required",
+  "jobboard.error.tablesMissingDesc": "Job board tables not found. Please run migration 020_job_board.sql in Supabase SQL Editor.",
   
   "jobboard.form.editTitle": "Edit Job Posting",
   "jobboard.form.createTitle": "Create Job Posting",
@@ -1413,5 +1415,6 @@
   "common.edit": "Edit",
   "common.close": "Close",
   "common.optional": "Optional",
-  "common.uploading": "Uploading..."
+  "common.uploading": "Uploading...",
+  "common.retry": "Retry"
 } 
