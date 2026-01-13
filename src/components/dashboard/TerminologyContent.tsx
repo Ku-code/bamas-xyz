@@ -26,7 +26,7 @@ import { TerminologyExport } from "./TerminologyExport";
 import { TerminologyImportDialog } from "./TerminologyImportDialog";
 import { TerminologySuggestionsPanel } from "./TerminologySuggestionsPanel";
 
-export const TerminologyContent = () => {
+const TerminologyContent = () => {
   const { user, isAdmin, isSuperAdmin, isBoardMember } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -36,7 +36,7 @@ export const TerminologyContent = () => {
   // #endregion
 
   const [terms, setTerms] = useState<TerminologyTerm[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [languageView, setLanguageView] = useState<LanguageView>("both");
   const [filters, setFilters] = useState<SearchFilters>({
     sort_by: "alphabetical",
@@ -149,8 +149,16 @@ export const TerminologyContent = () => {
   }, [filters, languageView, page, canManage, toast]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    // Only load data if user is available
+    if (user) {
+      loadData().catch((error) => {
+        console.error("Failed to load initial data:", error);
+        // Component will still render with empty state
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [loadData, user]);
 
   const handleSearch = useCallback((query: string) => {
     setFilters((prev) => ({ ...prev, query }));
@@ -364,3 +372,5 @@ export const TerminologyContent = () => {
     </div>
   );
 };
+
+export default TerminologyContent;
