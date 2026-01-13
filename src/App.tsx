@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './components/ThemeProvider';
 import Index from "./pages/Index";
 import CookieConsent from "./components/CookieConsent";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -174,11 +175,13 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <LanguageProvider>
-        <AuthProvider>
-        <AppContent />
-        </AuthProvider>
-      </LanguageProvider>
+      <ThemeProvider defaultTheme="system" storageKey="bamas-theme">
+        <LanguageProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };

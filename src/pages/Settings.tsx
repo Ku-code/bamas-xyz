@@ -10,15 +10,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/components/ThemeProvider";
 import { useToast } from "@/hooks/use-toast";
 import { formatErrorForToast } from "@/lib/error-messages";
 import { storage } from "@/lib/storage";
-import { ArrowLeft, LogOut, Save, Upload, X, Globe, MapPin, Phone, Hash } from "lucide-react";
+import { 
+  ArrowLeft, LogOut, Save, Upload, X, Globe, MapPin, Phone, Hash,
+  Sun, Moon, Monitor, CreditCard, Calendar, AlertCircle, CheckCircle2, Clock,
+  Building2
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import { format, formatDistanceToNow, addYears } from "date-fns";
 
 const Settings = () => {
   const { user, updateUser, logout } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +38,7 @@ const Settings = () => {
   const [location, setLocation] = useState(user?.location || "");
   const [website, setWebsite] = useState(user?.website || "");
   const [phone, setPhone] = useState(user?.phone || "");
+  const [companyName, setCompanyName] = useState(user?.company_name || "");
   const [imagePreview, setImagePreview] = useState<string | null>(user?.image || null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,9 +52,61 @@ const Settings = () => {
       setLocation(user.location || "");
       setWebsite(user.website || "");
       setPhone(user.phone || "");
+      setCompanyName(user.company_name || "");
       setImagePreview(user.image || null);
     }
   }, [user]);
+
+  // Get billing status info
+  const getBillingStatusInfo = () => {
+    const billing = user?.billing;
+    if (!billing) {
+      return {
+        status: 'pending' as const,
+        label: t("settings.billing.status.pending") || "Pending",
+        icon: Clock,
+        color: "text-yellow-600",
+        bgColor: "bg-yellow-100",
+      };
+    }
+
+    switch (billing.status) {
+      case 'paid':
+        return {
+          status: billing.status,
+          label: t("settings.billing.status.paid") || "Paid",
+          icon: CheckCircle2,
+          color: "text-green-600",
+          bgColor: "bg-green-100",
+        };
+      case 'overdue':
+        return {
+          status: billing.status,
+          label: t("settings.billing.status.overdue") || "Overdue",
+          icon: AlertCircle,
+          color: "text-red-600",
+          bgColor: "bg-red-100",
+        };
+      case 'exempt':
+        return {
+          status: billing.status,
+          label: t("settings.billing.status.exempt") || "Exempt",
+          icon: CheckCircle2,
+          color: "text-blue-600",
+          bgColor: "bg-blue-100",
+        };
+      default:
+        return {
+          status: billing.status,
+          label: t("settings.billing.status.pending") || "Pending",
+          icon: Clock,
+          color: "text-yellow-600",
+          bgColor: "bg-yellow-100",
+        };
+    }
+  };
+
+  const billingInfo = getBillingStatusInfo();
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -164,6 +224,7 @@ const Settings = () => {
         location,
         website,
         phone,
+        company_name: companyName || undefined,
         image: imageUrl || undefined,
       });
       toast({
@@ -389,6 +450,21 @@ const Settings = () => {
                       className="rounded-full"
                     />
                   </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="companyName">
+                      <Building2 className="inline h-4 w-4 mr-1" />
+                      {t("settings.profile.company") || "Company / Organization"}
+                    </Label>
+                    <Input
+                      id="companyName"
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder={t("settings.profile.company.placeholder") || "Your company or organization name"}
+                      className="rounded-full"
+                    />
+                  </div>
                 </div>
 
                 <Button 
@@ -410,7 +486,8 @@ const Settings = () => {
                 {t("settings.preferences.description") || "Customize your experience"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Language Selection */}
               <div className="space-y-2">
                 <Label>{t("settings.preferences.language") || "Language"}</Label>
                 <div className="flex gap-2">
@@ -421,7 +498,7 @@ const Settings = () => {
                     className="rounded-full"
                     onClick={() => setLanguage("en")}
                   >
-                    English
+                    🇬🇧 English
                   </Button>
                   <Button
                     type="button"
@@ -430,9 +507,164 @@ const Settings = () => {
                     className="rounded-full"
                     onClick={() => setLanguage("bg")}
                   >
-                    Български
+                    🇧🇬 Български
                   </Button>
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Theme Selection */}
+              <div className="space-y-2">
+                <Label>{t("settings.preferences.theme") || "Theme"}</Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={theme === "light" ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => setTheme("light")}
+                  >
+                    <Sun className="h-4 w-4 mr-2" />
+                    {t("settings.preferences.theme.light") || "Light"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={theme === "dark" ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => setTheme("dark")}
+                  >
+                    <Moon className="h-4 w-4 mr-2" />
+                    {t("settings.preferences.theme.dark") || "Dark"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={theme === "system" ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => setTheme("system")}
+                  >
+                    <Monitor className="h-4 w-4 mr-2" />
+                    {t("settings.preferences.theme.system") || "System"}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {theme === "system" 
+                    ? (t("settings.preferences.theme.systemHint") || `Currently using ${resolvedTheme} mode based on your system settings`)
+                    : (t("settings.preferences.theme.selected") || `Using ${theme} mode`)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Billing Status Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                {t("settings.billing.title") || "Membership & Billing"}
+              </CardTitle>
+              <CardDescription>
+                {t("settings.billing.description") || "Your subscription status and payment information"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Billing Status Badge */}
+              <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-full ${billingInfo.bgColor}`}>
+                    <billingInfo.icon className={`h-5 w-5 ${billingInfo.color}`} />
+                  </div>
+                  <div>
+                    <p className="font-medium">{t("settings.billing.subscriptionStatus") || "Subscription Status"}</p>
+                    <Badge 
+                      variant={billingInfo.status === 'paid' ? 'default' : billingInfo.status === 'overdue' ? 'destructive' : 'secondary'}
+                      className="mt-1"
+                    >
+                      {billingInfo.label}
+                    </Badge>
+                  </div>
+                </div>
+                {user?.billing?.amount && (
+                  <div className="text-right">
+                    <p className="text-2xl font-bold">
+                      {user.billing.amount} {user.billing.currency || 'BGN'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("settings.billing.yearlyFee") || "yearly fee"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Last Payment */}
+                <div className="p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">{t("settings.billing.lastPayment") || "Last Payment"}</span>
+                  </div>
+                  <p className="font-medium">
+                    {user?.billing?.lastPaymentDate 
+                      ? format(new Date(user.billing.lastPaymentDate), 'dd MMM yyyy')
+                      : (t("settings.billing.neverPaid") || "No payment recorded")}
+                  </p>
+                  {user?.billing?.lastPaymentDate && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatDistanceToNow(new Date(user.billing.lastPaymentDate), { addSuffix: true })}
+                    </p>
+                  )}
+                </div>
+
+                {/* Due Date */}
+                <div className="p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm">{t("settings.billing.dueDate") || "Next Payment Due"}</span>
+                  </div>
+                  <p className="font-medium">
+                    {user?.billing?.dueDate 
+                      ? format(new Date(user.billing.dueDate), 'dd MMM yyyy')
+                      : user?.billing?.status === 'exempt' 
+                        ? (t("settings.billing.exempt") || "Exempt from payment")
+                        : (t("settings.billing.awaitingPayment") || "Awaiting first payment")}
+                  </p>
+                  {user?.billing?.dueDate && (
+                    <p className={`text-xs mt-1 ${
+                      new Date(user.billing.dueDate) < new Date() 
+                        ? 'text-red-600 font-medium' 
+                        : 'text-muted-foreground'
+                    }`}>
+                      {new Date(user.billing.dueDate) < new Date()
+                        ? (t("settings.billing.overdueDays") || "Overdue") + ` (${formatDistanceToNow(new Date(user.billing.dueDate))} ago)`
+                        : formatDistanceToNow(new Date(user.billing.dueDate), { addSuffix: true })}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Invoice ID */}
+              {user?.billing?.invoiceId && (
+                <div className="p-3 rounded-lg bg-muted/50 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {t("settings.billing.invoiceId") || "Invoice ID"}
+                  </span>
+                  <code className="text-sm font-mono bg-background px-2 py-1 rounded">
+                    {user.billing.invoiceId}
+                  </code>
+                </div>
+              )}
+
+              {/* Payment Info Note */}
+              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  💡 {t("settings.billing.note") || "To make a payment or update your billing information, please contact the association at"}{" "}
+                  <a href="mailto:billing@bamas.xyz" className="underline font-medium">
+                    billing@bamas.xyz
+                  </a>
+                </p>
               </div>
             </CardContent>
           </Card>

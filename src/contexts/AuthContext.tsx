@@ -6,6 +6,17 @@ import { db } from '@/lib/database';
 export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 
+export type BillingStatus = 'paid' | 'pending' | 'overdue' | 'exempt';
+
+export interface BillingInfo {
+  status: BillingStatus;
+  amount?: number;
+  currency?: string;
+  lastPaymentDate?: string;
+  dueDate?: string;
+  invoiceId?: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -22,6 +33,9 @@ export interface User {
   createdAt?: string;
   approvedAt?: string;
   approvedBy?: string;
+  // Billing fields
+  billing?: BillingInfo;
+  company_name?: string;
 }
 
 interface AuthContextType {
