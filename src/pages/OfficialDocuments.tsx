@@ -82,19 +82,6 @@ const OfficialDocuments = () => {
     ).join('');
   };
 
-
-  // Search functionality
-  const highlightText = (text: string, search: string) => {
-    if (!search.trim()) return text;
-    
-    const parts = text.split(new RegExp(`(${search})`, 'gi'));
-    return parts.map((part, index) => 
-      part.toLowerCase() === search.toLowerCase() 
-        ? `<mark class="bg-yellow-300 dark:bg-yellow-600 text-black dark:text-white rounded px-0.5">${part}</mark>`
-        : part
-    ).join('');
-  };
-
   // Effect to count and highlight matches
   useEffect(() => {
     if (!searchTerm.trim()) {
