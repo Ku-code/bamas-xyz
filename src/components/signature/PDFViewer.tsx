@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+// Note: CSS imports commented out to fix build issues
+// import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+// import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
