@@ -37,6 +37,7 @@ import {
   PenTool,
   Gavel,
   BookOpen,
+  ClipboardList,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -52,6 +53,7 @@ const WorkingGroupsContent = lazy(() => import("@/components/dashboard/WorkingGr
 const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCenter"));
 const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
 const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent"));
+const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent"));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -60,7 +62,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -88,6 +90,7 @@ const Dashboard = () => {
     { id: "network" as MenuItem, icon: Users, label: t("dashboard.menu.network") || "Network" },
     { id: "resources" as MenuItem, icon: Package, label: t("dashboard.menu.resources") || "Resources" },
     { id: "terminology" as MenuItem, icon: BookOpen, label: t("dashboard.menu.terminology") || "Terminology" },
+    { id: "jobboard" as MenuItem, icon: ClipboardList, label: t("dashboard.menu.jobboard") || "Job Board" },
     { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
     { id: "workinggroups" as MenuItem, icon: Briefcase, label: t("dashboard.menu.workinggroups") || "Working Groups" },
     { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
@@ -147,6 +150,8 @@ const Dashboard = () => {
           return <ResourcesContent />;
         case "terminology":
           return <TerminologyContent />;
+        case "jobboard":
+          return <JobBoardContent />;
         case "additivemap":
           return <AdditiveMapContent />;
         case "workinggroups":
