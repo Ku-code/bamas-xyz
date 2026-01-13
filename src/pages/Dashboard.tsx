@@ -53,7 +53,7 @@ const WorkingGroupsContent = lazy(() => import("@/components/dashboard/WorkingGr
 const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCenter"));
 const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
 const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent").then(module => ({ default: module.default || module.TerminologyContent })));
-const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent"));
+const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent").then(module => ({ default: module.default || module.JobBoardContent })));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (

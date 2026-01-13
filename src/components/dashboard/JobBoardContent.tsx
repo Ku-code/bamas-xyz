@@ -45,7 +45,7 @@ import { formatDistanceToNow } from "date-fns";
 type ViewMode = "grid" | "list";
 type ActiveTab = "all" | "talent" | "my-posts" | "my-applications" | "saved";
 
-export const JobBoardContent = () => {
+const JobBoardContent = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
@@ -695,3 +695,5 @@ export const JobBoardContent = () => {
     </div>
   );
 };
+
+export default JobBoardContent;
