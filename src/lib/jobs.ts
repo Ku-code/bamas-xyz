@@ -201,6 +201,7 @@ export const loadJobPostings = async (filters?: JobFilters): Promise<JobPosting[
  */
 export const loadRecentJobs = async (limit: number = 10): Promise<JobPosting[]> => {
   try {
+    // Try the view first
     const { data, error } = await supabase
       .from('recent_job_postings')
       .select('*')
@@ -209,25 +210,49 @@ export const loadRecentJobs = async (limit: number = 10): Promise<JobPosting[]> 
     if (error) throw error;
     return (data || []) as JobPosting[];
   } catch (error: any) {
-    console.error('Error loading recent jobs:', error);
     // If view doesn't exist, try loading from job_postings directly
     if (error?.code === '42P01' || error?.message?.includes('does not exist') || error?.message?.includes('relation')) {
       try {
         const { data, error: fallbackError } = await supabase
           .from('job_postings')
-          .select('*')
+          .select(`
+            *,
+            posted_by_user:users!job_postings_posted_by_fkey(id, name, image),
+            company:companies(id, name, logo_url)
+          `)
           .eq('status', 'active')
           .order('created_at', { ascending: false })
           .limit(limit);
-        if (fallbackError) throw fallbackError;
-        return (data || []) as JobPosting[];
-      } catch {
+        
+        if (fallbackError) {
+          // If tables don't exist, return empty array
+          if (fallbackError.code === '42P01' || fallbackError.message?.includes('does not exist')) {
+            console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+            return [];
+          }
+          throw fallbackError;
+        }
+        
+        return (data || []).map((item: any) => ({
+          ...item,
+          posted_by_name: item.posted_by_user?.name,
+          posted_by_image: item.posted_by_user?.image,
+          company_name: item.company?.name,
+          company_logo_url: item.company?.logo_url,
+        })) as JobPosting[];
+      } catch (fallbackError: any) {
         // If tables don't exist, return empty array
-        console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+        if (fallbackError?.code === '42P01' || fallbackError?.message?.includes('does not exist')) {
+          console.warn('Job board tables not found. Please run migration 020_job_board.sql');
+          return [];
+        }
+        console.error('Error loading recent jobs (fallback):', fallbackError);
         return [];
       }
     }
-    throw error;
+    // For other errors, return empty array instead of throwing
+    console.error('Error loading recent jobs:', error);
+    return [];
   }
 };
 
@@ -238,9 +263,10 @@ export const searchJobs = async (query: string, filters?: JobFilters): Promise<J
   try {
     const searchFilters = { ...filters, search: query };
     return await loadJobPostings(searchFilters);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error searching jobs:', error);
-    throw error;
+    // Return empty array instead of throwing
+    return [];
   }
 };
 

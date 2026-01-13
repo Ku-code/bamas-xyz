@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 import {
   loadJobPostings,
   loadJobSeekerProfiles,
@@ -54,7 +55,7 @@ export const JobBoardContent = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [tablesMissing, setTablesMissing] = useState(false);
 
   // Data
@@ -79,81 +80,143 @@ export const JobBoardContent = () => {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      setTablesMissing(false); // Reset on each load attempt
 
       switch (activeTab) {
         case "all":
-          const [allJobs, recent] = await Promise.all([
-            searchQuery 
-              ? searchJobs(searchQuery, jobFilters)
-              : loadJobPostings(jobFilters),
-            loadRecentJobs(10),
-          ]);
-          setJobs(allJobs || []);
-          setRecentJobs(recent || []);
+          try {
+            const [allJobs, recent] = await Promise.all([
+              searchQuery 
+                ? searchJobs(searchQuery, jobFilters)
+                : loadJobPostings(jobFilters),
+              loadRecentJobs(10),
+            ]);
+            setJobs(allJobs || []);
+            setRecentJobs(recent || []);
+            
+            // Check if tables might be missing (only check once)
+            if ((!allJobs || allJobs.length === 0) && (!recent || recent.length === 0)) {
+              const hasCheckedTables = sessionStorage.getItem('jobboard_tables_checked');
+              if (!hasCheckedTables && user) {
+                // Test if table exists
+                const { error: testError } = await supabase
+                  .from('job_postings')
+                  .select('id')
+                  .limit(1);
+                if (testError?.code === '42P01') {
+                  setTablesMissing(true);
+                  sessionStorage.setItem('jobboard_tables_checked', 'true');
+                } else {
+                  sessionStorage.setItem('jobboard_tables_checked', 'true');
+                }
+              }
+            }
+          } catch (err: any) {
+            console.error("Error loading jobs:", err);
+            setJobs([]);
+            setRecentJobs([]);
+            if (err?.code === '42P01') {
+              setTablesMissing(true);
+            }
+          }
           break;
 
         case "talent":
-          const talentProfiles = searchQuery
-            ? await loadJobSeekerProfiles({ ...profileFilters, search: searchQuery })
-            : await loadJobSeekerProfiles(profileFilters);
-          setProfiles(talentProfiles || []);
+          try {
+            const talentProfiles = searchQuery
+              ? await loadJobSeekerProfiles({ ...profileFilters, search: searchQuery })
+              : await loadJobSeekerProfiles(profileFilters);
+            setProfiles(talentProfiles || []);
+          } catch (err: any) {
+            console.error("Error loading profiles:", err);
+            setProfiles([]);
+            if (err?.code === '42P01') {
+              setTablesMissing(true);
+            }
+          }
           break;
 
         case "my-posts":
-          const myJobs = await loadJobPostings({});
-          const myPostedJobs = myJobs.filter(j => j.posted_by === user?.id);
-          setJobs(myPostedJobs);
-          setMyJobIds(myPostedJobs.map(j => j.id));
+          try {
+            const myJobs = await loadJobPostings({});
+            const myPostedJobs = myJobs.filter(j => j.posted_by === user?.id);
+            setJobs(myPostedJobs);
+            setMyJobIds(myPostedJobs.map(j => j.id));
+          } catch (err: any) {
+            console.error("Error loading my posts:", err);
+            setJobs([]);
+            if (err?.code === '42P01') {
+              setTablesMissing(true);
+            }
+          }
           break;
 
         case "my-applications":
-          const applications = await getMyApplications();
-          setMyApplications(applications || []);
-          // Load job details for applications
-          const jobIds = applications.map(a => a.job_id);
-          if (jobIds.length > 0) {
-            const appliedJobs = await Promise.all(
-              jobIds.map(id => loadJobPostings({})).then(jobs => 
+          try {
+            const applications = await getMyApplications();
+            setMyApplications(applications || []);
+            // Load job details for applications
+            const jobIds = applications.map(a => a.job_id);
+            if (jobIds.length > 0) {
+              const appliedJobs = await Promise.all(
+                jobIds.map(id => loadJobPostings({}))
+              ).then(jobs => 
                 jobs.flat().filter(j => jobIds.includes(j.id))
-              )
-            );
-            setJobs(appliedJobs.flat());
+              );
+              setJobs(appliedJobs);
+            }
+          } catch (err: any) {
+            console.error("Error loading applications:", err);
+            setMyApplications([]);
+            setJobs([]);
+            if (err?.code === '42P01') {
+              setTablesMissing(true);
+            }
           }
           break;
 
         case "saved":
-          const savedIds = await getFavorites("job");
-          const savedProfileIds = await getFavorites("profile");
-          setFavorites([...savedIds, ...savedProfileIds]);
-          
-          if (savedIds.length > 0) {
-            const savedJobs = await loadJobPostings({});
-            setJobs(savedJobs.filter(j => savedIds.includes(j.id)));
-          }
-          if (savedProfileIds.length > 0) {
-            const savedProfiles = await loadJobSeekerProfiles({});
-            setProfiles(savedProfiles.filter(p => savedProfileIds.includes(p.id)));
+          try {
+            const [savedIds, savedProfileIds] = await Promise.all([
+              getFavorites("job"),
+              getFavorites("profile"),
+            ]);
+            setFavorites([...savedIds, ...savedProfileIds]);
+            
+            if (savedIds.length > 0) {
+              const savedJobs = await loadJobPostings({});
+              setJobs(savedJobs.filter(j => savedIds.includes(j.id)));
+            }
+            if (savedProfileIds.length > 0) {
+              const savedProfiles = await loadJobSeekerProfiles({});
+              setProfiles(savedProfiles.filter(p => savedProfileIds.includes(p.id)));
+            }
+          } catch (err: any) {
+            console.error("Error loading saved items:", err);
+            setJobs([]);
+            setProfiles([]);
+            if (err?.code === '42P01') {
+              setTablesMissing(true);
+            }
           }
           break;
       }
     } catch (error: any) {
       console.error("Error loading job board data:", error);
-      const errorMessage = error?.message || error?.error?.message || '';
-      const errorCode = error?.code || error?.error?.code;
+      // Set empty states to ensure UI renders
+      setJobs([]);
+      setProfiles([]);
+      setRecentJobs([]);
+      setMyApplications([]);
       
-      // Check if tables don't exist
-      if (errorCode === '42P01' || errorMessage.includes('does not exist') || errorMessage.includes('relation')) {
+      // Check if it's a missing table error
+      if (error?.code === '42P01' || error?.message?.includes('does not exist')) {
         setTablesMissing(true);
-        toast({
-          title: t("jobboard.error.tablesMissing") || "Database Setup Required",
-          description: t("jobboard.error.tablesMissingDesc") || "Job board tables not found. Please run migration 020_job_board.sql in Supabase.",
-          variant: "destructive",
-          duration: 10000,
-        });
       } else {
+        // Only show toast for unexpected errors
         toast({
           title: t("jobboard.error.loadFailed") || "Error",
-          description: errorMessage || t("jobboard.error.loadFailedDesc") || "Failed to load data",
+          description: error?.message || t("jobboard.error.loadFailedDesc") || "Failed to load data",
           variant: "destructive",
         });
       }
@@ -163,8 +226,13 @@ export const JobBoardContent = () => {
   }, [activeTab, searchQuery, jobFilters, profileFilters, user, toast, t]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    // Only load data if user is available
+    if (user) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [loadData, user]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -275,20 +343,18 @@ export const JobBoardContent = () => {
       )}
 
       {/* Search Bar */}
-      {!tablesMissing && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10 rounded-full"
-          />
-        </div>
-      )}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
+          value={searchQuery}
+          onChange={(e) => handleSearch(e.target.value)}
+          className="pl-10 rounded-full"
+          disabled={tablesMissing}
+        />
+      </div>
 
       {/* Recent Jobs Sidebar & Main Content */}
-      {!tablesMissing && (
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Recent Jobs Sidebar */}
         {activeTab === "all" && recentJobs.length > 0 && (
@@ -607,7 +673,6 @@ export const JobBoardContent = () => {
           </Tabs>
         </div>
       </div>
-      )}
 
       {/* Dialogs */}
       {showJobForm && (
