@@ -1,3 +1,24 @@
 ---
-alwaysApply: true
+description: Rules for handling Supabase migrations, schema changes, and type safety
+globs: ["**/supabase/**", "**/types/**", "**/database/**", "**/lib/supabase/**"]
 ---
+
+# Supabase Expert Protocol
+
+## 1. Schema & Migrations
+- Whenever a database table, column, or policy is added or modified, you MUST use the `supabase-migration-new` command.
+- Write descriptive migration names (e.g., `add-jobs-table`, `enable-rls-profiles`).
+- After creating a migration, immediately run `supabase-db-reset` to ensure the local Docker environment reflects the changes and the SQL is valid.
+
+## 2. Type Safety
+- Every time the database schema changes, you MUST run the `supabase-gen-types` command.
+- Always import types from the generated `@/types/supabase` file (or your specific path) to ensure full TypeScript coverage.
+- If a query fails due to a type mismatch, re-run type generation before attempting to fix the code manually.
+
+## 3. Security & RLS
+- Every new table MUST have Row Level Security (RLS) enabled.
+- Verify RLS policies by checking the migration file or running `supabase-status`.
+
+## 4. Error Recovery
+- If a Supabase command fails, run `supabase-status` to verify Docker is running.
+- If the local database is corrupted, run `supabase-db-reset`.
