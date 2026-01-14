@@ -1,11 +1,5 @@
 import * as React from "react"
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'chart.tsx:2',message:'Before RechartsPrimitive import',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-// #endregion
 import * as RechartsPrimitive from "recharts"
-// #region agent log
-fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'chart.tsx:4',message:'After RechartsPrimitive import',data:{hasResponsiveContainer:typeof RechartsPrimitive.ResponsiveContainer !== 'undefined',hasTooltip:typeof RechartsPrimitive.Tooltip !== 'undefined'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-// #endregion
 
 import { cn } from "@/lib/utils"
 

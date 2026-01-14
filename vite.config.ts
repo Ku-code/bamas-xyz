@@ -81,6 +81,6 @@ export default defineConfig(({ mode }) => ({
     copyPublicDir: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    include: ['react', 'react-dom', 'react-router-dom', 'recharts'],
   },
 }));
