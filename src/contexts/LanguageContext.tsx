@@ -19,48 +19,30 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     const loadTranslations = async () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LanguageContext.tsx:20',message:'loadTranslations started',data:{language},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       try {
         // Only set loading when actually changing languages (not initial load)
         if (Object.keys(translations).length > 0) {
           setIsLoading(true);
         }
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LanguageContext.tsx:23',message:'isLoading=true, starting import',data:{language},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         
-        // Add timeout to prevent infinite loading (reduced from 5s to 3s for faster fallback)
-        // Use dynamic import - Vite handles JSON imports correctly in both dev and production
-        // The MIME type issue is typically a server configuration problem, not a Vite issue
-        const importPromise = import(`../translations/${language}.json`);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Translation import timeout')), 3000)
-        );
+        // Use import.meta.glob with eager: true to pre-bundle all translations
+        // This avoids MIME type issues in production by bundling JSON at build time
+        const translationsModules = import.meta.glob('../translations/*.json', { eager: true }) as Record<string, { default: Record<string, string> }>;
+        const translationKey = `../translations/${language}.json`;
         
-        const translationModule = await Promise.race([importPromise, timeoutPromise]) as any;
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LanguageContext.tsx:32',message:'Translation import completed',data:{hasTranslations:!!translationModule?.default},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
-        setTranslations(translationModule?.default || {});
+        if (translationsModules[translationKey]) {
+          setTranslations(translationsModules[translationKey].default || {});
+        } else {
+          // Fallback: try dynamic import (should not be needed if glob works)
+          console.warn(`Translation file not found in glob: ${translationKey}`);
+          const translationModule = await import(`../translations/${language}.json`) as { default: Record<string, string> };
+          setTranslations(translationModule?.default || {});
+        }
       } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LanguageContext.tsx:35',message:'Translation import error',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         console.error("Error loading translations:", error);
         // Set empty translations as fallback to prevent infinite loading
         setTranslations({});
-        // Retry once after a short delay
-        setTimeout(() => {
-          import(`../translations/${language}.json`)
-            .then((module: any) => setTranslations(module?.default || {}))
-            .catch(() => console.warn('Translation retry failed'));
-        }, 1000);
       } finally {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'LanguageContext.tsx:41',message:'Setting isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         setIsLoading(false);
       }
     };

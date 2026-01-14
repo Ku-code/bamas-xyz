@@ -91,3 +91,40 @@ Technical Notes:
 - Type Safety: Full TypeScript interfaces, no any types in core logic
 
 Status: All tasks completed. Feature ready for testing and deployment.
+
+[2026-01-14] EMERGENCY FIX: Material Database Crash Recovery ✓
+============================================
+
+CRITICAL ISSUES RESOLVED:
+1. JSON MIME Type Error (bg.json):
+   - Root Cause: Dynamic import() of JSON files in production was being served with wrong MIME type
+   - Solution: Switched to import.meta.glob with eager: true to pre-bundle all translations at build time
+   - File: src/contexts/LanguageContext.tsx
+   - Result: JSON files now bundled correctly, no MIME type conflicts
+
+2. Recharts Initialization Error (ReferenceError: Cannot access 'T'):
+   - Root Cause: Recharts was being split into separate chunk (chart-vendor), causing initialization order issues
+   - Solution: 
+     a) Removed Recharts from manualChunks (keeps it in main bundle)
+     b) Added Recharts to optimizeDeps.include for pre-bundling
+     c) Added esbuildOptions.target for proper ES2020 support
+   - File: vite.config.ts
+   - Result: Recharts now initializes correctly with proper dependency order
+
+3. MaterialCard Chart Rendering:
+   - Removed unnecessary typeof check for RadarChart
+   - Simplified conditional rendering
+   - File: src/components/dashboard/MaterialCard.tsx
+
+BUILD VERIFICATION:
+- npm run build: SUCCESS ✓
+- Production bundle: Valid and error-free ✓
+- JSON files: Properly bundled in dist/translations/ ✓
+- Recharts: No longer in separate chunk, initialization order fixed ✓
+
+TECHNICAL CHANGES:
+- LanguageContext.tsx: import.meta.glob('../translations/*.json', { eager: true })
+- vite.config.ts: Removed Recharts from chart-vendor chunk, added to optimizeDeps
+- MaterialCard.tsx: Simplified chart rendering logic
+
+Status: Site fully functional. All critical errors resolved.

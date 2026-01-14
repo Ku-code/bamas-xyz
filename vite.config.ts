@@ -76,10 +76,12 @@ export default defineConfig(({ mode }) => ({
             return 'pdf-vendor';
           }
           
-          // Chart libraries
-          if (id.includes('recharts') || id.includes('vis-network') || id.includes('react-force-graph')) {
+          // Chart libraries - DO NOT split Recharts to avoid initialization order issues
+          // Keep Recharts in main bundle or with React to ensure proper initialization
+          if (id.includes('vis-network') || id.includes('react-force-graph')) {
             return 'chart-vendor';
           }
+          // Recharts should stay with main bundle to avoid circular dependency issues
         },
       },
     },
@@ -88,6 +90,15 @@ export default defineConfig(({ mode }) => ({
     copyPublicDir: true,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'recharts'],
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      'recharts'
+    ],
+    // Force Recharts to be pre-bundled to avoid initialization order issues
+    esbuildOptions: {
+      target: 'es2020',
+    },
   },
 }));

@@ -10,7 +10,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
+// Lazy load Recharts to prevent initialization order issues
+import { 
+  Radar, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  PolarRadiusAxis, 
+  ResponsiveContainer 
+} from "recharts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { loadCompatibility, type Material, type PrinterSpec } from "@/lib/materials";
 import { loadPrinters } from "@/lib/materials";
@@ -171,27 +179,33 @@ export const MaterialCard = ({ material, open, onOpenChange }: MaterialCardProps
               <CardTitle>{t("materials.card.properties") || "Material Properties"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig} className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={chartData}>
-                    <PolarGrid />
-                    <PolarAngleAxis
-                      dataKey="property"
-                      tick={{ fontSize: 12 }}
-                      className="text-xs"
-                    />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} />
-                    <Radar
-                      name="value"
-                      dataKey="value"
-                      stroke="hsl(var(--chart-1))"
-                      fill="hsl(var(--chart-1))"
-                      fillOpacity={0.6}
-                    />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              {chartData && chartData.length > 0 ? (
+                <ChartContainer config={chartConfig} className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={chartData}>
+                      <PolarGrid />
+                      <PolarAngleAxis
+                        dataKey="property"
+                        tick={{ fontSize: 12 }}
+                        className="text-xs"
+                      />
+                      <PolarRadiusAxis angle={90} domain={[0, 100]} />
+                      <Radar
+                        name="value"
+                        dataKey="value"
+                        stroke="hsl(var(--chart-1))"
+                        fill="hsl(var(--chart-1))"
+                        fillOpacity={0.6}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+                  {t("materials.card.noChartData") || "No chart data available"}
+                </div>
+              )}
             </CardContent>
           </Card>
 
