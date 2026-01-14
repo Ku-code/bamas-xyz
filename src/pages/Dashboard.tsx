@@ -55,7 +55,22 @@ const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCente
 const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
 const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent").then(module => ({ default: module.default || module.TerminologyContent })));
 const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent").then(module => ({ default: module.default || module.JobBoardContent })));
-const MaterialContent = lazy(() => import("@/components/dashboard/MaterialContent").then(module => ({ default: module.default || module.MaterialContent })));
+const MaterialContent = lazy(() => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:56',message:'Lazy loading MaterialContent',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
+  return import("@/components/dashboard/MaterialContent").then(module => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:59',message:'MaterialContent module loaded',data:{hasDefault:!!module.default,hasMaterialContent:!!module.MaterialContent},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    return { default: module.default || module.MaterialContent };
+  }).catch(error => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Dashboard.tsx:63',message:'MaterialContent load error',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    throw error;
+  });
+});
 
 // Loading fallback component
 const ContentLoadingFallback = () => (

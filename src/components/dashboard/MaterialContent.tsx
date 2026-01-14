@@ -18,6 +18,9 @@ import { MaterialCard } from "./MaterialCard";
 type ViewMode = "grid" | "list";
 
 export const MaterialContent = () => {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MaterialContent.tsx:20',message:'MaterialContent component initializing',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+  // #endregion
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [materials, setMaterials] = useState<Material[]>([]);
