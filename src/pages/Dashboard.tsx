@@ -38,6 +38,7 @@ import {
   Gavel,
   BookOpen,
   ClipboardList,
+  Layers,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -54,6 +55,7 @@ const SignatureCenter = lazy(() => import("@/components/dashboard/SignatureCente
 const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsContent"));
 const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent").then(module => ({ default: module.default || module.TerminologyContent })));
 const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent").then(module => ({ default: module.default || module.JobBoardContent })));
+const MaterialContent = lazy(() => import("@/components/dashboard/MaterialContent").then(module => ({ default: module.default || module.MaterialContent })));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -62,7 +64,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -91,6 +93,7 @@ const Dashboard = () => {
     { id: "resources" as MenuItem, icon: Package, label: t("dashboard.menu.resources") || "Resources" },
     { id: "terminology" as MenuItem, icon: BookOpen, label: t("dashboard.menu.terminology") || "Terminology" },
     { id: "jobboard" as MenuItem, icon: ClipboardList, label: t("dashboard.menu.jobboard") || "Job Board" },
+    { id: "materials" as MenuItem, icon: Layers, label: t("dashboard.menu.materials") || "Material Database" },
     { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
     { id: "workinggroups" as MenuItem, icon: Briefcase, label: t("dashboard.menu.workinggroups") || "Working Groups" },
     { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
@@ -152,6 +155,8 @@ const Dashboard = () => {
           return <TerminologyContent />;
         case "jobboard":
           return <JobBoardContent />;
+        case "materials":
+          return <MaterialContent />;
         case "additivemap":
           return <AdditiveMapContent />;
         case "workinggroups":
