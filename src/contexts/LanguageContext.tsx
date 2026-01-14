@@ -32,19 +32,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // #endregion
         
         // Add timeout to prevent infinite loading (reduced from 5s to 3s for faster fallback)
-        // Use import with explicit URL handling to avoid MIME type issues in production
-        // Vite will handle this correctly in both dev and production
-        const importPromise = import(`../translations/${language}.json?url`)
-          .then(module => fetch(module.default))
-          .then(res => {
-            if (!res.ok) throw new Error(`Failed to load translations: ${res.statusText}`);
-            return res.json();
-          })
-          .then(data => ({ default: data }))
-          .catch(() => {
-            // Fallback to direct import if ?url doesn't work
-            return import(`../translations/${language}.json`);
-          });
+        // Use dynamic import - Vite handles JSON imports correctly in both dev and production
+        // The MIME type issue is typically a server configuration problem, not a Vite issue
+        const importPromise = import(`../translations/${language}.json`);
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Translation import timeout')), 3000)
         );

@@ -23,6 +23,13 @@ export default defineConfig(({ mode }) => ({
     sourcemap: false,
     rollupOptions: {
       output: {
+        // Ensure JSON files are treated as assets, not modules
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.json')) {
+            return 'translations/[name][extname]';
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
         manualChunks: (id) => {
           // React core and router
           if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
