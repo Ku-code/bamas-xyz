@@ -39,6 +39,7 @@ import {
   BookOpen,
   ClipboardList,
   Layers,
+  Euro,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -56,6 +57,8 @@ const MeetingsContent = lazy(() => import("@/components/dashboard/MeetingsConten
 const TerminologyContent = lazy(() => import("@/components/dashboard/TerminologyContent").then(module => ({ default: module.default || module.TerminologyContent })));
 const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardContent").then(module => ({ default: module.default || module.JobBoardContent })));
 const MaterialContent = lazy(() => import("@/components/dashboard/MaterialContent").then(module => ({ default: module.default || module.MaterialContent })));
+const EUFundsRadar = lazy(() => import("@/components/dashboard/EUFundsRadar"));
+const Whiteboard = lazy(() => import("@/components/dashboard/Whiteboard"));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -64,7 +67,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials" | "eufunds" | "whiteboard";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -97,6 +100,8 @@ const Dashboard = () => {
     { id: "additivemap" as MenuItem, icon: Map, label: t("dashboard.menu.additivemap") || "AdditiveMAP" },
     { id: "workinggroups" as MenuItem, icon: Briefcase, label: t("dashboard.menu.workinggroups") || "Working Groups" },
     { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
+    { id: "eufunds" as MenuItem, icon: Euro, label: t("dashboard.menu.eufunds") || "EU Funds Radar" },
+    { id: "whiteboard" as MenuItem, icon: PenTool, label: t("dashboard.menu.whiteboard") || "Whiteboard" },
   ];
 
   const renderContent = () => {
@@ -163,6 +168,10 @@ const Dashboard = () => {
           return <WorkingGroupsContent />;
         case "signatures":
           return <SignatureCenter />;
+        case "eufunds":
+          return <EUFundsRadar />;
+        case "whiteboard":
+          return <Whiteboard />;
         default:
           return <HistoryContent />;
       }

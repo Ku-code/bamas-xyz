@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Company } from '@/lib/companies';
-import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Moon, Sun, Maximize2, Minimize2, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MapProps {
@@ -18,13 +17,9 @@ interface MapProps {
 }
 
 // Maptiler API key - must be set via environment variable VITE_MAPTILER_API_KEY
-// Get a free API key at https://cloud.maptiler.com/
-// Free tier includes 100,000 map loads per month
-// Add VITE_MAPTILER_API_KEY to your .env file
 const MAPTILER_API_KEY = import.meta.env.VITE_MAPTILER_API_KEY || '';
 
-// Maptiler Dataviz style URLs
-// If no API key is provided, uses OpenFreeMap/OSM styles as fallback
+// Maptiler Dataviz style URLs with fallbacks
 const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecification => {
   if (MAPTILER_API_KEY) {
     return isDark
@@ -32,17 +27,16 @@ const getMaptilerStyle = (isDark: boolean): string | maplibregl.StyleSpecificati
       : `https://api.maptiler.com/maps/dataviz-v4/style.json?key=${MAPTILER_API_KEY}`;
   }
 
-  // Use reliable tile sources that work without API keys
+  // Fallback: Use CartoDB tiles (dark) or OSM tiles (light)
   const lightTiles = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  // Use CartoDB dark tiles as fallback (more reliable than Stadia Maps)
-  const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  const darkTiles = 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
 
   return {
     version: 8,
     sources: {
       'osm-tiles': {
         type: 'raster',
-        tiles: isDark ? [darkTiles] : [lightTiles],
+        tiles: [isDark ? darkTiles : lightTiles],
         tileSize: 256,
         attribution: isDark
           ? '© CARTO, © OpenStreetMap contributors'
@@ -65,10 +59,11 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   const map = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<globalThis.Map<string, maplibregl.Marker>>(new globalThis.Map());
   const [isLoaded, setIsLoaded] = useState(false);
-  // Default to light mode (false = light, true = dark)
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isStyleChanging, setIsStyleChanging] = useState(false);
   const previousCompaniesCount = useRef<number>(0);
   const fitBoundsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const styleChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize map (only once on mount)
   useEffect(() => {
@@ -169,186 +164,181 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
     }
   }, []); // Only run once on mount
 
-  // Update map style when dark mode changes
+  // Clear all markers helper
+  const clearAllMarkers = useCallback(() => {
+    markersRef.current.forEach((marker) => {
+      try {
+        marker.remove();
+      } catch (e) {
+        // Ignore errors when removing markers
+      }
+    });
+    markersRef.current.clear();
+  }, []);
+
+  // Update map style when dark mode changes - with proper sequencing
   useEffect(() => {
     if (!map.current) return;
 
+    // Clear any pending timeout
+    if (styleChangeTimeoutRef.current) {
+      clearTimeout(styleChangeTimeoutRef.current);
+      styleChangeTimeoutRef.current = null;
+    }
+
+    setIsStyleChanging(true);
+    
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
       
-      // Remove all existing markers before style change
-      markersRef.current.forEach((marker) => {
-        try {
-          marker.remove();
-        } catch (e) {
-          // Ignore errors when removing markers
+      // Store current center and zoom to restore after style change
+      const currentCenter = map.current.getCenter();
+      const currentZoom = map.current.getZoom();
+      
+      // Remove all markers before style change
+      clearAllMarkers();
+      
+      // Set the new style
+      map.current.setStyle(newStyle);
+      
+      // Wait for style to fully load before restoring state
+      const onStyleLoad = () => {
+        styleChangeTimeoutRef.current = setTimeout(() => {
+          if (!map.current) return;
+          
+          try {
+            // Restore map position
+            map.current.setCenter(currentCenter);
+            map.current.setZoom(currentZoom);
+            map.current.resize();
+          } catch (e) {
+            // Ignore positioning errors
+          }
+          
+          setIsStyleChanging(false);
+          setIsLoaded(true);
+        }, 150);
+      };
+      
+      // Listen for style load completion
+      map.current.once('style.load', onStyleLoad);
+      map.current.once('styledata', () => {
+        // Also handle styledata as backup
+        if (!styleChangeTimeoutRef.current) {
+          onStyleLoad();
         }
       });
-      markersRef.current.clear();
       
-      // Temporarily set isLoaded to false to prevent markers from being added during style change
-      setIsLoaded(false);
-
-      // Handle both string (Maptiler) and object (fallback) styles
-      if (typeof newStyle === 'string') {
-        // Set the new style for Maptiler
-        map.current.setStyle(newStyle);
-        
-        // Wait for style to load, then re-add markers and resize
-        map.current.once('styledata', () => {
-          // Force resize to ensure proper rendering
-          setTimeout(() => {
-            map.current?.resize();
-            // Mark as loaded so markers can be re-added by the markers effect
-            setIsLoaded(true);
-          }, 200);
-        });
-        
-        // Handle style loading errors
-        map.current.once('error', (e: any) => {
-          console.error('Map style load error:', e);
-          // Try to recover by using fallback
-          const fallbackStyle = getMaptilerStyle(isDarkMode);
-          if (typeof fallbackStyle !== 'string') {
-            try {
-              map.current?.setStyle(fallbackStyle);
-              map.current.once('styledata', () => {
-                setTimeout(() => {
-                  map.current?.resize();
-                  setIsLoaded(true);
-                }, 200);
-              });
-            } catch (fallbackError) {
-              console.error('Fallback style also failed:', fallbackError);
-              setIsLoaded(true); // Still mark as loaded to prevent blocking
-            }
-          } else {
-            setIsLoaded(true); // Still mark as loaded to prevent blocking
-          }
-        });
-      } else {
-        // Handle object style (fallback when no API key)
-        map.current.setStyle(newStyle);
-        
-        // Wait for style to load, then resize and ensure markers are visible
-        map.current.once('styledata', () => {
-          setTimeout(() => {
-            map.current?.resize();
-            // Mark as loaded so markers can be re-added
-            setIsLoaded(true);
-          }, 200);
-        });
-      }
     } catch (error) {
       console.error('Error changing map style:', error);
-      // Still mark as loaded to prevent blocking
+      setIsStyleChanging(false);
       setIsLoaded(true);
     }
-  }, [isDarkMode]);
+  }, [isDarkMode, clearAllMarkers]);
 
-  // Update markers when companies change or when map style changes
-  useEffect(() => {
-    if (!map.current) return;
+  // Create a single marker element - anchored to fixed geo-coordinates (no floating physics)
+  const createMarkerElement = useCallback((company: Company, isSelected: boolean) => {
+    const el = document.createElement('div');
+    el.className = 'company-marker';
+    el.dataset.companyId = company.id;
+    
+    // Fixed size - anchored element, no floating animation
+    Object.assign(el.style, {
+      width: '48px',
+      height: '48px',
+      borderRadius: '50%',
+      border: isSelected ? '4px solid #ef4444' : '3px solid white',
+      boxShadow: isSelected ? '0 4px 16px rgba(239, 68, 68, 0.6)' : '0 2px 8px rgba(0,0,0,0.3)',
+      cursor: 'pointer',
+      overflow: 'hidden',
+      backgroundColor: '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'transform 0.15s ease-out, box-shadow 0.15s ease-out, border 0.15s ease-out',
+      transform: isSelected ? 'scale(1.2)' : 'scale(1)',
+      zIndex: isSelected ? '1000' : '1',
+      pointerEvents: 'auto',
+      position: 'relative',
+    });
 
-    // Function to add markers - will be called when style is ready
-    const addMarkers = () => {
-      if (!map.current) return;
-
-      // Ensure style is loaded before adding markers
-      if (!map.current.isStyleLoaded()) {
-        // Wait for style to load
-        map.current.once('styledata', addMarkers);
-        return;
-      }
-
-      try {
-      // Remove existing markers
-      markersRef.current.forEach((marker) => {
-        try {
-          marker.remove();
-        } catch (e) {
-          // Ignore errors when removing markers
-        }
+    // Add logo or fallback initial
+    if (company.logo_url) {
+      const img = document.createElement('img');
+      img.src = company.logo_url;
+      img.alt = company.name;
+      Object.assign(img.style, {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
       });
-      markersRef.current.clear();
+      img.onerror = () => {
+        el.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#666;background:#f3f4f6;">${company.name.charAt(0).toUpperCase()}</div>`;
+      };
+      el.appendChild(img);
+    } else {
+      el.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#666;background:#f3f4f6;">${company.name.charAt(0).toUpperCase()}</div>`;
+    }
 
-      // Add markers for each company with coordinates
+    // Hover effects (scale only, no physics/floating)
+    el.addEventListener('mouseenter', () => {
+      el.style.transform = 'scale(1.3)';
+      el.style.zIndex = '1000';
+      el.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+    });
+    el.addEventListener('mouseleave', () => {
+      el.style.transform = isSelected ? 'scale(1.2)' : 'scale(1)';
+      el.style.zIndex = isSelected ? '1000' : '1';
+      el.style.boxShadow = isSelected ? '0 4px 16px rgba(239, 68, 68, 0.6)' : '0 2px 8px rgba(0,0,0,0.3)';
+    });
+
+    // Click handler
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (onCompanyClick) {
+        onCompanyClick(company);
+      }
+    });
+
+    return el;
+  }, [onCompanyClick]);
+
+  // Update markers when companies change or style finishes loading
+  useEffect(() => {
+    if (!map.current || isStyleChanging) return;
+    if (!isLoaded) return;
+
+    // Wait for style to be loaded
+    if (!map.current.isStyleLoaded()) {
+      const onStyleReady = () => {
+        map.current?.off('styledata', onStyleReady);
+        // Trigger re-render by setting state
+        setIsLoaded(prev => prev);
+      };
+      map.current.on('styledata', onStyleReady);
+      return;
+    }
+
+    try {
+      // Clear existing markers
+      clearAllMarkers();
+
+      // Add markers for each company with valid coordinates
       companies.forEach((company) => {
-        if (!company.headquarters_latitude || !company.headquarters_longitude) return;
+        if (typeof company.headquarters_latitude !== 'number' || typeof company.headquarters_longitude !== 'number') return;
+        if (isNaN(company.headquarters_latitude) || isNaN(company.headquarters_longitude)) return;
 
-        const el = document.createElement('div');
-        el.className = 'company-marker';
-        el.style.width = '48px';
-        el.style.height = '48px';
-        el.style.borderRadius = '50%';
-        el.style.border = '3px solid white';
-        el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
-        el.style.cursor = 'pointer';
-        el.style.overflow = 'hidden';
-        el.style.backgroundColor = '#fff';
-        el.style.display = 'flex';
-        el.style.alignItems = 'center';
-        el.style.justifyContent = 'center';
-        el.style.transition = 'transform 0.2s, box-shadow 0.2s';
+        const isSelected = selectedCompanyId === company.id;
+        const el = createMarkerElement(company, isSelected);
 
-        // Add logo or fallback
-        if (company.logo_url) {
-          const img = document.createElement('img');
-          img.src = company.logo_url;
-          img.alt = company.name;
-          img.style.width = '100%';
-          img.style.height = '100%';
-          img.style.objectFit = 'cover';
-          img.onerror = () => {
-            // Fallback to text if image fails
-            el.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #666;">${company.name.charAt(0).toUpperCase()}</div>`;
-          };
-          el.appendChild(img);
-        } else {
-          // Fallback to text
-          el.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; color: #666;">${company.name.charAt(0).toUpperCase()}</div>`;
-        }
-
-        // Hover effect - make marker more prominent and easier to interact with
-        el.addEventListener('mouseenter', () => {
-          el.style.transform = 'scale(1.3)';
-          el.style.zIndex = '1000';
-          el.style.boxShadow = '0 4px 16px rgba(0,0,0,0.5)';
-        });
-        el.addEventListener('mouseleave', () => {
-          el.style.transform = selectedCompanyId === company.id ? 'scale(1.2)' : 'scale(1)';
-          el.style.zIndex = selectedCompanyId === company.id ? '1000' : 'auto';
-          el.style.boxShadow = selectedCompanyId === company.id 
-            ? '0 4px 12px rgba(239, 68, 68, 0.5)' 
-            : '0 2px 8px rgba(0,0,0,0.3)';
-        });
-
-        // Click handler - prevent event bubbling to stop map interactions
-        el.addEventListener('click', (e) => {
-          e.stopPropagation(); // Prevent map click events
-          e.preventDefault(); // Prevent default behavior
-          if (onCompanyClick) {
-            onCompanyClick(company);
-          }
-        });
-        
-        // Make marker easier to click
-        el.style.pointerEvents = 'auto';
-        el.style.position = 'relative';
-
-        // Highlight selected company
-        if (selectedCompanyId === company.id) {
-          el.style.border = '4px solid #ef4444';
-          el.style.boxShadow = '0 4px 16px rgba(239, 68, 68, 0.6)';
-          el.style.transform = 'scale(1.2)';
-          el.style.zIndex = '1000';
-        }
-
+        // Create marker anchored to fixed geo-coordinates (no dragging, no physics)
         const marker = new maplibregl.Marker({
           element: el,
           anchor: 'center',
-          // Prevent marker from being dragged
           draggable: false,
+          pitchAlignment: 'viewport',
+          rotationAlignment: 'viewport',
         })
           .setLngLat([company.headquarters_longitude, company.headquarters_latitude])
           .addTo(map.current!);
@@ -356,110 +346,55 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
         markersRef.current.set(company.id, marker);
       });
 
-      // Fit map to show all companies - but only if it makes sense
-      // Don't auto-fit if only one company was just added (prevents aggressive panning)
-      const currentCount = companies.filter(c => c.headquarters_latitude && c.headquarters_longitude).length;
+      // Fit bounds logic
+      const companiesWithCoords = companies.filter(
+        c => typeof c.headquarters_latitude === 'number' && typeof c.headquarters_longitude === 'number'
+      );
+      const currentCount = companiesWithCoords.length;
       const wasFirstLoad = previousCompaniesCount.current === 0;
-      const isNewCompanyAdded = currentCount > previousCompaniesCount.current && currentCount === 1;
-      
-      // Clear any pending fitBounds
+
       if (fitBoundsTimeoutRef.current) {
         clearTimeout(fitBoundsTimeoutRef.current);
         fitBoundsTimeoutRef.current = null;
       }
 
-      if (companies.length > 0 && companies.some(c => c.headquarters_latitude && c.headquarters_longitude)) {
+      if (currentCount > 0 && wasFirstLoad) {
         const bounds = new maplibregl.LngLatBounds();
-        companies.forEach((company) => {
-          if (company.headquarters_latitude && company.headquarters_longitude) {
-            bounds.extend([company.headquarters_longitude, company.headquarters_latitude]);
-          }
+        companiesWithCoords.forEach((company) => {
+          bounds.extend([company.headquarters_longitude!, company.headquarters_latitude!]);
         });
 
-        if (bounds.isEmpty() === false) {
-          // Only auto-fit if:
-          // 1. It's the first load (no companies before)
-          // 2. There are multiple companies (not just one new one)
-          // 3. Or if there's only one company but it's the first time loading
-          const shouldFitBounds = wasFirstLoad || currentCount > 1 || (currentCount === 1 && !isNewCompanyAdded);
-          
-          if (shouldFitBounds) {
-            // Debounce fitBounds to prevent rapid re-fitting
-            fitBoundsTimeoutRef.current = setTimeout(() => {
-              try {
-                // Calculate padding based on panel state
-                // Add more padding on the left if panel is open to prevent markers from being hidden
-                const leftPadding = isPanelOpen ? 400 : 150;
-                const rightPadding = 150;
-                const topPadding = 150;
-                const bottomPadding = 150;
-
-                map.current?.fitBounds(bounds, {
-                  padding: {
-                    top: topPadding,
-                    bottom: bottomPadding,
-                    left: leftPadding,
-                    right: rightPadding,
-                  },
-                  maxZoom: 11, // Reduced from 12 to show more context
-                  duration: 1500, // Slower, smoother animation (1.5 seconds)
-                  easing: (t: number) => {
-                    // Ease-in-out-cubic for very smooth animation
-                    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-                  },
-                });
-              } catch (e) {
-                // Ignore fitBounds errors
-              }
-            }, 300); // Small delay to batch rapid updates
-          } else if (isNewCompanyAdded && currentCount === 1) {
-            // If a single new company was added, smoothly pan to it instead of fitting all bounds
-            // This prevents the map from jumping around
-            const newCompany = companies.find(c => c.headquarters_latitude && c.headquarters_longitude);
-            if (newCompany && map.current) {
-              fitBoundsTimeoutRef.current = setTimeout(() => {
-                try {
-                  map.current?.easeTo({
-                    center: [newCompany.headquarters_longitude, newCompany.headquarters_latitude],
-                    zoom: 10, // Reasonable zoom level to see the company
-                    duration: 1000, // Smooth 1 second animation
-                    easing: (t: number) => {
-                      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-                    },
-                  });
-                } catch (e) {
-                  // Ignore errors
-                }
-              }, 500); // Small delay to let marker render first
+        if (!bounds.isEmpty()) {
+          fitBoundsTimeoutRef.current = setTimeout(() => {
+            try {
+              const padding = isPanelOpen ? { top: 100, bottom: 100, left: 100, right: 420 } : 100;
+              map.current?.fitBounds(bounds, {
+                padding,
+                maxZoom: 11,
+                duration: 1200,
+                easing: (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+              });
+            } catch (e) {
+              // Ignore
             }
-          }
+          }, 200);
         }
       }
-      
-        // Update previous count
-        previousCompaniesCount.current = currentCount;
-      } catch (error) {
-        console.error('Error updating markers:', error);
-        // Don't throw - just log the error
-      }
-    };
 
-    // Start adding markers
-    addMarkers();
+      previousCompaniesCount.current = currentCount;
+    } catch (error) {
+      console.error('Error updating markers:', error);
+    }
+  }, [companies, isLoaded, isStyleChanging, selectedCompanyId, isPanelOpen, createMarkerElement, clearAllMarkers]);
 
-    // Cleanup function
-    return () => {
-      if (map.current) {
-        map.current.off('styledata', addMarkers);
-      }
-    };
-  }, [companies, isLoaded, selectedCompanyId, onCompanyClick, isPanelOpen, isDarkMode]);
-
-  // Cleanup timeout on unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (fitBoundsTimeoutRef.current) {
         clearTimeout(fitBoundsTimeoutRef.current);
+      }
+      if (styleChangeTimeoutRef.current) {
+        clearTimeout(styleChangeTimeoutRef.current);
       }
     };
   }, []);

@@ -11,8 +11,14 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const LANGUAGE_STORAGE_KEY = "bamas-language";
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>("bg");
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") return "bg";
+    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    return stored === "en" || stored === "bg" ? stored : "bg";
+  });
   const [translations, setTranslations] = useState<Record<string, string>>({});
   // Start with isLoading=false to avoid blocking initial render
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +67,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [language]);
 
   const handleLanguageChange = (newLanguage: Language) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+    }
     setLanguage(newLanguage);
     // Dispatch language change event for favicon updates
     window.dispatchEvent(new CustomEvent('languageChange', { 

@@ -128,6 +128,7 @@ const AdditiveMapContent = () => {
   const handleCreateCompany = async () => {
     if (!user) return;
 
+    // Validate all required fields including coordinates
     if (!companyForm.name.trim() || !companyForm.headquarters_address.trim()) {
       toast({
         title: t("dashboard.additivemap.create.error.title") || "Validation Error",
@@ -137,29 +138,32 @@ const AdditiveMapContent = () => {
       return;
     }
 
+    // Validate coordinates are provided
+    const latitude = companyForm.latitude ? parseFloat(companyForm.latitude) : undefined;
+    const longitude = companyForm.longitude ? parseFloat(companyForm.longitude) : undefined;
+
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      toast({
+        title: t("dashboard.additivemap.create.error.title") || "Validation Error",
+        description: t("dashboard.additivemap.create.error.coordsRequired") || "Please provide valid coordinates. Use 'Find Coordinates' or enter manually.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate coordinate ranges
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      toast({
+        title: t("dashboard.additivemap.create.error.title") || "Validation Error",
+        description: t("dashboard.additivemap.create.error.coordsInvalid") || "Coordinates are out of valid range.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    setIsGeocoding(true);
 
     try {
-      // Geocode address
-      let latitude: number | undefined;
-      let longitude: number | undefined;
-
-      try {
-        const geocodeResult = await geocodeAddress(companyForm.headquarters_address);
-        latitude = geocodeResult.latitude;
-        longitude = geocodeResult.longitude;
-      } catch (geocodeError: any) {
-        console.warn("Geocoding failed:", geocodeError);
-        toast({
-          title: t("dashboard.additivemap.create.warning.geocode") || "Geocoding Warning",
-          description: geocodeError.message || "Could not geocode address. Company will be created without map location.",
-          variant: "default",
-        });
-      }
-
-      setIsGeocoding(false);
-
       // Upload logo if provided
       let logoPath: string | undefined;
       let logoUrl: string | undefined;
@@ -170,7 +174,7 @@ const AdditiveMapContent = () => {
         logoUrl = uploadResult.url;
       }
 
-      // Create company
+      // Create company with validated coordinates
       await createCompany({
         name: companyForm.name.trim(),
         description: companyForm.description.trim() || undefined,
@@ -191,7 +195,7 @@ const AdditiveMapContent = () => {
 
       toast({
         title: t("dashboard.additivemap.create.success.title") || "Company Created",
-        description: t("dashboard.additivemap.create.success.description") || "Company has been added to the map successfully!",
+        description: t("dashboard.additivemap.create.success.description") || "Company has been added to the map and network successfully!",
       });
 
       // Reset form
@@ -199,7 +203,6 @@ const AdditiveMapContent = () => {
       setIsCreateDialogOpen(false);
       await loadCompaniesFromDatabase();
     } catch (error: any) {
-      setIsGeocoding(false);
       console.error("Error creating company:", error);
       const errorInfo = formatErrorForToast(
         error,
@@ -219,31 +222,31 @@ const AdditiveMapContent = () => {
   const handleEditCompany = async () => {
     if (!selectedCompany || !user) return;
 
+    // Validate coordinates
+    const latitude = companyForm.latitude ? parseFloat(companyForm.latitude) : undefined;
+    const longitude = companyForm.longitude ? parseFloat(companyForm.longitude) : undefined;
+
+    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+      toast({
+        title: t("dashboard.additivemap.edit.error.title") || "Validation Error",
+        description: t("dashboard.additivemap.create.error.coordsRequired") || "Please provide valid coordinates.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      toast({
+        title: t("dashboard.additivemap.edit.error.title") || "Validation Error",
+        description: t("dashboard.additivemap.create.error.coordsInvalid") || "Coordinates are out of valid range.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    setIsGeocoding(true);
 
     try {
-      // Geocode address if it changed
-      let latitude = selectedCompany.headquarters_latitude;
-      let longitude = selectedCompany.headquarters_longitude;
-
-      if (companyForm.headquarters_address !== selectedCompany.headquarters_address) {
-        try {
-          const geocodeResult = await geocodeAddress(companyForm.headquarters_address);
-          latitude = geocodeResult.latitude;
-          longitude = geocodeResult.longitude;
-        } catch (geocodeError: any) {
-          console.warn("Geocoding failed:", geocodeError);
-          toast({
-            title: t("dashboard.additivemap.edit.warning.geocode") || "Geocoding Warning",
-            description: geocodeError.message || "Could not geocode address. Company will be updated without map location change.",
-            variant: "default",
-          });
-        }
-      }
-
-      setIsGeocoding(false);
-
       // Upload new logo if provided
       let logoPath = selectedCompany.logo_path;
       let logoUrl = selectedCompany.logo_url;
@@ -254,7 +257,7 @@ const AdditiveMapContent = () => {
         logoUrl = uploadResult.url;
       }
 
-      // Update company
+      // Update company with form coordinates
       await updateCompany(selectedCompany.id, {
         name: companyForm.name.trim(),
         description: companyForm.description.trim() || undefined,
@@ -280,7 +283,6 @@ const AdditiveMapContent = () => {
       setSelectedCompany(null);
       await loadCompaniesFromDatabase();
     } catch (error: any) {
-      setIsGeocoding(false);
       console.error("Error updating company:", error);
       const errorInfo = formatErrorForToast(
         error,
@@ -750,14 +752,90 @@ const AdditiveMapContent = () => {
               <Label htmlFor="address">
                 {t("dashboard.additivemap.create.form.address") || "Headquarters Address"} <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="address"
-                value={companyForm.headquarters_address}
-                onChange={(e) => setCompanyForm({ ...companyForm, headquarters_address: e.target.value })}
-                placeholder={t("dashboard.additivemap.create.form.address.placeholder") || "Enter full address"}
-                className="rounded-full"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="address"
+                  value={companyForm.headquarters_address}
+                  onChange={(e) => setCompanyForm({ ...companyForm, headquarters_address: e.target.value })}
+                  placeholder={t("dashboard.additivemap.create.form.address.placeholder") || "Enter full address"}
+                  className="rounded-full flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!companyForm.headquarters_address.trim() || isGeocoding}
+                  onClick={async () => {
+                    if (!companyForm.headquarters_address.trim()) return;
+                    setIsGeocoding(true);
+                    try {
+                      const result = await geocodeAddress(companyForm.headquarters_address);
+                      setCompanyForm({
+                        ...companyForm,
+                        latitude: result.latitude.toFixed(6),
+                        longitude: result.longitude.toFixed(6),
+                      });
+                      toast({
+                        title: t("dashboard.additivemap.create.geocode.success") || "Address Geocoded",
+                        description: t("dashboard.additivemap.create.geocode.successDesc") || "Coordinates have been automatically filled.",
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: t("dashboard.additivemap.create.geocode.error") || "Geocoding Failed",
+                        description: error.message || "Could not find coordinates for this address.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsGeocoding(false);
+                    }
+                  }}
+                  className="rounded-full whitespace-nowrap"
+                >
+                  {isGeocoding ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>{t("dashboard.additivemap.create.form.geocode") || "Find Coordinates"}</>
+                  )}
+                </Button>
+              </div>
             </div>
+
+            {/* Mandatory Latitude/Longitude Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="latitude">
+                  {t("dashboard.additivemap.create.form.latitude") || "Latitude"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="latitude"
+                  type="number"
+                  step="0.000001"
+                  value={companyForm.latitude}
+                  onChange={(e) => setCompanyForm({ ...companyForm, latitude: e.target.value })}
+                  placeholder="42.6977"
+                  className="rounded-full"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="longitude">
+                  {t("dashboard.additivemap.create.form.longitude") || "Longitude"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="longitude"
+                  type="number"
+                  step="0.000001"
+                  value={companyForm.longitude}
+                  onChange={(e) => setCompanyForm({ ...companyForm, longitude: e.target.value })}
+                  placeholder="23.3219"
+                  className="rounded-full"
+                  required
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("dashboard.additivemap.create.form.coordsHint") || "Click 'Find Coordinates' to auto-fill from address, or enter manually."}
+            </p>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -932,12 +1010,85 @@ const AdditiveMapContent = () => {
               <Label htmlFor="edit-address">
                 {t("dashboard.additivemap.create.form.address") || "Headquarters Address"} <span className="text-destructive">*</span>
               </Label>
-              <Input
-                id="edit-address"
-                value={companyForm.headquarters_address}
-                onChange={(e) => setCompanyForm({ ...companyForm, headquarters_address: e.target.value })}
-                className="rounded-full"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="edit-address"
+                  value={companyForm.headquarters_address}
+                  onChange={(e) => setCompanyForm({ ...companyForm, headquarters_address: e.target.value })}
+                  className="rounded-full flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!companyForm.headquarters_address.trim() || isGeocoding}
+                  onClick={async () => {
+                    if (!companyForm.headquarters_address.trim()) return;
+                    setIsGeocoding(true);
+                    try {
+                      const result = await geocodeAddress(companyForm.headquarters_address);
+                      setCompanyForm({
+                        ...companyForm,
+                        latitude: result.latitude.toFixed(6),
+                        longitude: result.longitude.toFixed(6),
+                      });
+                      toast({
+                        title: t("dashboard.additivemap.create.geocode.success") || "Address Geocoded",
+                        description: t("dashboard.additivemap.create.geocode.successDesc") || "Coordinates have been automatically filled.",
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: t("dashboard.additivemap.create.geocode.error") || "Geocoding Failed",
+                        description: error.message || "Could not find coordinates for this address.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsGeocoding(false);
+                    }
+                  }}
+                  className="rounded-full whitespace-nowrap"
+                >
+                  {isGeocoding ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>{t("dashboard.additivemap.create.form.geocode") || "Find Coordinates"}</>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Mandatory Latitude/Longitude Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-latitude">
+                  {t("dashboard.additivemap.create.form.latitude") || "Latitude"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-latitude"
+                  type="number"
+                  step="0.000001"
+                  value={companyForm.latitude}
+                  onChange={(e) => setCompanyForm({ ...companyForm, latitude: e.target.value })}
+                  placeholder="42.6977"
+                  className="rounded-full"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-longitude">
+                  {t("dashboard.additivemap.create.form.longitude") || "Longitude"} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="edit-longitude"
+                  type="number"
+                  step="0.000001"
+                  value={companyForm.longitude}
+                  onChange={(e) => setCompanyForm({ ...companyForm, longitude: e.target.value })}
+                  placeholder="23.3219"
+                  className="rounded-full"
+                  required
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

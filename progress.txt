@@ -133,3 +133,55 @@ Status: Site fully functional. All critical errors resolved.
 - Task: Restored site load by removing stray duplicated footer JSX block.
 - Architecture: No new architecture changes; cleanup only.
 - Blockers: npm scripts missing for typecheck/test (npm run typecheck/test failed).
+
+2026-01-15 - BAMAS Strategic Expansion (Phase 1 & 2)
+=================================================
+COMPLETED TASKS:
+
+1. MAP FIXES:
+   - Fixed Dark/Light mode MapLibre style reload bug
+   - Refactored map.tsx with proper style change sequencing using setIsStyleChanging state
+   - Added clearAllMarkers() helper with useCallback
+   - Markers now properly restore after style changes with position preservation
+   - Anchored company logo bubbles to fixed geo-coordinates (no floating physics)
+   - Used pitchAlignment and rotationAlignment for marker stability
+
+2. COMPANY REGISTRATION SYNC:
+   - Added mandatory latitude/longitude fields to company registration form
+   - Added "Find Coordinates" geocoding button with toast feedback
+   - Updated handleCreateCompany to validate coordinates before creation
+   - Updated handleEditCompany to use form coordinates directly
+   - Companies auto-sync to Map (via Supabase) and Network (via buildGraphData)
+
+3. COMPANY PROFILE SYSTEM:
+   - Created CompanyPage.tsx with dynamic company details view
+   - Shows logo, technologies, contact info, owner details
+   - Owner permissions: Owner-only Edit; Superadmin-only Edit/Delete
+   - Added "Owner of [Company Name]" sub-text in Network/Directory
+
+4. EU FUNDS RADAR:
+   - Created EUFundsRadar.tsx with EU Flag styled button
+   - Added keyword cloud with 20 AM-related keywords (Additive, AI, Digital Twins, etc.)
+   - Implemented "How-to" guide with 4 application steps
+   - Added key EU programmes section (Horizon Europe, Digital Europe, EIC)
+
+5. COLLABORATIVE WHITEBOARD:
+   - Installed fabric@6 library
+   - Created Whiteboard.tsx with full Fabric.js canvas
+   - Features: Multi-color pens, sticky notes, drag & drop images, paste images
+   - Added undo/redo with history management (50 state limit)
+   - Added keyboard shortcuts legend at bottom
+   - Save/Load JSON project files
+   - Download canvas as PNG
+
+TECHNICAL CHANGES:
+- src/components/ui/map.tsx: Full refactor with isStyleChanging, clearAllMarkers, createMarkerElement
+- src/components/dashboard/AdditiveMapContent.tsx: Added lat/lng fields, geocode button
+- src/components/dashboard/CompanyPage.tsx: NEW - Company details dialog
+- src/components/dashboard/EUFundsRadar.tsx: NEW - EU funding opportunities
+- src/components/dashboard/Whiteboard.tsx: NEW - Fabric.js whiteboard
+- src/components/dashboard/NetworkContent.tsx: Added "Owner of" company sub-text
+- src/pages/Dashboard.tsx: Added eufunds, whiteboard menu items and routes
+- Both translations updated with new UI strings
+
+Status: Phase 1 complete. Continuing with Phase 2 (Bamas Vault, Strategic Calendar, etc.)

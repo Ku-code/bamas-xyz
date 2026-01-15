@@ -48,7 +48,7 @@ import { logHistory } from "@/lib/history";
 import { db } from "@/lib/database";
 import { suspendMember, restoreMember, banMember, deleteMember } from "@/lib/members";
 import { formatErrorForToast } from "@/lib/error-messages";
-import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw, Network, List, Box } from "lucide-react";
+import { Users, Plus, Check, X, Mail, Phone, MapPin, Globe, UserCheck, UserX, Clock, Ban, Trash2, RotateCcw, Network, List, Box, Building2 } from "lucide-react";
 import { format } from "date-fns";
 import { loadCompanies, type Company } from "@/lib/companies";
 import { NetworkGraph } from "./NetworkGraph";
@@ -879,7 +879,9 @@ const NetworkContent = () => {
                               <div className="flex flex-col">
                                 <span className="font-medium">{member.name}</span>
                                 {companies.filter(c => c.created_by === member.id).length > 0 && (
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Building2 className="h-3 w-3" />
+                                    {t("dashboard.network.ownerOf") || "Owner of"}{" "}
                                     {companies.filter(c => c.created_by === member.id).map(c => c.name).join(", ")}
                                   </span>
                                 )}

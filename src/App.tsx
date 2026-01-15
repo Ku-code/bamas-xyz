@@ -175,7 +175,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="system" storageKey="bamas-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="bamas-theme">
         <LanguageProvider>
           <AuthProvider>
             <AppContent />
