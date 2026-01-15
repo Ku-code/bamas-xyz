@@ -185,3 +185,96 @@ TECHNICAL CHANGES:
 - Both translations updated with new UI strings
 
 Status: Phase 1 complete. Continuing with Phase 2 (Bamas Vault, Strategic Calendar, etc.)
+
+2026-01-15 - BAMAS Strategic Expansion (Phase 3 - Vault Security)
+=================================================================
+COMPLETED: BAMAS VAULT
+
+1. DATABASE MIGRATION (022_bamas_vault.sql):
+   - Created vault_documents table with title, description, file_path, category, access_level
+   - Created vault_access table for password management (bcrypt hashed)
+   - Created vault_access_log table for audit trail
+   - RLS Policies: Superadmin full access, Board members read-only
+   - Functions: hash_vault_password, verify_vault_password, set_vault_password
+   - Default password: 'bamas2026' (should be changed in production)
+
+2. VAULT LIBRARY (src/lib/vault.ts):
+   - verifyVaultPassword - Server-side password verification via RPC
+   - setVaultPassword - Superadmin-only password management
+   - getVaultPasswordHint - Retrieve password hint for board members
+   - loadVaultDocuments, createVaultDocument, updateVaultDocument, deleteVaultDocument
+   - uploadVaultFile, getVaultFileUrl - Supabase Storage integration
+   - logVaultAccess, getVaultAccessLogs - Audit trail functions
+   - checkVaultTablesExist - Graceful handling when tables don't exist
+
+3. VAULT UI (src/components/dashboard/BamasVault.tsx):
+   - Password prompt screen with hint display
+   - Unlocked state with document grid
+   - Upload dialog with title, description, category, access level
+   - Delete confirmation dialog
+   - Password change dialog (superadmin only)
+   - Access logs dialog with full audit trail (superadmin only)
+   - Lock/Unlock buttons with toast notifications
+
+4. DASHBOARD INTEGRATION:
+   - Added "vault" to MenuItem type
+   - Added FolderLock icon import
+   - Lazy-loaded BamasVault component
+   - Added menu item with translation support
+
+5. TRANSLATIONS:
+   - Full EN/BG translations for all vault UI strings
+   - Password prompts, error messages, success messages
+   - Dialog titles, descriptions, button labels
+
+SECURITY FEATURES:
+- Password hashed with bcrypt (gen_salt('bf', 10))
+- RLS policies restrict document access to board members
+- Superadmin-only upload/delete/password management
+- Audit log tracks all access attempts and actions
+- Signed URLs for file downloads (1 hour expiry)
+
+COMPLETED: STRATEGIC CALENDAR
+
+1. DATABASE MIGRATION (023_strategic_calendar.sql):
+   - Created strategic_events table with title, description, event_type, scope, dates
+   - Event types: conference, exhibition, workshop, webinar, meeting, deadline, other
+   - Scopes: national (Bulgaria), european, international
+   - RLS: Public read, Superadmin-only CRUD
+   - Seeded with example events: Formnext 2026, RAPID + TCT 2026, BAMAS Annual Meeting
+
+2. STRATEGIC CALENDAR UI (src/components/dashboard/StrategicCalendar.tsx):
+   - Full calendar view with month navigation
+   - Events shown on calendar dates with color coding by type
+   - Upcoming events sidebar (next 30 days)
+   - Filter by scope (national/european/international) and type
+   - Event detail dialog with all information
+   - Create/Edit/Delete dialogs (superadmin only)
+   - Tags support for events
+
+3. DASHBOARD INTEGRATION:
+   - Added "strategiccalendar" to MenuItem type
+   - Added CalendarDays icon import
+   - Lazy-loaded StrategicCalendar component
+
+4. TRANSLATIONS:
+   - Full EN/BG translations for calendar UI
+
+COMPLETED: NETWORK DIRECTORY SEARCH
+
+1. ENHANCED SEARCH FUNCTIONALITY:
+   - Added selectedTechnologies state for technology filtering
+   - Enhanced filterMembersBySearch to filter by company technologies
+   - Search now includes: name, email, company name, activity description, technologies
+   - Technology filter chips: FDM, SLA, SLS, SLM, EBM, MJF, PolyJet, DED, Binder Jetting, Material Jetting, Metal
+
+2. UI UPDATES (NetworkContent.tsx):
+   - Added TECHNOLOGY_FILTERS array with 11 common AM technologies
+   - Added toggleTechnologyFilter and clearAllFilters helper functions
+   - Added technology filter chips to all three views (Graph, 3D, List)
+   - Filter chips show selected state with primary color
+   - Clear all button clears both search query and selected technologies
+   - Result count shows filtered technology names
+
+3. TRANSLATIONS:
+   - Added EN/BG translations for filter.technologies and filter.filtered

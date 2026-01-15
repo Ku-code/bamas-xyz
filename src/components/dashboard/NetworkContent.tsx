@@ -72,6 +72,13 @@ const NetworkContent = () => {
   const [activeTab, setActiveTab] = useState<"graph" | "3d" | "list">("graph");
   const [deviceCapability] = useState(() => detectDeviceCapability());
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+  
+  // Available technology filters
+  const TECHNOLOGY_FILTERS = [
+    "FDM", "SLA", "SLS", "SLM", "EBM", "MJF", "PolyJet", "DED", "Binder Jetting", "Material Jetting", "Metal"
+  ];
+  
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -353,27 +360,59 @@ const NetworkContent = () => {
     }
   };
 
-  // Filter members by search query
+  // Filter members by search query and selected technologies
   const filterMembersBySearch = (membersList: User[]) => {
-    if (!searchQuery.trim()) return membersList;
-    
-    const query = searchQuery.toLowerCase().trim();
-    
     return membersList.filter(member => {
+      // Get companies for this member
+      const userCompanies = companies.filter(c => c.created_by === member.id);
+      
+      // Technology filter
+      if (selectedTechnologies.length > 0) {
+        const memberHasTech = userCompanies.some(company => 
+          company.technologies?.some(tech => 
+            selectedTechnologies.some(filter => 
+              tech.toLowerCase().includes(filter.toLowerCase())
+            )
+          )
+        );
+        if (!memberHasTech) return false;
+      }
+      
+      // Search query filter
+      if (!searchQuery.trim()) return true;
+      
+      const query = searchQuery.toLowerCase().trim();
+      
       // Search by member name
       const nameMatch = member.name.toLowerCase().includes(query);
       
       // Search by member email
       const emailMatch = member.email.toLowerCase().includes(query);
       
-      // Search by company name (companies created by this user)
-      const userCompanies = companies.filter(c => c.created_by === member.id);
+      // Search by company name
       const companyMatch = userCompanies.some(company => 
-        company.name.toLowerCase().includes(query)
+        company.name.toLowerCase().includes(query) ||
+        company.activity_description?.toLowerCase().includes(query) ||
+        company.technologies?.some(tech => tech.toLowerCase().includes(query))
       );
       
       return nameMatch || emailMatch || companyMatch;
     });
+  };
+  
+  // Toggle technology filter
+  const toggleTechnologyFilter = (tech: string) => {
+    setSelectedTechnologies(prev => 
+      prev.includes(tech) 
+        ? prev.filter(t => t !== tech)
+        : [...prev, tech]
+    );
+  };
+  
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedTechnologies([]);
   };
 
   const pendingMembers = filterMembersBySearch(members.filter(m => m.status === 'pending'));
@@ -660,32 +699,55 @@ const NetworkContent = () => {
         <TabsContent value="graph" className="space-y-4">
           {/* Search Bar for Graph View */}
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 space-y-4">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <Input
                     type="text"
-                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, company, or technology..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="rounded-full pl-10"
                   />
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
-                {searchQuery && (
+                {(searchQuery || selectedTechnologies.length > 0) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSearchQuery("")}
+                    onClick={clearAllFilters}
                     className="rounded-full"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
               </div>
-              {searchQuery && (
-                <p className="text-sm text-muted-foreground mt-2">
+              
+              {/* Technology Filter Chips */}
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TECHNOLOGY_FILTERS.map(tech => (
+                    <Badge
+                      key={tech}
+                      variant={selectedTechnologies.includes(tech) ? "default" : "outline"}
+                      className="cursor-pointer rounded-full transition-colors hover:bg-primary/20"
+                      onClick={() => toggleTechnologyFilter(tech)}
+                    >
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {(searchQuery || selectedTechnologies.length > 0) && (
+                <p className="text-sm text-muted-foreground">
                   {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
+                  {selectedTechnologies.length > 0 && (
+                    <span className="ml-2">
+                      ({t("dashboard.network.filter.filtered") || "filtered by"}: {selectedTechnologies.join(", ")})
+                    </span>
+                  )}
                 </p>
               )}
             </CardContent>
@@ -724,32 +786,55 @@ const NetworkContent = () => {
           <TabsContent value="3d" className="space-y-4">
             {/* Search Bar for 3D View */}
             <Card>
-              <CardContent className="pt-6">
+              <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
                     <Input
                       type="text"
-                      placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                      placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, company, or technology..."}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="rounded-full pl-10"
                     />
                     <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   </div>
-                  {searchQuery && (
+                  {(searchQuery || selectedTechnologies.length > 0) && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setSearchQuery("")}
+                      onClick={clearAllFilters}
                       className="rounded-full"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
-                {searchQuery && (
-                  <p className="text-sm text-muted-foreground mt-2">
+                
+                {/* Technology Filter Chips */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {TECHNOLOGY_FILTERS.map(tech => (
+                      <Badge
+                        key={tech}
+                        variant={selectedTechnologies.includes(tech) ? "default" : "outline"}
+                        className="cursor-pointer rounded-full transition-colors hover:bg-primary/20"
+                        onClick={() => toggleTechnologyFilter(tech)}
+                      >
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                {(searchQuery || selectedTechnologies.length > 0) && (
+                  <p className="text-sm text-muted-foreground">
                     {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
+                    {selectedTechnologies.length > 0 && (
+                      <span className="ml-2">
+                        ({t("dashboard.network.filter.filtered") || "filtered by"}: {selectedTechnologies.join(", ")})
+                      </span>
+                    )}
                   </p>
                 )}
               </CardContent>
@@ -781,32 +866,56 @@ const NetworkContent = () => {
         <TabsContent value="list" className="space-y-4">
           {/* Search Bar */}
           <Card>
-            <CardContent className="pt-6">
+            <CardContent className="pt-6 space-y-4">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
                   <Input
                     type="text"
-                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, or company..."}
+                    placeholder={t("dashboard.network.search.placeholder") || "Search by name, email, company, or technology..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="rounded-full pl-10"
                   />
                   <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
-                {searchQuery && (
+                {(searchQuery || selectedTechnologies.length > 0) && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSearchQuery("")}
+                    onClick={clearAllFilters}
                     className="rounded-full"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 )}
               </div>
-              {searchQuery && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {t("dashboard.network.search.results") || "Showing results for"}: <span className="font-medium">{searchQuery}</span>
+              
+              {/* Technology Filter Chips */}
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {TECHNOLOGY_FILTERS.map(tech => (
+                    <Badge
+                      key={tech}
+                      variant={selectedTechnologies.includes(tech) ? "default" : "outline"}
+                      className="cursor-pointer rounded-full transition-colors hover:bg-primary/20"
+                      onClick={() => toggleTechnologyFilter(tech)}
+                    >
+                      {tech}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {(searchQuery || selectedTechnologies.length > 0) && (
+                <p className="text-sm text-muted-foreground">
+                  {t("dashboard.network.search.results") || "Showing results for"}: 
+                  {searchQuery && <span className="font-medium ml-1">{searchQuery}</span>}
+                  {selectedTechnologies.length > 0 && (
+                    <span className="ml-2">
+                      ({t("dashboard.network.filter.filtered") || "filtered by"}: {selectedTechnologies.join(", ")})
+                    </span>
+                  )}
                 </p>
               )}
             </CardContent>

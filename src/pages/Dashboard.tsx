@@ -40,6 +40,8 @@ import {
   ClipboardList,
   Layers,
   Euro,
+  FolderLock,
+  CalendarDays,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -59,6 +61,8 @@ const JobBoardContent = lazy(() => import("@/components/dashboard/JobBoardConten
 const MaterialContent = lazy(() => import("@/components/dashboard/MaterialContent").then(module => ({ default: module.default || module.MaterialContent })));
 const EUFundsRadar = lazy(() => import("@/components/dashboard/EUFundsRadar"));
 const Whiteboard = lazy(() => import("@/components/dashboard/Whiteboard"));
+const BamasVault = lazy(() => import("@/components/dashboard/BamasVault"));
+const StrategicCalendar = lazy(() => import("@/components/dashboard/StrategicCalendar"));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -67,7 +71,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials" | "eufunds" | "whiteboard";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials" | "eufunds" | "whiteboard" | "vault" | "strategiccalendar";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -102,6 +106,8 @@ const Dashboard = () => {
     { id: "signatures" as MenuItem, icon: PenTool, label: t("dashboard.menu.signatures") || "Signatures" },
     { id: "eufunds" as MenuItem, icon: Euro, label: t("dashboard.menu.eufunds") || "EU Funds Radar" },
     { id: "whiteboard" as MenuItem, icon: PenTool, label: t("dashboard.menu.whiteboard") || "Whiteboard" },
+    { id: "vault" as MenuItem, icon: FolderLock, label: t("dashboard.menu.vault") || "BAMAS Vault" },
+    { id: "strategiccalendar" as MenuItem, icon: CalendarDays, label: t("dashboard.menu.strategiccalendar") || "Strategic Calendar" },
   ];
 
   const renderContent = () => {
@@ -172,6 +178,10 @@ const Dashboard = () => {
           return <EUFundsRadar />;
         case "whiteboard":
           return <Whiteboard />;
+        case "vault":
+          return <BamasVault />;
+        case "strategiccalendar":
+          return <StrategicCalendar />;
         default:
           return <HistoryContent />;
       }

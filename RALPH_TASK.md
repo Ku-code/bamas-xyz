@@ -16,12 +16,12 @@
 - [x] **EU Funds Radar:**
     - [x] Create `EUFundsRadar.tsx`: Dashboard item with "EU Flag" styled button leading to [Portal](https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/calls-for-proposals?isExactMatch=true&status=31094501,31094502,31094503&order=DESC&pageNumber=1&pageSize=50&sortBy=startDate).
     - [x] UI: Simple "How-to" guide + keyword cloud (Additive, AI, Digital Twins, etc.).
-- [ ] **Strategic Calendar Radar:**
-    - [ ] Build `StrategicCalendar.tsx`: View-only for members; Admin-only CRUD for national/international venues.
+- [x] **Strategic Calendar Radar:**
+    - [x] Build `StrategicCalendar.tsx`: View-only for members; Admin-only CRUD for national/international venues.
 - [ ] **AM Standards Guide:**
     - [ ] Build `StandardsGuide.tsx`: Library for ISO/ASTM standards (Medical/Aerospace specific).
-- [ ] **Network Directory Search:**
-    - [ ] Add Search Bar to Network: Filter by Tech (SLS, FDM, Metal) or Material.
+- [x] **Network Directory Search:**
+    - [x] Add Search Bar to Network: Filter by Tech (SLS, FDM, Metal) or Material.
 
 ## 🟡 Phase 3: Collaboration & Vault Security
 - [ ] **AM CLUB:**
@@ -30,9 +30,9 @@
     - [x] Build `Whiteboard.tsx`: Fabric.js or Canvas-based space. 
     - [x] Features: Multi-color pens, Sticky Notes, Drag & Drop Images, Paste images.
     - [x] UI: Shortcuts legend in light grey at bottom.
-- [ ] **Bamas Vault (Documents):**
-    - [ ] Create "Bamas Vault" folder inside Documents.
-    - [ ] Security: Password-protection field + Superadmin-only access management.
+- [x] **Bamas Vault (Documents):**
+    - [x] Create "Bamas Vault" folder inside Documents.
+    - [x] Security: Password-protection field + Superadmin-only access management.
 - [ ] **Embed System (BAMAS Badge):**
     - [ ] Build `EmbedGenerator.tsx`: Generate script tags/banners for members to put on their sites.
 
