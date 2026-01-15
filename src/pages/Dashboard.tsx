@@ -42,6 +42,9 @@ import {
   Euro,
   FolderLock,
   CalendarDays,
+  MessageSquare,
+  Code,
+  CalendarPlus,
 } from "lucide-react";
 
 // Lazy load all dashboard content components
@@ -63,6 +66,10 @@ const EUFundsRadar = lazy(() => import("@/components/dashboard/EUFundsRadar"));
 const Whiteboard = lazy(() => import("@/components/dashboard/Whiteboard"));
 const BamasVault = lazy(() => import("@/components/dashboard/BamasVault"));
 const StrategicCalendar = lazy(() => import("@/components/dashboard/StrategicCalendar"));
+const StandardsGuide = lazy(() => import("@/components/dashboard/StandardsGuide"));
+const AMClub = lazy(() => import("@/components/dashboard/AMClub"));
+const EmbedBadge = lazy(() => import("@/components/dashboard/EmbedBadge"));
+const EventCalendarIntegration = lazy(() => import("@/components/dashboard/EventCalendarIntegration"));
 
 // Loading fallback component
 const ContentLoadingFallback = () => (
@@ -71,7 +78,7 @@ const ContentLoadingFallback = () => (
   </div>
 );
 
-type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials" | "eufunds" | "whiteboard" | "vault" | "strategiccalendar";
+type MenuItem = "history" | "votes" | "agenda" | "documents" | "budget" | "network" | "resources" | "additivemap" | "workinggroups" | "signatures" | "meetings" | "terminology" | "jobboard" | "materials" | "eufunds" | "whiteboard" | "vault" | "strategiccalendar" | "standards" | "amclub" | "embed" | "calendarintegration";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -108,6 +115,10 @@ const Dashboard = () => {
     { id: "whiteboard" as MenuItem, icon: PenTool, label: t("dashboard.menu.whiteboard") || "Whiteboard" },
     { id: "vault" as MenuItem, icon: FolderLock, label: t("dashboard.menu.vault") || "BAMAS Vault" },
     { id: "strategiccalendar" as MenuItem, icon: CalendarDays, label: t("dashboard.menu.strategiccalendar") || "Strategic Calendar" },
+    { id: "standards" as MenuItem, icon: BookOpen, label: t("dashboard.menu.standards") || "AM Standards Guide" },
+    { id: "amclub" as MenuItem, icon: MessageSquare, label: t("dashboard.menu.amclub") || "AM Club" },
+    { id: "embed" as MenuItem, icon: Code, label: t("dashboard.menu.embed") || "BAMAS Badge" },
+    { id: "calendarintegration" as MenuItem, icon: CalendarPlus, label: t("dashboard.menu.calendarintegration") || "Calendar Sync" },
   ];
 
   const renderContent = () => {
@@ -182,6 +193,14 @@ const Dashboard = () => {
           return <BamasVault />;
         case "strategiccalendar":
           return <StrategicCalendar />;
+        case "standards":
+          return <StandardsGuide />;
+        case "amclub":
+          return <AMClub />;
+        case "embed":
+          return <EmbedBadge />;
+        case "calendarintegration":
+          return <EventCalendarIntegration />;
         default:
           return <HistoryContent />;
       }

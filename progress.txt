@@ -278,3 +278,162 @@ COMPLETED: NETWORK DIRECTORY SEARCH
 
 3. TRANSLATIONS:
    - Added EN/BG translations for filter.technologies and filter.filtered
+
+COMPLETED: AM STANDARDS GUIDE
+
+1. STANDARDS DATABASE (StandardsGuide.tsx):
+   - Created comprehensive standards library with 30+ ISO/ASTM/SAE standards
+   - Categories: General AM, Medical/Healthcare, Aerospace, Materials, Testing, Quality, Safety
+   - Organizations: ISO, ASTM, EN, Other (FDA, SAE, NADCAP)
+   - Each standard includes: code, title, description, scope, year, URL, tags
+
+2. UI FEATURES:
+   - Search by code, title, or keyword
+   - Filter by category and organization
+   - Featured standards sidebar with key standards
+   - Collapsible accordion by category
+   - Detail dialog with full standard information
+   - External link to official document
+
+3. KEY STANDARDS INCLUDED:
+   - ISO/ASTM 52900 (Fundamentals and vocabulary)
+   - ISO/ASTM 52910 (Design requirements)
+   - ISO 13485 (Medical QMS)
+   - ASTM F3177 (Medical implants)
+   - SAE AMS7003 (Aerospace LPBF)
+   - NADCAP AC7110/14 (Aerospace certification)
+   - ISO/ASTM 52920 (Industrial qualification)
+
+4. DASHBOARD INTEGRATION:
+   - Added "standards" to MenuItem type
+   - Used BookOpen icon for menu item
+   - Lazy-loaded StandardsGuide component
+
+COMPLETED: AM CLUB FORUM/Q&A
+
+1. FORUM FEATURES (AMClub.tsx):
+   - Post categories: Questions, Discussions, Announcements, Tips & Tricks, Showcase
+   - Full search functionality across title, content, tags, and author
+   - Sort by recent, popular, or unanswered
+   - Tag filtering with popular tags
+   - Upvote system for posts and replies
+
+2. UI COMPONENTS:
+   - Post cards with vote count, category badges, tags
+   - Post detail dialog with replies
+   - New post dialog with category, title, content, and tags
+   - Community stats sidebar
+   - Top contributors leaderboard
+   - Community guidelines
+
+3. MOCK DATA:
+   - 5 sample posts demonstrating different categories
+   - 2 sample replies with "accepted answer" feature
+
+COMPLETED: BAMAS BADGE GENERATOR
+
+1. BADGE CUSTOMIZATION (EmbedBadge.tsx):
+   - 4 badge styles: Standard, Compact, Minimal, Premium
+   - Dark/Light theme toggle
+   - 4 member types: Member, Certified, Founding, Partner
+   - Width slider (120-320px)
+   - Bulgarian/English language toggle
+   - Show/hide year option
+
+2. EMBED CODE GENERATION:
+   - HTML embed with link to bamas.xyz
+   - Markdown embed for GitHub READMEs
+   - Raw image URL for direct use
+   - Copy-to-clipboard functionality
+   - SVG download option
+
+3. SVG GENERATION:
+   - Dynamic SVG generation based on configuration
+   - Inline gradients and effects for premium style
+   - Responsive to width changes
+   - Color-coded by member type
+
+COMPLETED: BUDGET DASHBOARD
+
+1. OVERVIEW FEATURES (BudgetContent.tsx):
+   - Total balance summary across all accounts
+   - Monthly income/expense tracking
+   - Net cash flow indicator
+   - Income vs budget progress bars
+   - Expense vs budget progress bars
+
+2. BANK ACCOUNTS MANAGEMENT:
+   - Multiple account support (Checking, Savings, Grant)
+   - IBAN display with show/hide toggle
+   - Balance display with currency formatting
+   - Primary account indicator
+   - Currency support: BGN and EUR
+
+3. TRANSACTIONS:
+   - Income/Expense categorization
+   - Full transaction history
+   - CSV export button (UI ready)
+   - Reference number tracking
+   - Notes field
+
+4. ANNUAL BUDGET:
+   - Income categories: Membership Fees, Grants, Sponsorships, Events
+   - Expense categories: Office, Technology, Marketing, Events Costs, etc.
+   - Budget vs actual comparison
+   - Percentage completion indicators
+   - Over-budget warnings
+
+5. MOCK DATA:
+   - 3 bank accounts (UnicreditBulbank, Postenska Banka)
+   - 5 sample transactions
+   - 8 budget categories with realistic amounts
+
+COMPLETED: EVENT CALENDAR INTEGRATION
+
+1. CALENDAR EXPORT FEATURES (EventCalendarIntegration.tsx):
+   - ICS file generation for single events or all events
+   - Google Calendar URL generation
+   - Outlook Web URL generation
+   - Calendar feed subscription URL
+   - Download ICS button
+
+2. EXPORT SETTINGS:
+   - Include/exclude event descriptions
+   - Include/exclude locations
+   - Set reminder toggle
+   - Customizable reminder time (5min, 15min, 30min, 1hr, 1 day)
+
+3. QUICK ACTIONS:
+   - Download all events as ICS
+   - Add to Google Calendar (one-click)
+   - Add to Outlook (one-click)
+   - Copy feed URL for subscription
+
+4. EVENT DISPLAY:
+   - List of upcoming events with details
+   - Date, time, location, description
+   - Website link if available
+   - Individual export buttons per event
+
+5. ICS GENERATION:
+   - RFC 5545 compliant iCalendar format
+   - VEVENT with DTSTART, DTEND, SUMMARY, DESCRIPTION, LOCATION
+   - VALARM for reminders
+   - Proper text escaping for special characters
+
+STATUS: ALL 16 TASKS COMPLETED ✓
+
+SUMMARY OF BAMAS STRATEGIC EXPANSION:
+1. ✓ Map Fixes (Dark/Light mode, geo-anchored markers)
+2. ✓ Company Registration Sync (lat/lng, auto-map marker)
+3. ✓ Company Profile System (CompanyPage.tsx)
+4. ✓ Network Directory Enhancements (owner sub-text, search, filters)
+5. ✓ EU Funds Radar (keyword cloud, EU flag button)
+6. ✓ Strategic Calendar (event management)
+7. ✓ AM Standards Guide (30+ ISO/ASTM standards)
+8. ✓ AM Club Forum (Q&A, discussions, tips)
+9. ✓ Collaborative Whiteboard (Fabric.js)
+10. ✓ Bamas Vault (password protected, RLS)
+11. ✓ BAMAS Badge Generator (SVG, embed codes)
+12. ✓ Budget Dashboard (bank accounts, transactions)
+13. ✓ Event Calendar Integration (ICS, Google, Outlook)
