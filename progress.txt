@@ -128,3 +128,8 @@ TECHNICAL CHANGES:
 - MaterialCard.tsx: Simplified chart rendering logic
 
 Status: Site fully functional. All critical errors resolved.
+
+2026-01-15
+- Task: Restored site load by removing stray duplicated footer JSX block.
+- Architecture: No new architecture changes; cleanup only.
+- Blockers: npm scripts missing for typecheck/test (npm run typecheck/test failed).

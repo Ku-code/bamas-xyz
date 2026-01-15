@@ -290,6 +290,27 @@ function FooterSection({
                 <p className="text-xs text-muted-foreground leading-relaxed mt-2">
                   {translations?.addliance || "Part of (Add)liance - The European Additive Manufacturing Hub"}
                 </p>
+                <div className="mt-5 flex flex-col gap-2">
+                  <a
+                    href="https://industryinfo.bg/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center hover:opacity-80 transition-opacity"
+                    aria-label="IndustryInfo.bg"
+                  >
+                    <img
+                      src="/TLL LOGO/IndustryInfo_logo-01.png"
+                      alt="IndustryInfo.bg Logo"
+                      className="h-16 w-auto object-contain"
+                      style={{ borderRadius: "0.5rem", maxWidth: "250px" }}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
+                  <span className="text-xs text-muted-foreground leading-relaxed mt-2">
+                    Offical Media Partner
+                  </span>
+                </div>
               </div>
             </address>
           </div>
