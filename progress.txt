@@ -452,6 +452,16 @@ COMPLETED FIXES:
    - Added onClick={() => window.location.href = "mailto:info@bamas.xyz"}
    - Users can now directly email BAMAS for funding support
 
+4. TRANSLATION KEYS ADDED:
+   - Added missing dashboard.menu.standards (AM Standards Guide / AM Стандарти)
+   - Added missing dashboard.menu.amclub (AM Club / AM Клуб)
+   - Added missing dashboard.menu.embed (BAMAS Badge / БАЗАП Баджове)
+   - Added missing dashboard.menu.calendarintegration (Calendar Sync / Синхронизация)
+
+5. EMBED BADGE VERIFICATION:
+   - Confirmed clickable link to https://bamas.xyz in HTML and Markdown embeds
+   - SVG-based badges are lightweight and work on external sites
+
 SUMMARY OF BAMAS STRATEGIC EXPANSION:
 1. ✓ Map Fixes (Dark/Light mode, geo-anchored markers)
 2. ✓ Company Registration Sync (lat/lng, auto-map marker)

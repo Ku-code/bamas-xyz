@@ -781,6 +781,10 @@
   "dashboard.eufunds.support.button": "Свържете се с БАЗАП",
 
   "dashboard.menu.whiteboard": "Дъска",
+  "dashboard.menu.standards": "AM Стандарти",
+  "dashboard.menu.amclub": "AM Клуб",
+  "dashboard.menu.embed": "БАЗАП Баджове",
+  "dashboard.menu.calendarintegration": "Синхронизация",
 
   "whiteboard.title": "Колаборативна дъска",
   "whiteboard.save": "Запази",
