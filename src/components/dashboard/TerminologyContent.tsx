@@ -31,10 +31,6 @@ const TerminologyContent = () => {
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  // #region agent log H3
-  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TerminologyContent.tsx:29',message:'Component mounted',data:{hasUser:!!user,userId:user?.id,userRole:user?.role,isAdmin,isSuperAdmin,isBoardMember},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H3'})}).catch(()=>{});
-  // #endregion
-
   const [terms, setTerms] = useState<TerminologyTerm[]>([]);
   const [loading, setLoading] = useState(false);
   const [languageView, setLanguageView] = useState<LanguageView>("both");

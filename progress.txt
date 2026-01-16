@@ -423,6 +423,35 @@ COMPLETED: EVENT CALENDAR INTEGRATION
 
 STATUS: ALL 16 TASKS COMPLETED ✓
 
+2026-01-16 - OPERATION: PRODUCTION POLISH (Phase 1)
+===================================================
+COMPLETED FIXES:
+
+1. AUTH STABILITY:
+   - Removed all debug fetch calls to 127.0.0.1:7242 from:
+     - src/main.tsx
+     - src/App.tsx
+     - src/contexts/AuthContext.tsx
+     - src/components/ProtectedRoute.tsx
+     - src/lib/supabase.ts
+     - src/lib/terminology.ts
+     - src/components/dashboard/MaterialContent.tsx
+     - src/components/dashboard/TerminologyContent.tsx
+   - These debug logs were causing unnecessary network calls
+
+2. DARK MODE AS DEFAULT:
+   - Updated ThemeProvider.tsx:
+     - Changed initialState.theme from "system" to "dark"
+     - Changed initialState.resolvedTheme from "light" to "dark"
+     - Added localStorage check in initial resolvedTheme state
+   - App.tsx already uses defaultTheme="dark"
+   - Result: New visitors get dark mode by default, no flash of light mode
+
+3. EU FUNDS RADAR - MAILTO FIX:
+   - Updated EUFundsRadar.tsx "Contact BAMAS" button
+   - Added onClick={() => window.location.href = "mailto:info@bamas.xyz"}
+   - Users can now directly email BAMAS for funding support
+
 SUMMARY OF BAMAS STRATEGIC EXPANSION:
 1. ✓ Map Fixes (Dark/Light mode, geo-anchored markers)
 2. ✓ Company Registration Sync (lat/lng, auto-map marker)

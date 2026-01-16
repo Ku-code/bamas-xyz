@@ -95,21 +95,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Load user from Supabase on mount and listen for auth changes
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:82',message:'AuthContext useEffect started',data:{isSupabaseConfigured:isSupabaseConfigured()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
-    
     // Only initialize Supabase if it's configured
     if (!isSupabaseConfigured()) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:87',message:'Supabase not configured, setting isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       console.warn('⚠️ Supabase is not configured. Authentication features will not work.');
       return;
     }
 
     // Defer session check to avoid blocking initial render
-    // Use requestIdleCallback if available, otherwise setTimeout
     const deferSessionCheck = (callback: () => void) => {
       if ('requestIdleCallback' in window) {
         requestIdleCallback(callback, { timeout: 2000 });
@@ -119,51 +111,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     deferSessionCheck(() => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:95',message:'Starting getSession with timeout',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      
       // Add timeout to prevent infinite loading
       const sessionTimeout = setTimeout(() => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:100',message:'getSession timeout, forcing isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         console.warn('⚠️ Supabase session check timed out. Continuing without session.');
         setIsLoading(false);
-      }, 10000); // 10 second timeout
+      }, 10000);
 
       // Get initial session
       supabase.auth.getSession()
       .then(({ data: { session }, error }) => {
         clearTimeout(sessionTimeout);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:108',message:'getSession resolved',data:{hasSession:!!session,hasError:!!error,errorMessage:error?.message,sessionExpiresAt:session?.expires_at,accessTokenLength:session?.access_token?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         if (error) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:115',message:'getSession error, setting isLoading=false',data:{errorMessage:error.message,errorCode:error.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           console.error('Error getting session:', error);
           setIsLoading(false);
           return;
         }
         if (session) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:120',message:'getSession: session found, loading user',data:{userId:session.user.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           loadUserFromDatabase(session.user.id);
         } else {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:123',message:'getSession: No session, setting isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-          // #endregion
           setIsLoading(false);
         }
       })
       .catch((error) => {
         clearTimeout(sessionTimeout);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:124',message:'getSession rejected',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         console.error('Failed to get session:', error);
         setIsLoading(false);
       });
@@ -173,15 +143,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:142',message:'onAuthStateChange fired',data:{event,hasSession:!!session,userId:session?.user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       if (session) {
         await loadUserFromDatabase(session.user.id);
       } else {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:145',message:'onAuthStateChange: no session, setting user=null',data:{event},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         setUser(null);
         setIsLoading(false);
       }
@@ -193,9 +157,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const loadUserFromDatabase = async (userId: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:133',message:'loadUserFromDatabase started',data:{userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     try {
       // Add timeout for database fetch
       const fetchPromise = db.fetchById('users', userId);
@@ -203,13 +164,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setTimeout(() => reject(new Error('Database fetch timeout')), 8000)
       );
       let dbUser = await Promise.race([fetchPromise, timeoutPromise]) as any;
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:140',message:'db.fetchById completed',data:{hasUser:!!dbUser},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       
       if (!dbUser) {
         // User doesn't exist in database yet - create it using the function
-        // This can happen if signup was interrupted or email confirmation is pending
         const { data: authUser } = await supabase.auth.getUser();
         if (authUser?.user) {
           const userMetadata = authUser.user.user_metadata || {};
@@ -229,27 +186,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       if (dbUser) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:192',message:'loadUserFromDatabase: user found, setting user state',data:{userId,userStatus:dbUser.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         setUser(convertSupabaseUserToUser(dbUser));
       } else {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:195',message:'loadUserFromDatabase: user not found in database',data:{userId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         console.warn('User not found in database:', userId);
         setUser(null);
       }
     } catch (error) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:177',message:'loadUserFromDatabase error',data:{error:error instanceof Error?error.message:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       console.error('Error loading user from database:', error);
       setUser(null);
     } finally {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:182',message:'loadUserFromDatabase finally, isLoading=false',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       setIsLoading(false);
     }
   };
@@ -492,7 +437,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
 
         // Send welcome email via Edge Function (non-blocking)
-        // The database trigger should also fire, but we call it explicitly as a backup
         try {
           const supabaseUrl = getSupabaseUrl();
           const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -618,10 +562,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/50346ba1-6398-4d3a-b7ae-e83d28e057d9',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthContext.tsx:465',message:'AuthProvider render check',data:{isLoading,hasUser:!!user,userId:user?.id,userStatus:user?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -633,23 +573,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isSuperAdmin = user?.role === 'superadmin';
   const isBoardMember = user?.role === 'board_member';
-
-  // Log user state changes for debugging
-  useEffect(() => {
-    if (user) {
-      console.log('AuthContext: User state:', {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        status: user.status,
-        hasId: !!user.id,
-        idType: typeof user.id
-      });
-    } else {
-      console.log('AuthContext: No user (logged out)');
-    }
-  }, [user]);
 
   return (
     <AuthContext.Provider

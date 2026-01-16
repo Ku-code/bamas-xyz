@@ -15,9 +15,9 @@ interface ThemeProviderState {
 }
 
 const initialState: ThemeProviderState = {
-  theme: "system",
+  theme: "dark",
   setTheme: () => null,
-  resolvedTheme: "light",
+  resolvedTheme: "dark",
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -31,7 +31,14 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => {
+    // Default to dark to prevent flash of light mode
+    const stored = localStorage.getItem(storageKey) as Theme;
+    if (stored === "light") return "light";
+    if (stored === "dark") return "dark";
+    // For system or unset, default to dark
+    return "dark";
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;

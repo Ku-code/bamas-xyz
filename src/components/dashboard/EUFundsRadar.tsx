@@ -312,7 +312,11 @@ const EUFundsRadar = () => {
                 </p>
               </div>
             </div>
-            <Button variant="outline" className="rounded-full">
+            <Button 
+              variant="outline" 
+              className="rounded-full"
+              onClick={() => window.location.href = "mailto:info@bamas.xyz"}
+            >
               {t("dashboard.eufunds.support.button") || "Contact BAMAS"}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>

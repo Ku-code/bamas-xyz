@@ -1,50 +1,39 @@
-# 🚀 BAMAS Web App: Future Features & Strategic Upgrades
-> **Agent:** Ralph Wiggum | **Priority:** Critical | **Status:** 🛠 In Progress
+# 🛠️ Operation: Production Polish & Stability
+> **Agent Mode:** Ralph Wiggum (Autonomous) | **Priority:** Critical
+> **Goal:** Fix Auth Loops, Localize UI, and Finalize Embed Tools.
 
-## 🔴 Phase 1: High-Risk Infrastructure & Map Fixes
-- [x] **Fix 2D/3D Map Sync:**
-    - [x] Resolve Dark/Light mode switching bug (MapLibre style reload).
-    - [x] Fix Company Logo Bubbles: Remove floating physics; anchor to fixed Geo-coordinates.
-    - [x] Update `Company Registration` flow: Add mandatory `address_full`, `latitude`, and `longitude` fields.
-    - [x] **Automation:** Auto-create Map Marker + Network Node upon successful Company registration.
-- [x] **Company Profile System:**
-    - [x] Build `CompanyPage.tsx`: Dynamic details view (Logo, URL, Description, Tech Stack).
-    - [x] Link User -> Company: Sub-text "Owner of [Company Name]" under user names in Network/Directory.
-    - [x] Permissions: Owner-only Edit; Superadmin-only Edit/Delete.
+## 🔴 Phase 1: Authentication & Theme Stability (Critical)
+- [ ] **Fix Persistent Logout Bug:**
+    - [ ] Audit `src/middleware.ts`. Ensure the session check doesn't trigger a redirect to `/` if the user is already authenticated but the locale is switching.
+    - [ ] Ensure `Supabase` session persistence is configured for `localStorage` or `cookies` correctly to prevent "Hero Section" kicks.
+- [ ] **Dark Mode Default Enforcement:**
+    - [ ] Force `dark` theme as the primary default in `src/app/layout.tsx` or your `ThemeProvider`.
+    - [ ] Ensure the first-load logic checks for a saved theme; if none exists, set `theme = 'dark'`.
+    - [ ] Prevent "Flash of Light Mode" on initial load.
 
-## 🔵 Phase 2: Intelligence & Strategic Tools
-- [x] **EU Funds Radar:**
-    - [x] Create `EUFundsRadar.tsx`: Dashboard item with "EU Flag" styled button leading to [Portal](https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/calls-for-proposals?isExactMatch=true&status=31094501,31094502,31094503&order=DESC&pageNumber=1&pageSize=50&sortBy=startDate).
-    - [x] UI: Simple "How-to" guide + keyword cloud (Additive, AI, Digital Twins, etc.).
-- [x] **Strategic Calendar Radar:**
-    - [x] Build `StrategicCalendar.tsx`: View-only for members; Admin-only CRUD for national/international venues.
-- [ ] **AM Standards Guide:**
-    - [ ] Build `StandardsGuide.tsx`: Library for ISO/ASTM standards (Medical/Aerospace specific).
-- [x] **Network Directory Search:**
-    - [x] Add Search Bar to Network: Filter by Tech (SLS, FDM, Metal) or Material.
+## 🔵 Phase 2: Translation & Content Localization
+- [ ] **Human-Readable Dictionary Update:**
+    - [ ] Scan all components for keys like `dashboard.menu.item`. 
+    - [ ] Update `public/locales/en.json` and `public/locales/bg.json` with actual strings (e.g., "EU Funds Radar" / "Радар за финансиране от ЕС").
+    - [ ] **Strict Rule:** No raw translation keys should be visible in the UI. Every title, subtitle, and description must be in prose.
+- [ ] **Accurate Terminology:** Use the `terminology_terms` table to verify technical additive manufacturing terms in Bulgarian.
 
-## 🟡 Phase 3: Collaboration & Vault Security
-- [ ] **AM CLUB:**
-    - [ ] Build `AMClub.tsx`: Forum/Q&A space with dropdown filters for medical, defense, automotive, etc.
-- [x] **Collaborative Whiteboard:**
-    - [x] Build `Whiteboard.tsx`: Fabric.js or Canvas-based space. 
-    - [x] Features: Multi-color pens, Sticky Notes, Drag & Drop Images, Paste images.
-    - [x] UI: Shortcuts legend in light grey at bottom.
-- [x] **Bamas Vault (Documents):**
-    - [x] Create "Bamas Vault" folder inside Documents.
-    - [x] Security: Password-protection field + Superadmin-only access management.
-- [ ] **Embed System (BAMAS Badge):**
-    - [ ] Build `EmbedGenerator.tsx`: Generate script tags/banners for members to put on their sites.
+## 🟡 Phase 3: Badge Embed Tool & EU Radar Enhancements
+- [ ] **BAMAS Badge Upgrade:**
+    - [ ] Replace placeholder icons with `public/logos/g2.png` or `public/logos/g3 2.png`.
+    - [ ] **Functional Linking:** Wrap the generated badge code in an `<a>` tag pointing to `https://bamas.xyz/`.
+    - [ ] Ensure the "Copy Snippet" includes the `target="_blank"` attribute.
+- [ ] **EU Radar Contact Fix:**
+    - [ ] Locate the button "Свържете се с БАЗАП".
+    - [ ] Update its action to: `window.location.href = "mailto:info@bamas.xyz"`.
 
-## 🟢 Phase 4: Administrative & Finance
-- [ ] **Event Calendar Integration:** Sync Meetings with a new `EventCalendar.tsx` view.
-- [ ] **Budget Transparency:**
-    - [ ] Build `BudgetDashboard.tsx`: All members see balance/details.
-    - [ ] Admin Bank Management: Secure form to update IBAN, BIC, SWIFT, and Balance.
+## 🟢 Phase 4: UI/UX Audit & Clean Code
+- [ ] **Visual Consistency Check:**
+    - [ ] Ensure all dashboard items have consistent padding, border-radius (rounded-xl), and backdrop-blurs.
+    - [ ] Remove any "debug" console logs left over from previous builds.
+- [ ] **Stability Test:**
+    - [ ] Run `npm run build` to ensure no "Type Errors" or "MIME type" issues remain.
+    - [ ] Manually test the login flow 5 times to confirm no random logouts occur.
 
-## ✅ Final Polish & Verification
-- [x] Fix footer-section syntax error causing dev server crash.
-- [ ] Update all RLS Policies in Supabase for new tables.
-- [x] Verify Bilingual Support (EN/BG) for all new UI items.
-- [ ] Run `npm run build` to ensure 0 production errors.
-- [ ] Push Git Commit: "BAMAS Strategic Feature Build Complete".
+## 🪵 Progress Log
+- [ ] Waiting for Ralph to initialize...
