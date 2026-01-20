@@ -299,7 +299,7 @@ function FooterSection({
                     aria-label="IndustryInfo.bg"
                   >
                     <img
-                      src="/TLL LOGO/IndustryInfo_logo-01.png"
+                      src="/TLL LOGO/IndustryInfo_logo.png"
                       alt="IndustryInfo.bg Logo"
                       className="h-16 w-auto object-contain"
                       style={{ borderRadius: "0.5rem", maxWidth: "250px" }}
