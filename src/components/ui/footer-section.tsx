@@ -249,10 +249,6 @@ function FooterSection({
               <p>{translations?.contact?.city || ""}</p>
               <p>{translations?.contact?.phone || ""}</p>
               <p>{translations?.contact?.email || "info@bamas.xyz"}</p>
-              <div className="flex items-center gap-3 mt-4">
-                <span className="text-2xl leading-none" title="Bulgaria" aria-label="Bulgaria">🇧🇬</span>
-                <span className="text-2xl leading-none" title="European Union" aria-label="European Union">🇪🇺</span>
-              </div>
             </address>
           </div>
           <div className="relative">
