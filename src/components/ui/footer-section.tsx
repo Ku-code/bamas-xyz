@@ -295,17 +295,31 @@ function FooterSection({
                     href="https://industryinfo.bg/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center justify-center hover:opacity-80 transition-opacity"
                     aria-label="IndustryInfo.bg"
                   >
-                    <img
-                      src="/TLL LOGO/IndustryInfo_logo.png"
-                      alt="IndustryInfo.bg Logo"
-                      className="h-16 w-auto object-contain"
-                      style={{ borderRadius: "0.5rem", maxWidth: "250px" }}
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    <div 
+                      className="bg-white rounded-2xl p-4 flex items-center justify-center"
+                      style={{ 
+                        maxWidth: '250px',
+                        width: '100%',
+                        height: '64px',
+                        borderRadius: '1rem'
+                      }}
+                    >
+                      <img
+                        src="/TLL LOGO/IndustryInfo_logo.png"
+                        alt="IndustryInfo.bg Logo"
+                        className="h-auto w-auto object-contain max-h-full max-w-full"
+                        style={{ 
+                          maxHeight: '48px',
+                          maxWidth: '100%',
+                          objectFit: 'contain'
+                        }}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
                   </a>
                   <span className="text-xs text-muted-foreground leading-relaxed mt-2">
                     Offical Media Partner

@@ -462,6 +462,44 @@ COMPLETED FIXES:
    - Confirmed clickable link to https://bamas.xyz in HTML and Markdown embeds
    - SVG-based badges are lightweight and work on external sites
 
+6. INDUSTRY INFO LOGO REPLACEMENT:
+   - Replaced IndustryInfo_logo-01.png with IndustryInfo_logo.png in footer
+   - Logo is now more visible
+
+2026-01-16 - CRITICAL FIX: Default Dark Mode & Bulgarian Language
+==================================================================
+COMPLETED FIXES:
+
+1. THEME PROVIDER FIXES:
+   - Changed defaultTheme from "system" to "dark" when localStorage is empty
+   - Added immediate theme application on mount to prevent flash of light mode
+   - Fixed initialization logic to properly default to dark mode
+   - Theme now applies correctly on first visit without requiring toggle
+
+2. INDEX.HTML SCRIPT UPDATE:
+   - Updated inline script to use 'bamas-theme' storage key (matching ThemeProvider)
+   - Applies dark mode class immediately on page load (before React renders)
+   - Handles all theme states: dark, light, system
+   - Prevents flash of light mode on initial page load
+
+3. LANGUAGE DEFAULT:
+   - LanguageContext already defaults to "bg" (Bulgarian) - verified working
+   - LanguageSwitcher component works correctly with LanguageContext
+   - Settings page language toggle works properly
+
+4. TOGGLE BUTTONS VERIFICATION:
+   - Settings page theme toggle (Light/Dark/System) works correctly
+   - Settings page language toggle (English/Bulgarian) works correctly
+   - LanguageSwitcher in Navbar works correctly
+   - All toggles properly update localStorage and UI state
+
+RESULT:
+- Website now loads in dark mode by default on first visit ✓
+- Website now loads in Bulgarian by default on first visit ✓
+- No flash of light mode on initial load ✓
+- Theme toggle works immediately without requiring on/off cycle ✓
+- Language toggle works correctly ✓
+
 SUMMARY OF BAMAS STRATEGIC EXPANSION:
 1. ✓ Map Fixes (Dark/Light mode, geo-anchored markers)
 2. ✓ Company Registration Sync (lat/lng, auto-map marker)
