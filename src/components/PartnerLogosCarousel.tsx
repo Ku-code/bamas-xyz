@@ -161,21 +161,11 @@ const PartnerLogosCarousel = () => {
       className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
     >
       {partner.hasWhiteBackground ? (
-        <div
-          className="bg-white rounded-2xl p-8 flex items-center justify-center h-full w-full shadow-sm"
-          style={{
-            borderRadius: "1rem",
-          }}
-        >
+        <div className="h-52 w-96 flex items-center justify-center bg-white rounded-lg p-6 border border-border/30 shadow-sm">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-full max-w-full"
-            style={{
-              maxHeight: "144px",
-              maxWidth: "100%",
-              objectFit: "contain",
-            }}
+            className="h-auto w-auto object-contain max-h-44 max-w-full"
             loading="lazy"
             decoding="async"
             onError={(e) => {
