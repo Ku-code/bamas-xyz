@@ -158,14 +158,14 @@ const PartnerLogosCarousel = () => {
       href={partner.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
+      className="flex-shrink-0 flex items-center justify-center h-52 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
     >
       {partner.hasWhiteBackground ? (
-        <div className="h-52 w-96 flex items-center justify-center bg-white rounded-lg p-6 shadow-sm">
+        <div className="h-40 w-96 flex items-center justify-center bg-white rounded-lg p-4 shadow-sm">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-44 max-w-full"
+            className="h-auto w-auto object-contain max-h-32 max-w-full"
             loading="lazy"
             decoding="async"
             onError={(e) => {
