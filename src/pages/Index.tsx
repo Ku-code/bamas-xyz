@@ -17,6 +17,7 @@ import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
+import PartnerLogosCarousel from "@/components/PartnerLogosCarousel";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -725,6 +726,18 @@ const Index = () => {
                 </a>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Current Partners Section */}
+      <section className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+            {language === "bg" ? "Наши партньори" : "Our Partners"}
+          </h2>
+          <div className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
+            <PartnerLogosCarousel />
           </div>
         </div>
       </section>
