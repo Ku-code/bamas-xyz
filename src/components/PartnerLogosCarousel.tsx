@@ -161,7 +161,7 @@ const PartnerLogosCarousel = () => {
       className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
     >
       {partner.hasWhiteBackground ? (
-        <div className="h-52 w-96 flex items-center justify-center bg-white rounded-lg p-6 border border-border/30 shadow-sm">
+        <div className="h-52 w-96 flex items-center justify-center bg-white rounded-lg p-6 shadow-sm">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
@@ -174,7 +174,7 @@ const PartnerLogosCarousel = () => {
           />
         </div>
       ) : (
-        <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6 border border-border/30">
+        <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
