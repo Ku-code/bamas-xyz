@@ -23,59 +23,54 @@ const PARTNERS: Partner[] = [
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/01_HabitAdd_Logo_RGB.png",
-    name: "HabitAdd",
-    url: "#", // Add URL when available
-  },
-  {
-    logo: "/partnerlogos/3Dbgprint_logo.png",
-    name: "3DBGPrint",
-    url: "#", // Add URL when available
-  },
-  {
-    logo: "/partnerlogos/3dopendesign_logo.png",
-    name: "3D Open Design",
-    url: "#", // Add URL when available
-  },
-  {
-    logo: "/partnerlogos/3dprintx_logo.png",
-    name: "3D PrintX",
-    url: "#", // Add URL when available
-  },
-  {
     logo: "/partnerlogos/8cell_logo.png",
     name: "8Cell",
-    url: "#", // Add URL when available
+    url: "https://8cell.bg/",
   },
   {
     logo: "/partnerlogos/B2N_logo.jpg",
     name: "B2N",
-    url: "#", // Add URL when available
+    url: "https://b2n.bg/",
   },
   {
-    logo: "/partnerlogos/edufacturing_logo.jpeg",
-    name: "EduFacturing",
-    url: "#", // Add URL when available
+    logo: "/partnerlogos/01_HabitAdd_Logo_RGB.png",
+    name: "HabitAdd",
+    url: "https://habitadd.bg/en/",
   },
   {
     logo: "/partnerlogos/GreMa3D_Blue.png",
     name: "GreMa3D",
-    url: "#", // Add URL when available
+    url: "https://www.grema3d.bg/bg/",
+  },
+  {
+    logo: "/partnerlogos/3Dbgprint_logo.png",
+    name: "3DBGPrint",
+    url: "https://3dbgprint.com/",
+  },
+  {
+    logo: "/partnerlogos/edufacturing_logo.jpeg",
+    name: "EduFacturing",
+    url: "https://edufacturing.com/en/home/",
   },
   {
     logo: "/partnerlogos/parai_logo.png",
     name: "Parai",
-    url: "#", // Add URL when available
+    url: "https://para.expert/",
   },
   {
     logo: "/partnerlogos/solidfill_logo.jpg",
     name: "SolidFill",
-    url: "#", // Add URL when available
+    url: "https://solidfill.com/en/home-en/",
   },
   {
-    logo: "/partnerlogos/logo.svg",
-    name: "Partner",
-    url: "#", // Add URL when available
+    logo: "/partnerlogos/3dopendesign_logo.png",
+    name: "3D Open Design",
+    url: "https://www.3dopendesign.com/",
+  },
+  {
+    logo: "/partnerlogos/3dprintx_logo.png",
+    name: "3D PrintX",
+    url: "https://3dprintx.bg/",
   },
 ];
 
@@ -186,7 +181,7 @@ const PartnerLogosCarousel = () => {
         {/* Scrollable container */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-10 overflow-x-auto scrollbar-hide px-12 py-6"
+          className="flex gap-12 overflow-x-auto scrollbar-hide px-16 py-8"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -198,13 +193,13 @@ const PartnerLogosCarousel = () => {
             <a
               key={index}
               href={partner.url}
-              target={partner.url !== "#" ? "_blank" : undefined}
-              rel={partner.url !== "#" ? "noopener noreferrer" : undefined}
-              className="flex-shrink-0 flex items-center justify-center h-40 w-72 hover:opacity-80 transition-opacity duration-300 group"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
             >
               {partner.hasWhiteBackground ? (
                 <div
-                  className="bg-white rounded-2xl p-6 flex items-center justify-center h-full w-full shadow-sm"
+                  className="bg-white rounded-2xl p-8 flex items-center justify-center h-full w-full shadow-sm"
                   style={{
                     borderRadius: "1rem",
                   }}
@@ -214,7 +209,7 @@ const PartnerLogosCarousel = () => {
                     alt={`${partner.name} Logo`}
                     className="h-auto w-auto object-contain max-h-full max-w-full"
                     style={{
-                      maxHeight: "96px",
+                      maxHeight: "144px",
                       maxWidth: "100%",
                       objectFit: "contain",
                     }}
@@ -226,11 +221,11 @@ const PartnerLogosCarousel = () => {
                   />
                 </div>
               ) : (
-                <div className="h-36 w-72 flex items-center justify-center bg-card/50 rounded-lg p-4 border border-border/30">
+                <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6 border border-border/30">
                   <img
                     src={partner.logo}
                     alt={`${partner.name} Logo`}
-                    className="h-auto w-auto object-contain max-h-28 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
+                    className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
                     loading="lazy"
                     decoding="async"
                     onError={(e) => {
