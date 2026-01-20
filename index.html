@@ -59,23 +59,33 @@
 
   <body style="margin: 0; padding: 0; min-height: 100vh;">
     <script>
-      // Always start in dark mode unless user explicitly enabled light mode
+      // Apply dark mode immediately on page load to prevent flash
       (function() {
-        const stored = localStorage.getItem('darkMode');
-        // Only apply light mode if user explicitly set it to false
-        if (stored === 'false') {
-          // Ensure light mode - remove dark class
-          document.documentElement.classList.remove('dark');
-        } else {
-          // Default to dark mode - add dark class
+        const storageKey = 'bamas-theme';
+        const stored = localStorage.getItem(storageKey);
+        
+        // If no stored value, default to dark mode
+        if (!stored || (stored !== 'dark' && stored !== 'light' && stored !== 'system')) {
           document.documentElement.classList.add('dark');
-          // Set darkMode to true if not already set
-          if (stored === null) {
-            localStorage.setItem('darkMode', 'true');
+          document.documentElement.classList.remove('light');
+          // Don't set localStorage here - let ThemeProvider handle it
+        } else if (stored === 'light') {
+          document.documentElement.classList.add('light');
+          document.documentElement.classList.remove('dark');
+        } else if (stored === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else if (stored === 'system') {
+          // Check system preference
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
           }
         }
-        // Background color is handled by CSS variables via bg-background class
-        // No need to set inline styles - CSS will handle theme switching
       })();
     </script>
     <div id="root" style="min-height: 100vh;"></div>

@@ -24,22 +24,52 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
+  defaultTheme = "dark",
   storageKey = "bamas-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
-  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => {
-    // Default to dark to prevent flash of light mode
-    const stored = localStorage.getItem(storageKey) as Theme;
-    if (stored === "light") return "light";
-    if (stored === "dark") return "dark";
-    // For system or unset, default to dark
-    return "dark";
+  // Initialize theme: if localStorage is empty, use defaultTheme (dark), otherwise use stored value
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return defaultTheme;
+    const stored = localStorage.getItem(storageKey) as Theme | null;
+    // If no stored value, default to "dark" (not "system")
+    if (!stored || (stored !== "dark" && stored !== "light" && stored !== "system")) {
+      return defaultTheme;
+    }
+    return stored;
   });
 
+  // Initialize resolvedTheme: immediately determine what theme to apply
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") return "dark";
+    const stored = localStorage.getItem(storageKey) as Theme | null;
+    
+    // If no stored value or invalid, default to dark
+    if (!stored || (stored !== "dark" && stored !== "light" && stored !== "system")) {
+      return "dark";
+    }
+    
+    // If stored is "system", check system preference
+    if (stored === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    
+    // Otherwise use stored value directly
+    return stored;
+  });
+
+  // Apply theme immediately on mount (before React renders)
+  useEffect(() => {
+    const root = window.document.documentElement;
+    
+    // Remove existing theme classes
+    root.classList.remove("light", "dark");
+    
+    // Apply the resolved theme immediately
+    root.classList.add(resolvedTheme);
+  }, []); // Run only once on mount
+
+  // Update theme when theme state changes
   useEffect(() => {
     const root = window.document.documentElement;
 
@@ -59,7 +89,7 @@ export function ThemeProvider({
     setResolvedTheme(effectiveTheme);
   }, [theme]);
 
-  // Listen for system theme changes
+  // Listen for system theme changes when theme is "system"
   useEffect(() => {
     if (theme !== "system") return;
 
