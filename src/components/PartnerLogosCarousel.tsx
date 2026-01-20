@@ -74,6 +74,9 @@ const PARTNERS: Partner[] = [
   },
 ];
 
+// Duplicate partners for seamless infinite loop
+const INFINITE_PARTNERS = [...PARTNERS, ...PARTNERS, ...PARTNERS];
+
 const PartnerLogosCarousel = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -88,33 +91,33 @@ const PartnerLogosCarousel = () => {
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
   };
 
-  // Auto-scroll functionality
+  // Infinite auto-scroll functionality
   useEffect(() => {
     if (!scrollContainerRef.current || !isAutoScrolling) return;
 
     const container = scrollContainerRef.current;
     let scrollInterval: NodeJS.Timeout;
-    let scrollDirection = 1; // 1 for right, -1 for left
+    const singleSetWidth = PARTNERS.length * (384 + 48); // w-96 (384px) + gap-12 (48px) per logo
 
     const autoScroll = () => {
       if (!container) return;
 
       const { scrollLeft, scrollWidth, clientWidth } = container;
-      const maxScroll = scrollWidth - clientWidth;
-
-      if (scrollLeft >= maxScroll - 5) {
-        scrollDirection = -1; // Reverse direction
-      } else if (scrollLeft <= 5) {
-        scrollDirection = 1; // Reverse direction
+      
+      // If we've scrolled past the first set, reset to beginning seamlessly
+      if (scrollLeft >= singleSetWidth) {
+        container.scrollLeft = scrollLeft - singleSetWidth;
       }
 
+      // Continuous scroll to the right (faster: 2px per frame instead of 1px)
       container.scrollBy({
-        left: scrollDirection * 1,
-        behavior: "smooth",
+        left: 2,
+        behavior: "auto", // Use auto for smoother infinite scroll
       });
     };
 
-    scrollInterval = setInterval(autoScroll, 20);
+    // Faster: 10ms interval instead of 20ms
+    scrollInterval = setInterval(autoScroll, 10);
 
     return () => clearInterval(scrollInterval);
   }, [isAutoScrolling]);
@@ -149,6 +152,54 @@ const PartnerLogosCarousel = () => {
     setTimeout(() => setIsAutoScrolling(true), 5000);
   };
 
+  const renderLogo = (partner: Partner, key: string) => (
+    <a
+      key={key}
+      href={partner.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
+    >
+      {partner.hasWhiteBackground ? (
+        <div
+          className="bg-white rounded-2xl p-8 flex items-center justify-center h-full w-full shadow-sm"
+          style={{
+            borderRadius: "1rem",
+          }}
+        >
+          <img
+            src={partner.logo}
+            alt={`${partner.name} Logo`}
+            className="h-auto w-auto object-contain max-h-full max-w-full"
+            style={{
+              maxHeight: "144px",
+              maxWidth: "100%",
+              objectFit: "contain",
+            }}
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              console.error(`Failed to load logo: ${partner.logo}`);
+            }}
+          />
+        </div>
+      ) : (
+        <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6 border border-border/30">
+          <img
+            src={partner.logo}
+            alt={`${partner.name} Logo`}
+            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              console.error(`Failed to load logo: ${partner.logo}`);
+            }}
+          />
+        </div>
+      )}
+    </a>
+  );
+
   return (
     <div className="relative w-full py-8">
       <div className="relative">
@@ -178,7 +229,7 @@ const PartnerLogosCarousel = () => {
           </Button>
         )}
 
-        {/* Scrollable container */}
+        {/* Scrollable container with infinite loop */}
         <div
           ref={scrollContainerRef}
           className="flex gap-12 overflow-x-auto scrollbar-hide px-16 py-8"
@@ -189,53 +240,9 @@ const PartnerLogosCarousel = () => {
           onMouseEnter={() => setIsAutoScrolling(false)}
           onMouseLeave={() => setIsAutoScrolling(true)}
         >
-          {PARTNERS.map((partner, index) => (
-            <a
-              key={index}
-              href={partner.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-shrink-0 flex items-center justify-center h-56 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
-            >
-              {partner.hasWhiteBackground ? (
-                <div
-                  className="bg-white rounded-2xl p-8 flex items-center justify-center h-full w-full shadow-sm"
-                  style={{
-                    borderRadius: "1rem",
-                  }}
-                >
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} Logo`}
-                    className="h-auto w-auto object-contain max-h-full max-w-full"
-                    style={{
-                      maxHeight: "144px",
-                      maxWidth: "100%",
-                      objectFit: "contain",
-                    }}
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      console.error(`Failed to load logo: ${partner.logo}`);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6 border border-border/30">
-                  <img
-                    src={partner.logo}
-                    alt={`${partner.name} Logo`}
-                    className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      console.error(`Failed to load logo: ${partner.logo}`);
-                    }}
-                  />
-                </div>
-              )}
-            </a>
-          ))}
+          {INFINITE_PARTNERS.map((partner, index) => 
+            renderLogo(partner, `${partner.name}-${index}`)
+          )}
         </div>
       </div>
 
