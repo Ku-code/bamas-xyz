@@ -186,7 +186,7 @@ const PartnerLogosCarousel = () => {
         {/* Scrollable container */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-8 overflow-x-auto scrollbar-hide px-12 py-4"
+          className="flex gap-10 overflow-x-auto scrollbar-hide px-12 py-6"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -200,11 +200,11 @@ const PartnerLogosCarousel = () => {
               href={partner.url}
               target={partner.url !== "#" ? "_blank" : undefined}
               rel={partner.url !== "#" ? "noopener noreferrer" : undefined}
-              className="flex-shrink-0 flex items-center justify-center h-24 w-48 hover:opacity-80 transition-opacity duration-300 group"
+              className="flex-shrink-0 flex items-center justify-center h-40 w-72 hover:opacity-80 transition-opacity duration-300 group"
             >
               {partner.hasWhiteBackground ? (
                 <div
-                  className="bg-white rounded-2xl p-4 flex items-center justify-center h-full w-full shadow-sm"
+                  className="bg-white rounded-2xl p-6 flex items-center justify-center h-full w-full shadow-sm"
                   style={{
                     borderRadius: "1rem",
                   }}
@@ -214,7 +214,7 @@ const PartnerLogosCarousel = () => {
                     alt={`${partner.name} Logo`}
                     className="h-auto w-auto object-contain max-h-full max-w-full"
                     style={{
-                      maxHeight: "48px",
+                      maxHeight: "96px",
                       maxWidth: "100%",
                       objectFit: "contain",
                     }}
@@ -226,11 +226,11 @@ const PartnerLogosCarousel = () => {
                   />
                 </div>
               ) : (
-                <div className="h-20 w-48 flex items-center justify-center bg-card/50 rounded-lg p-3 border border-border/30">
+                <div className="h-36 w-72 flex items-center justify-center bg-card/50 rounded-lg p-4 border border-border/30">
                   <img
                     src={partner.logo}
                     alt={`${partner.name} Logo`}
-                    className="h-auto w-auto object-contain max-h-16 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
+                    className="h-auto w-auto object-contain max-h-28 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
                     loading="lazy"
                     decoding="async"
                     onError={(e) => {
