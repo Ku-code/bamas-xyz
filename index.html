@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="favicon" />
@@ -8,6 +8,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0C9D6A" />
     <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Force dark mode immediately - prevents any flash of light mode -->
+    <style>
+      html { color-scheme: dark; }
+      html.dark { color-scheme: dark; }
+      html.light { color-scheme: light; }
+    </style>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPJCMNG6NH"></script>
@@ -59,31 +66,32 @@
 
   <body style="margin: 0; padding: 0; min-height: 100vh;">
     <script>
-      // Apply dark mode immediately on page load to prevent flash
+      // CRITICAL: Force dark mode immediately on page load to prevent flash
+      // This script runs synchronously before any rendering
       (function() {
         const storageKey = 'bamas-theme';
+        const root = document.documentElement;
+        
+        // Always ensure dark class is present first
+        root.classList.add('dark');
+        root.classList.remove('light');
+        
+        // Check localStorage for user preference
         const stored = localStorage.getItem(storageKey);
         
-        // If no stored value, default to dark mode
-        if (!stored || (stored !== 'dark' && stored !== 'light' && stored !== 'system')) {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-          // Don't set localStorage here - let ThemeProvider handle it
-        } else if (stored === 'light') {
-          document.documentElement.classList.add('light');
-          document.documentElement.classList.remove('dark');
-        } else if (stored === 'dark') {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-        } else if (stored === 'system') {
-          // Check system preference
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (prefersDark) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.classList.remove('light');
-          } else {
-            document.documentElement.classList.add('light');
-            document.documentElement.classList.remove('dark');
+        // Only apply light mode if user explicitly set it to 'light'
+        // Otherwise, always default to dark (including 'system' preference)
+        if (stored === 'light') {
+          root.classList.remove('dark');
+          root.classList.add('light');
+        } else {
+          // For 'dark', 'system', or no stored value: always use dark
+          root.classList.remove('light');
+          root.classList.add('dark');
+          
+          // If no stored value or invalid, set it to dark
+          if (!stored || (stored !== 'dark' && stored !== 'light' && stored !== 'system')) {
+            localStorage.setItem(storageKey, 'dark');
           }
         }
       })();

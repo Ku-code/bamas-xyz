@@ -32,14 +32,18 @@ export function ThemeProvider({
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return defaultTheme;
     const stored = localStorage.getItem(storageKey) as Theme | null;
-    // If no stored value, default to "dark" (not "system")
+    // If no stored value or invalid, default to "dark" (not "system")
     if (!stored || (stored !== "dark" && stored !== "light" && stored !== "system")) {
       return defaultTheme;
+    }
+    // If stored is "system", treat it as "dark" for default behavior
+    if (stored === "system") {
+      return defaultTheme; // Force dark instead of system
     }
     return stored;
   });
 
-  // Initialize resolvedTheme: immediately determine what theme to apply
+  // Initialize resolvedTheme: always default to dark unless explicitly set to light
   const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">(() => {
     if (typeof window === "undefined") return "dark";
     const stored = localStorage.getItem(storageKey) as Theme | null;
@@ -49,13 +53,13 @@ export function ThemeProvider({
       return "dark";
     }
     
-    // If stored is "system", check system preference
+    // If stored is "system", default to dark (ignore system preference)
     if (stored === "system") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      return "dark";
     }
     
-    // Otherwise use stored value directly
-    return stored;
+    // Only use light if explicitly set to 'light'
+    return stored === "light" ? "light" : "dark";
   });
 
   // Apply theme immediately on mount (before React renders)
@@ -77,10 +81,9 @@ export function ThemeProvider({
 
     let effectiveTheme: "dark" | "light";
 
+    // Always default to dark, even for "system" preference
     if (theme === "system") {
-      effectiveTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
+      effectiveTheme = "dark"; // Force dark instead of checking system preference
     } else {
       effectiveTheme = theme;
     }
@@ -90,21 +93,23 @@ export function ThemeProvider({
   }, [theme]);
 
   // Listen for system theme changes when theme is "system"
+  // NOTE: Even for "system", we force dark mode, so this listener is disabled
   useEffect(() => {
-    if (theme !== "system") return;
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      const root = window.document.documentElement;
-      root.classList.remove("light", "dark");
-      const newTheme = e.matches ? "dark" : "light";
-      root.classList.add(newTheme);
-      setResolvedTheme(newTheme);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
+    // Disabled: Always use dark mode regardless of system preference
+    // if (theme !== "system") return;
+    // 
+    // const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    // 
+    // const handleChange = (e: MediaQueryListEvent) => {
+    //   const root = window.document.documentElement;
+    //   root.classList.remove("light", "dark");
+    //   const newTheme = e.matches ? "dark" : "light";
+    //   root.classList.add(newTheme);
+    //   setResolvedTheme(newTheme);
+    // };
+    // 
+    // mediaQuery.addEventListener("change", handleChange);
+    // return () => mediaQuery.removeEventListener("change", handleChange);
   }, [theme]);
 
   const value = {
