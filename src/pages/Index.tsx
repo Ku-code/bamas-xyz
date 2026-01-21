@@ -107,14 +107,22 @@ const Index = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.3 }}
-                  className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight leading-tight select-none"
+                  className={`font-black select-none ${
+                    language === 'bg' 
+                      ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-normal leading-[1.15] text-center px-2 sm:px-4 md:px-6 max-w-full' 
+                      : 'text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight leading-tight'
+                  }`}
                   style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                 >
-                  <span className="block relative">
-                    <span className="bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black relative z-10">
+                  <span className={`block relative ${language === 'bg' ? 'text-center' : ''}`}>
+                    <span className={`bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black relative z-10 ${
+                      language === 'bg' ? 'inline-block break-words' : ''
+                    }`}>
                       {t("hero.title")}
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black blur-2xl opacity-50 scale-105" 
+                    <div className={`absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black blur-2xl opacity-50 scale-105 ${
+                      language === 'bg' ? 'text-center' : ''
+                    }`}
                          style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {t("hero.title")}
                     </div>
@@ -122,7 +130,9 @@ const Index = () => {
                       initial={{ width: 0 }}
                       animate={{ width: "100%" }}
                       transition={{ duration: 1.5, delay: 1.2, ease: "easeOut" }}
-                      className="absolute -bottom-6 left-0 h-3 bg-gradient-to-r from-primary via-primary/80 to-transparent rounded-full shadow-lg shadow-primary/50"
+                      className={`absolute -bottom-4 sm:-bottom-6 h-2 sm:h-3 bg-gradient-to-r from-primary via-primary/80 to-transparent rounded-full shadow-lg shadow-primary/50 ${
+                        language === 'bg' ? 'left-1/2 -translate-x-1/2 w-3/4 sm:w-2/3 md:w-1/2' : 'left-0'
+                      }`}
                     />
                   </span>
                 </motion.h1>
