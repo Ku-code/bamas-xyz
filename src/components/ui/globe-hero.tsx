@@ -29,12 +29,12 @@ const Globe: React.FC<{
     const updateColor = () => {
       if (materialRef.current) {
         const isDark = document.documentElement.classList.contains('dark');
-        // White color for dark mode, red color for light mode
+        // Bright white for dark mode, vibrant primary color for light mode
         if (isDark) {
-          materialRef.current.color.setStyle('#FFFFFF'); // White color
+          materialRef.current.color.setStyle('#FFFFFF'); // Bright white for visibility
         } else {
-          // Red color - using a vibrant red that's visible on light backgrounds
-          materialRef.current.color.setStyle('#E62F29'); // Red color
+          // Primary green color for light mode
+          materialRef.current.color.setStyle('#0C9D6A'); // Primary green
         }
       }
     };
@@ -66,7 +66,7 @@ const Globe: React.FC<{
         <meshBasicMaterial
           ref={materialRef}
           transparent
-          opacity={0.15}
+          opacity={0.5}
           wireframe
         />
       </mesh>
@@ -99,7 +99,7 @@ const DotGlobeHero = React.forwardRef<
         {children}
       </div>
       
-      <div className="absolute inset-0 z-0 pointer-events-none">
+      <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas
           dpr={[1, 1.5]}
           performance={{ min: 0.5 }}
@@ -113,10 +113,12 @@ const DotGlobeHero = React.forwardRef<
             failIfMajorPerformanceCaveat: false
           }}
           frameloop="always"
+          style={{ width: '100%', height: '100%' }}
         >
           <PerspectiveCamera makeDefault position={[0, 0, typeof window !== 'undefined' && window.innerWidth < 768 ? 3.5 : 3]} fov={typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 75} />
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} intensity={1} />
+          <ambientLight intensity={0.8} />
+          <pointLight position={[10, 10, 10]} intensity={1.2} />
+          <pointLight position={[-10, -10, -10]} intensity={0.8} />
           
           <Globe
             rotationSpeed={rotationSpeed}
