@@ -83,7 +83,7 @@ const Index = () => {
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
             <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
             
-            <div className="relative z-[10] text-center space-y-8 md:space-y-12 max-w-5xl mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-16">
+            <div className="absolute inset-0 z-[10] flex flex-col items-center justify-center text-center space-y-8 md:space-y-12 max-w-5xl mx-auto px-4 md:px-6 w-full h-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

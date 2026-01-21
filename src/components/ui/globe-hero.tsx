@@ -95,7 +95,7 @@ const DotGlobeHero = React.forwardRef<
       )}
       {...props}
     >
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
+      <div className="absolute inset-0 z-[10] flex flex-col items-center justify-center h-full w-full px-4">
         {children}
       </div>
       
