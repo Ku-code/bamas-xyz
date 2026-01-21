@@ -108,8 +108,11 @@ const DotGlobeHero = React.forwardRef<
             alpha: true,
             powerPreference: "high-performance",
             stencil: false,
-            depth: false
+            depth: false,
+            preserveDrawingBuffer: false,
+            failIfMajorPerformanceCaveat: false
           }}
+          frameloop="always"
         >
           <PerspectiveCamera makeDefault position={[0, 0, typeof window !== 'undefined' && window.innerWidth < 768 ? 3.5 : 3]} fov={typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 75} />
           <ambientLight intensity={0.5} />

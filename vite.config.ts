@@ -94,7 +94,10 @@ export default defineConfig(({ mode }) => ({
       'react', 
       'react-dom', 
       'react-router-dom', 
-      'recharts'
+      'recharts',
+      'three',
+      '@react-three/fiber',
+      '@react-three/drei'
     ],
     // Force Recharts to be pre-bundled to avoid initialization order issues
     esbuildOptions: {
