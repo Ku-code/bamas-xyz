@@ -572,3 +572,5 @@ Calendar – Meetings ↔ Strategic Calendar:
 - Detail dialog: For source==='meeting', show "View in Meetings" → /dashboard?meeting=id.
   Edit/Delete only for strategic_events (hidden for meetings).
 - getEventTypeColor and getEventsForDay support the combined CalendarEvent type.
+
+Build: npm run build SUCCESS ✓. Git push origin main SUCCESS ✓ (7b92020).
