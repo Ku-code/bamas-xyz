@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
 import PendingApproval from "@/components/dashboard/PendingApproval";
 import AccountStatus from "@/components/dashboard/AccountStatus";
 import {
@@ -86,6 +87,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeItem, setActiveItem] = useState<MenuItem>("history");
+
+  // Silently refresh session every 10 min to prevent ghost logouts
+  useSessionHeartbeat();
 
   // Check if we should show meeting detail view
   useEffect(() => {

@@ -57,6 +57,8 @@ const BADGE_STYLES = [
   { value: 'premium', label: 'Premium', description: 'Enhanced design with effects' },
 ];
 
+const BAMAS_LOGO_URL = 'https://bamas.xyz/logos/g2.PNG';
+
 const MEMBER_TYPES = [
   { value: 'member', label: 'Member', icon: Shield, color: '#3B82F6' },
   { value: 'certified', label: 'Certified Member', icon: Award, color: '#10B981' },
@@ -103,7 +105,8 @@ const EmbedBadge = () => {
     if (config.style === 'minimal') {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${bgColor}" rx="4"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="${textColor}" font-family="system-ui, sans-serif" font-size="11" font-weight="500">
+  <image href="${BAMAS_LOGO_URL}" x="4" y="2" width="20" height="20" preserveAspectRatio="xMidYMid meet"/>
+  <text x="30" y="50%" dominant-baseline="middle" fill="${textColor}" font-family="system-ui, sans-serif" font-size="11" font-weight="500">
     ${config.customText || `${memberLabel} ${config.showYear ? year : ''}`}
   </text>
 </svg>`;
@@ -119,8 +122,7 @@ const EmbedBadge = () => {
   </defs>
   <rect width="100%" height="100%" fill="${bgColor}" rx="6" stroke="${borderColor}" stroke-width="1.5"/>
   <rect x="0" y="0" width="36" height="100%" fill="url(#grad)" rx="6"/>
-  <circle cx="18" cy="18" r="10" fill="${borderColor}" fill-opacity="0.2"/>
-  <text x="16" y="22" fill="${borderColor}" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">B</text>
+  <image href="${BAMAS_LOGO_URL}" x="4" y="4" width="28" height="28" preserveAspectRatio="xMidYMid meet"/>
   <text x="42" y="14" fill="${textColor}" font-family="system-ui, sans-serif" font-size="10" font-weight="600">BAMAS</text>
   <text x="42" y="26" fill="${textColor}" font-family="system-ui, sans-serif" font-size="8" opacity="0.7">${memberLabel}</text>
 </svg>`;
@@ -139,8 +141,7 @@ const EmbedBadge = () => {
     </filter>
   </defs>
   <rect width="100%" height="100%" fill="url(#premiumGrad)" rx="10" filter="url(#shadow)" stroke="${borderColor}" stroke-width="2"/>
-  <circle cx="24" cy="24" r="14" fill="${borderColor}" fill-opacity="0.15"/>
-  <text x="20" y="30" fill="${borderColor}" font-family="system-ui, sans-serif" font-size="16" font-weight="bold">B</text>
+  <image href="${BAMAS_LOGO_URL}" x="6" y="6" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>
   <text x="50" y="18" fill="${textColor}" font-family="system-ui, sans-serif" font-size="12" font-weight="700">BAMAS</text>
   <text x="50" y="32" fill="${borderColor}" font-family="system-ui, sans-serif" font-size="9" font-weight="600">${memberLabel}</text>
   ${config.showYear ? `<text x="${width - 8}" y="42" text-anchor="end" fill="${textColor}" font-family="system-ui, sans-serif" font-size="8" opacity="0.5">${year}</text>` : ''}
@@ -150,8 +151,7 @@ const EmbedBadge = () => {
     // Standard style
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <rect width="100%" height="100%" fill="${bgColor}" rx="8" stroke="${borderColor}" stroke-width="2"/>
-  <circle cx="24" cy="24" r="12" fill="${borderColor}" fill-opacity="0.15"/>
-  <text x="20" y="29" fill="${borderColor}" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">B</text>
+  <image href="${BAMAS_LOGO_URL}" x="8" y="8" width="32" height="32" preserveAspectRatio="xMidYMid meet"/>
   <text x="48" y="20" fill="${textColor}" font-family="system-ui, sans-serif" font-size="11" font-weight="600">BAMAS</text>
   <text x="48" y="34" fill="${textColor}" font-family="system-ui, sans-serif" font-size="9" opacity="0.7">${memberLabel}</text>
   ${config.showYear ? `<text x="${width - 8}" y="42" text-anchor="end" fill="${textColor}" font-family="system-ui, sans-serif" font-size="8" opacity="0.5">${year}</text>` : ''}

@@ -1,36 +1,26 @@
-# 🤖 Project: BAMAS Production Stabilization
-> **Status:** 🔴 CRITICAL REPAIR | **Agent:** Ralph Wiggum | **Priority:** P0
+# 🤖 Project: BAMAS Robustness & Feature Polish
+> **Status:** 🛠️ Stabilization | **Agent:** Ralph Wiggum | **Priority:** Critical
 
-## 🔴 Phase 1: Authentication & Session Robustness
-- [ ] **Fix Middleware Session Refresh:**
-    - [ ] Update `src/middleware.ts` to use `supabase.auth.getUser()` (NOT `getSession`) to verify session validity on every request.
-    - [ ] Ensure the middleware correctly updates cookies to prevent "sudden logout" loops.
-- [ ] **Auth State Sync:**
-    - [ ] Audit the `AuthProvider` or root layout to ensure `onAuthStateChange` correctly handles session expiration without kicking the user to the hero section.
+## 🔴 Phase 1: Authentication "Ironclad" Stability
+- [x] **Fix Ghost Logouts:**
+    - [ ] Refactor `src/middleware.ts`: N/A (Vite SPA, no middleware). Auth uses AuthContext + getUser().
+    - [x] useSessionHeartbeat in Dashboard: refreshSession() every 10 min to extend session.
+- [x] **Auth Navigation Guard:** onAuthStateChange only clears user on SIGNED_OUT (from prior stabilization).
 
-## 🔵 Phase 2: Theme & Visual Performance
-- [ ] **Force Dark Mode Default:**
-    - [ ] Update `ThemeProvider` in `layout.tsx` to `defaultTheme="dark"` and `enableSystem={false}`.
-    - [ ] Add `color-scheme: dark` to the global CSS to prevent the white flash during SSR.
-- [ ] **Instant Globe Initialization:**
-    - [ ] Optimize `Hero.tsx`: Use `dynamic()` with `ssr: false` for the Globe component.
-    - [ ] Implement a lightweight SVG or CSS placeholder so the hero section has a "shape" before the 3D globe renders.
-- [ ] **Partner Logo Visibility:**
-    - [ ] Update the Logo Carousel: Apply `dark:invert-0 invert` or `brightness-0 dark:brightness-100` filters to ensure logos are visible in both themes.
+## 🔵 Phase 2: Strategic Calendar & Synchronization
+- [x] **Calendar Logic:** StrategicCalendar loads `strategic_events` + `meetings` (loadMeetings). Meetings appear as calendar markers. "View in Meetings" for meeting items.
+- [ ] **Event UI:** Color-coded categories already (Conference, Workshop, Meeting, etc.).
 
-## 🟡 Phase 3: UI/UX Continuity
-- [ ] **Dashboard Persistence:**
-    - [ ] Verify that navigating between dashboard items doesn't trigger unnecessary re-renders or auth checks.
-- [ ] **Responsive Audit:**
-    - [ ] Fix Globe scaling on mobile (ensure it doesn't overlap text).
+## 🟡 Phase 3: BAMAS Embed Dashboard (Badge Pro)
+- [x] **Badge Redesign:** All styles use `https://bamas.xyz/logos/g2.PNG`. HTML/Markdown wraps in `<a href="https://bamas.xyz">`.
+- [ ] **Snippet Generator:** HTML embed works in WordPress, Wix, custom HTML.
 
-## 🟢 Phase 4: Final Verification & Deploy
-- [ ] **Production Readiness:**
-    - [ ] Run `npm run build` to confirm no hydration or environment variable errors.
-- [ ] **Git Deployment:**
+## 🟢 Phase 4: Final Integrity Audit
+- [ ] **Zero-Break Policy:** Run `npm run typecheck` to ensure no existing dashboard features were touched by the auth refactor.
+- [ ] **Production Deployment:**
     - [ ] `git add .`
-    - [ ] `git commit -m "fix: production stabilization - auth loops, dark mode default, and hero optimization"`
+    - [ ] `git commit -m "fix: ironclad auth stability and enhanced strategic tools"`
     - [ ] `git push origin main`
 
 ## 🪵 Progress Log
-- [x] 2026-01-26: BAMAS Stabilization Protocol executed. Auth: getUser() + onAuthStateChange(SIGNED_OUT-only clear). Theme: dark default, anti-flash in index.html + index.css. Globe: CSS placeholder, mobile segments. Partner carousel: dark:invert on logos, scrollbar-hide in index.css. Build: run to verify.
+- [x] 2026-01-26: Auth useSessionHeartbeat; Embed BAMAS logo + link; Calendar sync Meetings→Strategic. Build ✓. Pushing.

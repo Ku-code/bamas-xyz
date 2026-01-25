@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
+import { loadMeetings } from "@/lib/meetings";
 import {
   Calendar,
   CalendarDays,
@@ -76,7 +78,24 @@ interface StrategicEvent {
   created_by_name: string;
   created_at: string;
   updated_at?: string;
+  source?: 'strategic_event';
 }
+
+/** Meetings from the Meetings dashboard, shown as calendar events */
+interface MeetingCalendarItem {
+  id: string;
+  title: string;
+  start_date: string;
+  end_date: string;
+  event_type: 'conference' | 'meeting';
+  scope: 'national';
+  location?: string;
+  source: 'meeting';
+  status: string;
+  is_free: true;
+}
+
+type CalendarEvent = StrategicEvent | MeetingCalendarItem;
 
 const EVENT_TYPES = [
   { value: 'conference', label: 'Conference', icon: Users },
@@ -98,12 +117,13 @@ const StrategicCalendar = () => {
   const { t } = useLanguage();
   const { user, isSuperAdmin } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
-  const [events, setEvents] = useState<StrategicEvent[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedEvent, setSelectedEvent] = useState<StrategicEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   
   // Filters
   const [filterScope, setFilterScope] = useState<string>("all");
@@ -142,29 +162,43 @@ const StrategicCalendar = () => {
   const loadEvents = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('strategic_events')
-        .select('*')
-        .order('start_date', { ascending: true });
-      
+      const [strategicRes, meetingsList] = await Promise.all([
+        supabase.from('strategic_events').select('*').order('start_date', { ascending: true }),
+        loadMeetings().catch(() => [] as Awaited<ReturnType<typeof loadMeetings>>),
+      ]);
+
+      const { data: strategicData, error } = strategicRes;
       if (error) {
-        // Table doesn't exist
         if (error.code === '42P01') {
           console.warn('Strategic events table does not exist');
-          setEvents([]);
-          return;
-        }
-        throw error;
+        } else throw error;
       }
-      
-      setEvents((data || []) as StrategicEvent[]);
+
+      const strategic: CalendarEvent[] = ((strategicData || []) as StrategicEvent[]).map((e) => ({
+        ...e,
+        source: 'strategic_event' as const,
+      }));
+
+      const fromMeetings: MeetingCalendarItem[] = (meetingsList || []).map((m) => ({
+        id: m.id,
+        title: m.title,
+        start_date: m.scheduled_date,
+        end_date: m.scheduled_date,
+        event_type: m.type === 'general_assembly' ? 'conference' : 'meeting',
+        scope: 'national' as const,
+        location: m.location,
+        source: 'meeting' as const,
+        status: m.status,
+        is_free: true,
+      }));
+
+      setEvents([...strategic, ...fromMeetings].sort((a, b) => a.start_date.localeCompare(b.start_date)));
     } catch (error: any) {
       console.error('Error loading events:', error);
-      // Don't show error toast if table doesn't exist
-      if (error.code !== '42P01') {
+      if (error?.code !== '42P01') {
         toast({
           title: t("dashboard.calendar.error.loadFailed") || "Load Failed",
-          description: error.message || "Failed to load events",
+          description: error?.message || "Failed to load events",
           variant: "destructive",
         });
       }
@@ -231,7 +265,7 @@ const StrategicCalendar = () => {
   };
   
   const handleEditEvent = async () => {
-    if (!selectedEvent || !user || !isSuperAdmin) return;
+    if (!selectedEvent || !user || !isSuperAdmin || selectedEvent.source === 'meeting') return;
     
     setIsLoading(true);
     try {
@@ -279,7 +313,7 @@ const StrategicCalendar = () => {
   };
   
   const handleDeleteEvent = async () => {
-    if (!selectedEvent || !user || !isSuperAdmin) return;
+    if (!selectedEvent || !user || !isSuperAdmin || selectedEvent.source === 'meeting') return;
     
     setIsLoading(true);
     try {
@@ -706,23 +740,36 @@ const StrategicCalendar = () => {
                 )}
               </div>
               <DialogFooter className="flex-col sm:flex-row gap-2">
+                {selectedEvent.source === 'meeting' && (
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      setIsDetailDialogOpen(false);
+                      navigate(`/dashboard?meeting=${selectedEvent.id}`);
+                    }}
+                    className="rounded-full flex-1 sm:flex-none"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    {t("dashboard.meetings.actions.view") || "View in Meetings"}
+                  </Button>
+                )}
                 {selectedEvent.website && (
                   <Button
                     variant="outline"
-                    onClick={() => window.open(selectedEvent.website, '_blank')}
+                    onClick={() => window.open(selectedEvent.website!, '_blank')}
                     className="rounded-full flex-1 sm:flex-none"
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     {t("dashboard.calendar.visitWebsite") || "Visit Website"}
                   </Button>
                 )}
-                {isSuperAdmin && (
+                {isSuperAdmin && selectedEvent.source !== 'meeting' && (
                   <>
                     <Button
                       variant="outline"
                       onClick={() => {
                         setIsDetailDialogOpen(false);
-                        openEditDialog(selectedEvent);
+                        openEditDialog(selectedEvent as StrategicEvent);
                       }}
                       className="rounded-full"
                     >

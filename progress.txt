@@ -544,3 +544,31 @@ Phase 3: Hero Globe & Partner Logos ✓
 - Moved .scrollbar-hide from styled-jsx to index.css (Vite-compatible).
 
 Build: npm run build SUCCESS ✓. Git push origin main SUCCESS ✓ (7826781).
+
+2026-01-26 - BAMAS Robustness & Polish (Auth, Embed, Calendar Sync)
+===================================================================
+
+Auth – "Ironclad" stability to prevent ghost logouts:
+- useSessionHeartbeat (src/hooks/useSessionHeartbeat.ts): Calls supabase.auth.refreshSession()
+  every 10 minutes. Used in Dashboard. Extends session while the user is active.
+- AuthContext: Already uses getUser() for initial check and only clears user on SIGNED_OUT
+  (from previous stabilization). No middleware (Vite SPA); session refreshed via
+  Supabase autoRefreshToken + heartbeat.
+- Logic: refreshSession() updates the JWT in localStorage; if the refresh token is
+  invalid/expired, Supabase will emit SIGNED_OUT and we clear user. While the user
+  is in the dashboard, the heartbeat keeps the session alive.
+
+Embed – BAMAS logo and clickable link:
+- BAMAS_LOGO_URL = 'https://bamas.xyz/logos/g2.PNG'. Replaced placeholder "B" / circle
+  in all badge styles (minimal, compact, standard, premium) with <image href="..."/>.
+- HTML and Markdown embed codes already wrap the badge in <a href="https://bamas.xyz"
+  target="_blank" rel="noopener noreferrer">. Every badge is clickable to bamas.xyz.
+
+Calendar – Meetings ↔ Strategic Calendar:
+- StrategicCalendar loads both strategic_events and meetings (loadMeetings). Merges
+  into a single list. Meetings are mapped: start_date/end_date = scheduled_date,
+  event_type = conference (general_assembly) or meeting (board_meeting), scope =
+  national, source = 'meeting'.
+- Detail dialog: For source==='meeting', show "View in Meetings" → /dashboard?meeting=id.
+  Edit/Delete only for strategic_events (hidden for meetings).
+- getEventTypeColor and getEventsForDay support the combined CalendarEvent type.
