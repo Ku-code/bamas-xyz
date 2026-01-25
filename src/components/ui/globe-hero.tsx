@@ -99,6 +99,13 @@ const DotGlobeHero = React.forwardRef<
         {children}
       </div>
       
+      {/* Lightweight CSS placeholder: visible before 3D Canvas paints, prevents layout shift */}
+      <div
+        className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
+        aria-hidden
+      >
+        <div className="w-48 h-48 md:w-80 md:h-80 rounded-full border-2 border-dashed border-primary/20 bg-primary/5" />
+      </div>
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas
           dpr={[1, 1.5]}

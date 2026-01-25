@@ -33,4 +33,4 @@
     - [ ] `git push origin main`
 
 ## 🪵 Progress Log
-- [ ] Waiting for Ralph to initialize...
+- [x] 2026-01-26: BAMAS Stabilization Protocol executed. Auth: getUser() + onAuthStateChange(SIGNED_OUT-only clear). Theme: dark default, anti-flash in index.html + index.css. Globe: CSS placeholder, mobile segments. Partner carousel: dark:invert on logos, scrollbar-hide in index.css. Build: run to verify.

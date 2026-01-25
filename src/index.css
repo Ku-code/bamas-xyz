@@ -87,6 +87,10 @@
   }
   html {
     @apply scroll-smooth;
+    color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
   }
   body {
     @apply bg-background text-foreground;
@@ -109,6 +113,15 @@
     --foreground: 198 78% 14%;
   }
   
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 .animate-on-scroll {

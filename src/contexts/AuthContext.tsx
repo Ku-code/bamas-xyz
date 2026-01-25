@@ -117,38 +117,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setIsLoading(false);
       }, 10000);
 
-      // Get initial session
-      supabase.auth.getSession()
-      .then(({ data: { session }, error }) => {
+      // Use getUser() to validate session server-side and refresh token if needed.
+      // getSession() can return stale cached data; getUser() forces a check and prevents
+      // "sudden logout" when the JWT is expired but refresh token is still valid.
+      supabase.auth.getUser()
+      .then(({ data: { user: authUser }, error }) => {
         clearTimeout(sessionTimeout);
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('Error getting user (session):', error);
           setIsLoading(false);
           return;
         }
-        if (session) {
-          loadUserFromDatabase(session.user.id);
+        if (authUser) {
+          loadUserFromDatabase(authUser.id);
         } else {
           setIsLoading(false);
         }
       })
       .catch((error) => {
         clearTimeout(sessionTimeout);
-        console.error('Failed to get session:', error);
+        console.error('Failed to get user (session):', error);
         setIsLoading(false);
       });
     });
 
-    // Listen for auth changes
+    // Listen for auth changes. Only clear user on explicit SIGNED_OUT to prevent
+    // "Hero section kicks" during TOKEN_REFRESHED or other transient null sessions.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        await loadUserFromDatabase(session.user.id);
-      } else {
+      if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsLoading(false);
+        return;
       }
+      if (session) {
+        await loadUserFromDatabase(session.user.id);
+      }
+      // Do NOT setUser(null) when session is null but event is not SIGNED_OUT
+      // (e.g. during TOKEN_REFRESHED or INITIAL_SESSION) to avoid false logouts.
     });
 
     return () => {

@@ -514,3 +514,33 @@ SUMMARY OF BAMAS STRATEGIC EXPANSION:
 11. ✓ BAMAS Badge Generator (SVG, embed codes)
 12. ✓ Budget Dashboard (bank accounts, transactions)
 13. ✓ Event Calendar Integration (ICS, Google, Outlook)
+
+2026-01-26 - BAMAS Stabilization Protocol (RALPH_TASK.md)
+==========================================================
+
+Phase 1: Authentication & Session Robustness ✓
+- Replaced getSession() with getUser() in AuthContext for initial session check.
+  getUser() validates with server and refreshes token if JWT expired but refresh
+  token valid; prevents "sudden logout" from stale cached session.
+- onAuthStateChange: Only setUser(null) on event === 'SIGNED_OUT'. Do NOT clear
+  user when session is null during TOKEN_REFRESHED or other transient events;
+  prevents "Hero section kicks" during token refresh.
+- Note: src/middleware.ts does not exist (Vite SPA). Auth is client-side via
+  AuthContext + ProtectedRoute. Supabase: persistSession true, autoRefreshToken true.
+
+Phase 2: Theme & Visual Performance ✓
+- index.html: html { color-scheme: dark; background-color: #0f172a; },
+  html.light { background-color: #fff; }, body { background-color: inherit; }
+  to prevent white flash before React/CSS load.
+- index.css: html { color-scheme: dark; }, html.light { color-scheme: light; }
+- ThemeProvider already defaultTheme="dark", forces dark for "system".
+
+Phase 3: Hero Globe & Partner Logos ✓
+- globe-hero: Added CSS placeholder (dashed circle, primary/20, primary/5) at z-0
+  so hero has a "shape" before 3D Canvas paints. Mobile already uses segments 24
+  (desktop 64), scaledRadius 0.7x.
+- PartnerLogosCarousel: dark:invert on non–white-background logo images so dark
+  logos stay visible in dark theme. White-background (IndustryInfo) unchanged.
+- Moved .scrollbar-hide from styled-jsx to index.css (Vite-compatible).
+
+Build: npm run build SUCCESS ✓. Git push after commit.

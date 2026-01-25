@@ -178,7 +178,7 @@ const PartnerLogosCarousel = () => {
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
+            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity dark:invert"
             loading="lazy"
             decoding="async"
             onError={(e) => {
@@ -223,10 +223,6 @@ const PartnerLogosCarousel = () => {
         <div
           ref={scrollContainerRef}
           className="flex gap-12 overflow-x-auto scrollbar-hide px-16 py-8"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
           onMouseEnter={() => setIsAutoScrolling(false)}
           onMouseLeave={() => setIsAutoScrolling(true)}
         >
@@ -235,13 +231,6 @@ const PartnerLogosCarousel = () => {
           )}
         </div>
       </div>
-
-      {/* Hide scrollbar */}
-      <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
     </div>
   );
 };
