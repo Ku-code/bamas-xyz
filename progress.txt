@@ -543,4 +543,4 @@ Phase 3: Hero Globe & Partner Logos ✓
   logos stay visible in dark theme. White-background (IndustryInfo) unchanged.
 - Moved .scrollbar-hide from styled-jsx to index.css (Vite-compatible).
 
-Build: npm run build SUCCESS ✓. Git push after commit.
+Build: npm run build SUCCESS ✓. Git push origin main SUCCESS ✓ (7826781).
