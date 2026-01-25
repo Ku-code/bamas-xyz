@@ -1,39 +1,36 @@
-# 🛠️ Operation: Production Polish & Stability
-> **Agent Mode:** Ralph Wiggum (Autonomous) | **Priority:** Critical
-> **Goal:** Fix Auth Loops, Localize UI, and Finalize Embed Tools.
+# 🤖 Project: BAMAS Production Stabilization
+> **Status:** 🔴 CRITICAL REPAIR | **Agent:** Ralph Wiggum | **Priority:** P0
 
-## 🔴 Phase 1: Authentication & Theme Stability (Critical)
-- [ ] **Fix Persistent Logout Bug:**
-    - [ ] Audit `src/middleware.ts`. Ensure the session check doesn't trigger a redirect to `/` if the user is already authenticated but the locale is switching.
-    - [ ] Ensure `Supabase` session persistence is configured for `localStorage` or `cookies` correctly to prevent "Hero Section" kicks.
-- [ ] **Dark Mode Default Enforcement:**
-    - [ ] Force `dark` theme as the primary default in `src/app/layout.tsx` or your `ThemeProvider`.
-    - [ ] Ensure the first-load logic checks for a saved theme; if none exists, set `theme = 'dark'`.
-    - [ ] Prevent "Flash of Light Mode" on initial load.
+## 🔴 Phase 1: Authentication & Session Robustness
+- [ ] **Fix Middleware Session Refresh:**
+    - [ ] Update `src/middleware.ts` to use `supabase.auth.getUser()` (NOT `getSession`) to verify session validity on every request.
+    - [ ] Ensure the middleware correctly updates cookies to prevent "sudden logout" loops.
+- [ ] **Auth State Sync:**
+    - [ ] Audit the `AuthProvider` or root layout to ensure `onAuthStateChange` correctly handles session expiration without kicking the user to the hero section.
 
-## 🔵 Phase 2: Translation & Content Localization
-- [ ] **Human-Readable Dictionary Update:**
-    - [ ] Scan all components for keys like `dashboard.menu.item`. 
-    - [ ] Update `public/locales/en.json` and `public/locales/bg.json` with actual strings (e.g., "EU Funds Radar" / "Радар за финансиране от ЕС").
-    - [ ] **Strict Rule:** No raw translation keys should be visible in the UI. Every title, subtitle, and description must be in prose.
-- [ ] **Accurate Terminology:** Use the `terminology_terms` table to verify technical additive manufacturing terms in Bulgarian.
+## 🔵 Phase 2: Theme & Visual Performance
+- [ ] **Force Dark Mode Default:**
+    - [ ] Update `ThemeProvider` in `layout.tsx` to `defaultTheme="dark"` and `enableSystem={false}`.
+    - [ ] Add `color-scheme: dark` to the global CSS to prevent the white flash during SSR.
+- [ ] **Instant Globe Initialization:**
+    - [ ] Optimize `Hero.tsx`: Use `dynamic()` with `ssr: false` for the Globe component.
+    - [ ] Implement a lightweight SVG or CSS placeholder so the hero section has a "shape" before the 3D globe renders.
+- [ ] **Partner Logo Visibility:**
+    - [ ] Update the Logo Carousel: Apply `dark:invert-0 invert` or `brightness-0 dark:brightness-100` filters to ensure logos are visible in both themes.
 
-## 🟡 Phase 3: Badge Embed Tool & EU Radar Enhancements
-- [ ] **BAMAS Badge Upgrade:**
-    - [ ] Replace placeholder icons with `public/logos/g2.png` or `public/logos/g3 2.png`.
-    - [ ] **Functional Linking:** Wrap the generated badge code in an `<a>` tag pointing to `https://bamas.xyz/`.
-    - [ ] Ensure the "Copy Snippet" includes the `target="_blank"` attribute.
-- [ ] **EU Radar Contact Fix:**
-    - [ ] Locate the button "Свържете се с БАЗАП".
-    - [ ] Update its action to: `window.location.href = "mailto:info@bamas.xyz"`.
+## 🟡 Phase 3: UI/UX Continuity
+- [ ] **Dashboard Persistence:**
+    - [ ] Verify that navigating between dashboard items doesn't trigger unnecessary re-renders or auth checks.
+- [ ] **Responsive Audit:**
+    - [ ] Fix Globe scaling on mobile (ensure it doesn't overlap text).
 
-## 🟢 Phase 4: UI/UX Audit & Clean Code
-- [ ] **Visual Consistency Check:**
-    - [ ] Ensure all dashboard items have consistent padding, border-radius (rounded-xl), and backdrop-blurs.
-    - [ ] Remove any "debug" console logs left over from previous builds.
-- [ ] **Stability Test:**
-    - [ ] Run `npm run build` to ensure no "Type Errors" or "MIME type" issues remain.
-    - [ ] Manually test the login flow 5 times to confirm no random logouts occur.
+## 🟢 Phase 4: Final Verification & Deploy
+- [ ] **Production Readiness:**
+    - [ ] Run `npm run build` to confirm no hydration or environment variable errors.
+- [ ] **Git Deployment:**
+    - [ ] `git add .`
+    - [ ] `git commit -m "fix: production stabilization - auth loops, dark mode default, and hero optimization"`
+    - [ ] `git push origin main`
 
 ## 🪵 Progress Log
 - [ ] Waiting for Ralph to initialize...
