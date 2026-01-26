@@ -7,6 +7,7 @@ interface Partner {
   name: string;
   url: string;
   hasWhiteBackground?: boolean;
+  subtext?: string;
 }
 
 // Partner logos with their website URLs
@@ -21,6 +22,7 @@ const PARTNERS: Partner[] = [
     name: "IndustryInfo",
     url: "https://industryinfo.bg/",
     hasWhiteBackground: true,
+    subtext: "Media Partner",
   },
   {
     logo: "/partnerlogos/8cell_logo.png",
@@ -161,17 +163,22 @@ const PartnerLogosCarousel = () => {
       className="flex-shrink-0 flex items-center justify-center h-52 w-96 hover:opacity-80 transition-opacity duration-300 group cursor-pointer"
     >
       {partner.hasWhiteBackground ? (
-        <div className="h-40 w-96 flex items-center justify-center bg-white rounded-lg p-4 shadow-sm">
+        <div className="h-40 w-96 flex flex-col items-center justify-center bg-white rounded-lg p-4 shadow-sm">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-32 max-w-full"
+            className="h-auto w-auto object-contain max-h-28 max-w-full"
             loading="lazy"
             decoding="async"
             onError={(e) => {
               console.error(`Failed to load logo: ${partner.logo}`);
             }}
           />
+          {partner.subtext && (
+            <p className="text-xs font-semibold text-gray-700 mt-2 text-center">
+              {partner.subtext}
+            </p>
+          )}
         </div>
       ) : (
         <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6">
