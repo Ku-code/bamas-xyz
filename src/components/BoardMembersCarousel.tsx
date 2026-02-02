@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { motion } from "framer-motion";
 
 interface BoardMember {
     nameBg: string;
@@ -82,44 +83,12 @@ const BOARD_MEMBERS: BoardMember[] = [
     },
 ];
 
-// Triplicate for seamless infinite loop
-const INFINITE_MEMBERS = [...BOARD_MEMBERS, ...BOARD_MEMBERS, ...BOARD_MEMBERS];
-
 const BoardMembersCarousel = () => {
     const { language } = useLanguage();
-    const containerRef = useRef<HTMLDivElement>(null);
     const [isPaused, setIsPaused] = useState(false);
-    const animationRef = useRef<number | null>(null);
 
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const singleSetHeight = BOARD_MEMBERS.length * 240;
-
-        const animate = () => {
-            if (!container || isPaused) {
-                animationRef.current = requestAnimationFrame(animate);
-                return;
-            }
-
-            container.scrollTop += 1;
-
-            if (container.scrollTop >= singleSetHeight) {
-                container.scrollTop = container.scrollTop - singleSetHeight;
-            }
-
-            animationRef.current = requestAnimationFrame(animate);
-        };
-
-        animationRef.current = requestAnimationFrame(animate);
-
-        return () => {
-            if (animationRef.current) {
-                cancelAnimationFrame(animationRef.current);
-            }
-        };
-    }, [isPaused]);
+    // Double the array for seamless transition
+    const duplicatedMembers = [...BOARD_MEMBERS, ...BOARD_MEMBERS];
 
     const renderMemberCard = (member: BoardMember, index: number) => {
         const name = language === "bg" ? member.nameBg : member.nameEn;
@@ -128,12 +97,12 @@ const BoardMembersCarousel = () => {
         return (
             <div
                 key={`${member.nameEn}-${index}`}
-                className="flex-shrink-0 w-full p-4"
+                className="w-full p-4 h-[240px] flex-shrink-0"
             >
-                <div className="relative overflow-hidden rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] bg-gradient-to-br from-primary/15 via-primary/10 to-background border-2 border-primary/30 hover:border-primary/50">
-                    <div className="flex items-center p-6 gap-6">
+                <div className="relative h-full overflow-hidden rounded-2xl shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] bg-gradient-to-br from-primary/15 via-primary/10 to-background border-2 border-primary/30 hover:border-primary/50">
+                    <div className="flex items-center p-6 gap-6 h-full">
                         {/* Member Image */}
-                        <div className="relative flex-shrink-0 w-36 h-36 md:w-44 md:h-44">
+                        <div className="relative flex-shrink-0 w-32 h-32 md:w-40 md:h-40">
                             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary via-primary/70 to-primary/40 p-1 shadow-lg">
                                 <div className="w-full h-full rounded-full overflow-hidden bg-background">
                                     {member.image ? (
@@ -156,10 +125,10 @@ const BoardMembersCarousel = () => {
 
                         {/* Member Info */}
                         <div className="flex-grow">
-                            <div className="inline-block px-4 py-1.5 rounded-full mb-3 bg-primary/20 border border-primary/30">
+                            <div className="inline-block px-4 py-1 rounded-full mb-3 bg-primary/20 border border-primary/30">
                                 <span className="text-sm font-semibold text-primary uppercase tracking-wide">{role}</span>
                             </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+                            <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-tight">
                                 {name}
                             </h3>
                         </div>
@@ -170,23 +139,35 @@ const BoardMembersCarousel = () => {
     };
 
     return (
-        <div className="relative w-full max-w-3xl mx-auto">
+        <div className="relative w-full max-w-3xl mx-auto overflow-hidden">
             {/* Gradient overlays for smooth fade effect */}
-            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-muted/30 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-muted/30 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background via-background/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent z-10 pointer-events-none" />
 
-            {/* Scrolling container */}
+            {/* Scrolling container using Framer Motion */}
             <div
-                ref={containerRef}
-                className="h-[550px] md:h-[650px] overflow-hidden"
+                className="h-[600px] overflow-hidden cursor-pointer"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
                 onTouchStart={() => setIsPaused(true)}
                 onTouchEnd={() => setIsPaused(false)}
             >
-                <div className="flex flex-col">
-                    {INFINITE_MEMBERS.map((member, index) => renderMemberCard(member, index))}
-                </div>
+                <motion.div
+                    className="flex flex-col"
+                    animate={{
+                        y: isPaused ? undefined : [0, -BOARD_MEMBERS.length * 240],
+                    }}
+                    transition={{
+                        y: {
+                            repeat: Infinity,
+                            repeatType: "loop",
+                            duration: BOARD_MEMBERS.length * 4, // 4 seconds per card for smooth pace
+                            ease: "linear",
+                        },
+                    }}
+                >
+                    {duplicatedMembers.map((member, index) => renderMemberCard(member, index))}
+                </motion.div>
             </div>
         </div>
     );
