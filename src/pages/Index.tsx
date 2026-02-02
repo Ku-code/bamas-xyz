@@ -1,14 +1,14 @@
 import { useEffect, useRef, useMemo, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Users, 
-  Rocket, 
-  Brain, 
-  LineChart, 
-  MessageSquare, 
-  Lightbulb, 
-  Zap, 
+import {
+  Users,
+  Rocket,
+  Brain,
+  LineChart,
+  MessageSquare,
+  Lightbulb,
+  Zap,
   Globe,
   Calendar,
   CircleCheck
@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PartnerLogosCarousel from "@/components/PartnerLogosCarousel";
+import BoardMembersCarousel from "@/components/BoardMembersCarousel";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -40,8 +41,8 @@ const Index = () => {
             observer.unobserve(entry.target);
           }
         });
-      }, 
-      { 
+      },
+      {
         threshold: 0.1,
         rootMargin: '50px'
       }
@@ -65,7 +66,7 @@ const Index = () => {
   }, [toast]);
 
   const logoPath = useMemo(() => {
-    return language === 'bg' 
+    return language === 'bg'
       ? '/bamas-uploads/BAMAS_Logo_bg.png'
       : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
   }, [language]);
@@ -73,24 +74,24 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
-      
+
       <section id="home" className="relative pt-20 md:pt-24 scroll-mt-20 md:scroll-mt-24">
         <DotGlobeHero
           rotationSpeed={0.004}
           className="bg-gradient-to-br from-background via-background/95 to-muted/10 relative overflow-hidden"
         >
-            <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-background/20 z-[2]" />
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
-            
-            <div className="absolute inset-0 z-[10] flex flex-col items-center justify-center text-center space-y-8 md:space-y-12 max-w-5xl mx-auto px-4 md:px-6 w-full h-full">
+          <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-background/20 z-[2]" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
+          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/3 rounded-full blur-3xl animate-pulse pointer-events-none z-[2]" />
+
+          <div className="absolute inset-0 z-[10] flex flex-col items-center justify-center text-center space-y-8 md:space-y-12 max-w-5xl mx-auto px-4 md:px-6 w-full h-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="space-y-8"
             >
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
@@ -101,51 +102,47 @@ const Index = () => {
                 <span className="relative z-10 text-xs md:text-sm font-bold text-primary tracking-wider uppercase">{t("hero.badge")}</span>
                 <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full animate-ping animation-delay-500" />
               </motion.div>
-              
+
               <div className="space-y-6">
-                <motion.h1 
+                <motion.h1
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.3 }}
-                  className={`font-black select-none ${
-                    language === 'bg' 
-                      ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-normal leading-[1.15] text-center px-2 sm:px-4 md:px-6 max-w-full' 
-                      : 'text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight leading-tight'
-                  }`}
+                  className={`font-black select-none ${language === 'bg'
+                    ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-normal leading-[1.15] text-center px-2 sm:px-4 md:px-6 max-w-full'
+                    : 'text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight leading-tight'
+                    }`}
                   style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                 >
                   <span className={`block relative ${language === 'bg' ? 'text-center' : ''}`}>
-                    <span className={`bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black relative z-10 ${
-                      language === 'bg' ? 'inline-block break-words' : ''
-                    }`}>
+                    <span className={`bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black relative z-10 ${language === 'bg' ? 'inline-block break-words' : ''
+                      }`}>
                       {t("hero.title")}
                     </span>
-                    <div className={`absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black blur-2xl opacity-50 scale-105 ${
-                      language === 'bg' ? 'text-center' : ''
-                    }`}
-                         style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black blur-2xl opacity-50 scale-105 ${language === 'bg' ? 'text-center' : ''
+                      }`}
+                      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                       {t("hero.title")}
                     </div>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: "100%" }}
                       transition={{ duration: 1.5, delay: 1.2, ease: "easeOut" }}
-                      className={`absolute -bottom-4 sm:-bottom-6 h-2 sm:h-3 bg-gradient-to-r from-primary via-primary/80 to-transparent rounded-full shadow-lg shadow-primary/50 ${
-                        language === 'bg' ? 'left-1/2 -translate-x-1/2 w-3/4 sm:w-2/3 md:w-1/2' : 'left-0'
-                      }`}
+                      className={`absolute -bottom-4 sm:-bottom-6 h-2 sm:h-3 bg-gradient-to-r from-primary via-primary/80 to-transparent rounded-full shadow-lg shadow-primary/50 ${language === 'bg' ? 'left-1/2 -translate-x-1/2 w-3/4 sm:w-2/3 md:w-1/2' : 'left-0'
+                        }`}
                     />
                   </span>
                 </motion.h1>
               </div>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="max-w-3xl mx-auto space-y-4"
               >
-                <p className="text-base sm:text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium px-4" 
-                   style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <p className="text-base sm:text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium px-4"
+                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
                   {t("hero.subtitle")}
                 </p>
               </motion.div>
@@ -158,8 +155,8 @@ const Index = () => {
               className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-4"
             >
               <motion.button
-                whileHover={{ 
-                  scale: 1.05, 
+                whileHover={{
+                  scale: 1.05,
                   boxShadow: "0 20px 40px rgba(0,0,0,0.2), 0 0 25px hsl(var(--primary) / 0.3)",
                   y: -2
                 }}
@@ -180,9 +177,9 @@ const Index = () => {
                 <span className="relative z-10 tracking-wide">{t("hero.cta")}</span>
                 <ArrowRight className="relative z-10 w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
               </motion.button>
-              
+
               <motion.button
-                whileHover={{ 
+                whileHover={{
                   scale: 1.05,
                   backgroundColor: "hsl(var(--accent))",
                   borderColor: "hsl(var(--primary))",
@@ -207,7 +204,7 @@ const Index = () => {
 
       <section id="about" className="py-12 md:py-20 bg-muted/30 relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
         {/* Background image with reduced opacity - centered behind text */}
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
             backgroundImage: 'url(/bamas-map-logo.png)',
@@ -217,7 +214,7 @@ const Index = () => {
             opacity: 0.25
           }}
         />
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("about.title")}
@@ -230,6 +227,14 @@ const Index = () => {
               {t("about.subtitle")}
             </p>
           </div>
+
+          {/* Board Members Section */}
+          <div className="mt-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-8 text-center text-foreground px-4">
+              {language === "bg" ? "Управителен съвет" : "Board of Directors"}
+            </h3>
+            <BoardMembersCarousel />
+          </div>
         </div>
       </section>
 
@@ -238,7 +243,7 @@ const Index = () => {
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-pulse"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none animate-pulse"></div>
         <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-primary/8 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           {/* Section Header */}
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
@@ -258,7 +263,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100"
               >
-                <Card 
+                <Card
                   className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
                   onClick={() => setExpandedCard(expandedCard === 'vision' ? null : 'vision')}
                 >
@@ -307,7 +312,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200"
               >
-                <Card 
+                <Card
                   className="h-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 shadow-xl hover:shadow-2xl hover:shadow-primary/20 transition-all duration-300 cursor-pointer"
                   onClick={() => setExpandedCard(expandedCard === 'mission' ? null : 'mission')}
                 >
@@ -399,7 +404,7 @@ const Index = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
                     className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out"
-                    style={{transitionDelay: `${400 + index * 100}ms`}}
+                    style={{ transitionDelay: `${400 + index * 100}ms` }}
                   >
                     <Card className={`h-full bg-card border-2 ${item.borderColor} hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${item.color}`}>
                       <div className="p-6">
@@ -447,7 +452,7 @@ const Index = () => {
                 description: t("objectives.item4.description")
               }
             ].map((objective, index) => (
-              <Card key={index} className="bg-card shadow-md hover:shadow-lg transition-all animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out" style={{transitionDelay: `${index * 100}ms`}}>
+              <Card key={index} className="bg-card shadow-md hover:shadow-lg transition-all animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out" style={{ transitionDelay: `${index * 100}ms` }}>
                 <div className="p-6 flex flex-col items-center text-center">
                   <div className="p-3 rounded-full bg-primary/10 mb-4 text-primary">
                     {objective.icon}
@@ -504,14 +509,13 @@ const Index = () => {
                 isHighlighted: false
               }
             ].map((tier, index) => (
-              <Card 
-                key={index} 
-                className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl animate-on-scroll opacity-0 translate-y-4 bg-card ${
-                  tier.isHighlighted 
-                    ? "border-2 border-primary shadow-lg scale-105" 
-                    : "border border-border/40 hover:border-primary/50"
-                }`}
-                style={{transitionDelay: `${index * 100}ms`}}
+              <Card
+                key={index}
+                className={`relative overflow-hidden transition-all duration-300 hover:shadow-xl animate-on-scroll opacity-0 translate-y-4 bg-card ${tier.isHighlighted
+                  ? "border-2 border-primary shadow-lg scale-105"
+                  : "border border-border/40 hover:border-primary/50"
+                  }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
               >
                 {tier.isHighlighted && (
                   <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
@@ -521,7 +525,7 @@ const Index = () => {
                 <div className="p-6 flex flex-col h-full">
                   <h3 className="text-xl font-bold text-foreground mb-2">{tier.title}</h3>
                   <p className="text-sm text-foreground/70 mb-6 flex-grow">{tier.description}</p>
-                  
+
                   <div className="mb-6">
                     {tier.isFree ? (
                       <div className="text-center">
@@ -548,15 +552,14 @@ const Index = () => {
                       </div>
                     )}
                   </div>
-                  
-                  <Button 
-                    className={`w-full ${
-                      tier.isHighlighted 
-                        ? "bg-primary hover:bg-primary/90 text-primary-foreground" 
-                        : tier.isFree
+
+                  <Button
+                    className={`w-full ${tier.isHighlighted
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                      : tier.isFree
                         ? "bg-muted hover:bg-muted/80 text-foreground"
                         : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
-                    }`}
+                      }`}
                     asChild
                   >
                     <a href="#contact">{t("membership.pricing.cta")}</a>
@@ -606,7 +609,7 @@ const Index = () => {
                 description: t("membership.benefits.item6.description")
               }
             ].map((benefit, index) => (
-              <Card key={index} className="border border-primary/20 hover:border-primary/50 transition-all animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out bg-card" style={{transitionDelay: `${index * 100}ms`}}>
+              <Card key={index} className="border border-primary/20 hover:border-primary/50 transition-all animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out bg-card" style={{ transitionDelay: `${index * 100}ms` }}>
                 <div className="p-6 flex flex-col">
                   <div className="flex items-center mb-4">
                     <div className="text-destructive mr-4">
@@ -627,7 +630,7 @@ const Index = () => {
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("events.title")}
           </h2>
-          
+
           {/* Timeline Container - Single Line Layout */}
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
@@ -682,7 +685,7 @@ const Index = () => {
                       <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
                         {t("events.planning2026.description")}
                       </p>
-                      <Button 
+                      <Button
                         size="sm"
                         className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg text-xs"
                         asChild
@@ -719,7 +722,7 @@ const Index = () => {
               <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4 md:mb-6 px-4">
                 {t("partner.interest.description")}
               </p>
-              <Button 
+              <Button
                 className="bg-primary hover:bg-primary/90 text-primary-foreground w-full"
                 asChild
               >
@@ -759,7 +762,7 @@ const Index = () => {
                 <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
                   {t("contact.form.description")}
                 </p>
-                <Button 
+                <Button
                   className="bg-primary hover:bg-primary/90 text-primary-foreground w-full text-sm sm:text-base mt-auto"
                   asChild
                 >
@@ -768,13 +771,13 @@ const Index = () => {
                   </a>
                 </Button>
               </div>
-              
+
               <div className="bg-card p-6 sm:p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200 flex flex-col h-full">
                 <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">{t("contact.discord.title")}</h3>
                 <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
                   {t("contact.discord.description")}
                 </p>
-                <Button 
+                <Button
                   className="bg-[#5865F2] hover:bg-[#5865F2]/90 text-white w-full text-sm sm:text-base mt-auto"
                   asChild
                 >
@@ -783,13 +786,13 @@ const Index = () => {
                   </a>
                 </Button>
               </div>
-              
+
               <div className="bg-card p-6 sm:p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-300 sm:col-span-2 lg:col-span-1 flex flex-col h-full">
                 <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">{t("contact.viber.title")}</h3>
                 <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
                   {t("contact.viber.description")}
                 </p>
-                <Button 
+                <Button
                   className="bg-[#665CAC] hover:bg-[#665CAC]/90 text-white w-full text-sm sm:text-base mt-auto"
                   asChild
                 >
@@ -799,7 +802,7 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-            
+
             {/* Google Maps Section */}
             <div className="bg-card p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-400">
               <h3 className="text-xl font-semibold text-foreground mb-4 text-center">

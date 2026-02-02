@@ -121,24 +121,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // getSession() can return stale cached data; getUser() forces a check and prevents
       // "sudden logout" when the JWT is expired but refresh token is still valid.
       supabase.auth.getUser()
-      .then(({ data: { user: authUser }, error }) => {
-        clearTimeout(sessionTimeout);
-        if (error) {
-          console.error('Error getting user (session):', error);
+        .then(({ data: { user: authUser }, error }) => {
+          clearTimeout(sessionTimeout);
+          if (error) {
+            console.error('Error getting user (session):', error);
+            setIsLoading(false);
+            return;
+          }
+          if (authUser) {
+            loadUserFromDatabase(authUser.id, authUser);
+          } else {
+            setIsLoading(false);
+          }
+        })
+        .catch((error) => {
+          clearTimeout(sessionTimeout);
+          console.error('Failed to get user (session):', error);
           setIsLoading(false);
-          return;
-        }
-        if (authUser) {
-          loadUserFromDatabase(authUser.id);
-        } else {
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        clearTimeout(sessionTimeout);
-        console.error('Failed to get user (session):', error);
-        setIsLoading(false);
-      });
+        });
     });
 
     // Listen for auth changes. Only clear user on explicit SIGNED_OUT to prevent
@@ -152,7 +152,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
       if (session) {
-        await loadUserFromDatabase(session.user.id);
+        await loadUserFromDatabase(session.user.id, session.user);
       }
       // Do NOT setUser(null) when session is null but event is not SIGNED_OUT
       // (e.g. during TOKEN_REFRESHED or INITIAL_SESSION) to avoid false logouts.
@@ -163,25 +163,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
-  const loadUserFromDatabase = async (userId: string) => {
+  const loadUserFromDatabase = async (userId: string, authUser?: SupabaseUser) => {
     try {
       // Add timeout for database fetch
       const fetchPromise = db.fetchById('users', userId);
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Database fetch timeout')), 8000)
       );
       let dbUser = await Promise.race([fetchPromise, timeoutPromise]) as any;
-      
+
       if (!dbUser) {
-        // User doesn't exist in database yet - create it using the function
-        const { data: authUser } = await supabase.auth.getUser();
-        if (authUser?.user) {
-          const userMetadata = authUser.user.user_metadata || {};
+        // User doesn't exist in database yet - try to create it using the function
+        // Use provided authUser or fetch it if missing
+        const currentAuthUser = authUser || (await supabase.auth.getUser()).data.user;
+
+        if (currentAuthUser) {
+          const userMetadata = currentAuthUser.user_metadata || {};
           const { error: functionError } = await (supabase.rpc as any)('create_user_profile', {
             user_id: userId,
-            user_name: userMetadata.name || authUser.user.email?.split('@')[0] || 'User',
-            user_email: authUser.user.email || '',
-            user_provider: authUser.user.app_metadata?.provider || 'email',
+            user_name: userMetadata.name || currentAuthUser.email?.split('@')[0] || 'User',
+            user_email: currentAuthUser.email || '',
+            user_provider: currentAuthUser.app_metadata?.provider || 'email',
             user_image: userMetadata.avatar_url || userMetadata.picture || null,
           });
 
@@ -196,11 +198,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(convertSupabaseUserToUser(dbUser));
       } else {
         console.warn('User not found in database:', userId);
-        setUser(null);
+        // If we have a valid auth user but no DB profile, don't kick them out.
+        // Create a temporary user object from auth data
+        const fallbackUser = authUser || (await supabase.auth.getUser()).data.user;
+        if (fallbackUser) {
+          console.log('Using fallback auth user data');
+          setUser({
+            id: fallbackUser.id,
+            email: fallbackUser.email || '',
+            name: fallbackUser.user_metadata?.name || fallbackUser.email?.split('@')[0] || 'User',
+            role: 'member', // Default safe role
+            status: 'pending',
+            createdAt: fallbackUser.created_at,
+          });
+        } else {
+          // Only set to null if we absolutely cannot establish identity
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Error loading user from database:', error);
-      setUser(null);
+
+      // CRITICAL FIX: Do not log out the user on transient DB errors!
+      // If we already have a user in state, keep it.
+      // If we have an authUser, use it as fallback.
+
+      if (user && user.id === userId) {
+        console.log('Keeping existing user state despite DB error');
+        // Do nothing, keep existing user
+      } else if (authUser) {
+        console.log('Constructing fallback user from auth session despite DB error');
+        setUser({
+          id: authUser.id,
+          email: authUser.email || '',
+          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+          role: 'member',
+          status: 'pending',
+          createdAt: authUser.created_at,
+        });
+      } else {
+        // Only if we have NO state and NO session info do we reset
+        setUser(null);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -267,7 +306,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-    setUser(null);
+      setUser(null);
     } catch (error) {
       console.error('Error logging out:', error);
       throw error;
@@ -300,7 +339,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Trim email to avoid whitespace issues
       const trimmedEmail = email.trim().toLowerCase();
-      
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password,
@@ -308,20 +347,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Supabase login error:', error);
-        
+
         // Create user-friendly error message
         let errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-        
+
         if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
           errorMessage = 'Please confirm your email address before logging in. Check your inbox for the confirmation link from Supabase.';
-        } else if (error.message.includes('Invalid login credentials') || 
-                   error.message.includes('invalid_credentials') ||
-                   error.message.includes('Invalid login')) {
+        } else if (error.message.includes('Invalid login credentials') ||
+          error.message.includes('invalid_credentials') ||
+          error.message.includes('Invalid login')) {
           errorMessage = 'Invalid email or password. Please check your credentials. If you forgot your password, please reset it.';
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         const authError = new Error(errorMessage);
         (authError as any).code = error.code;
         throw authError;
@@ -329,7 +368,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (data.user) {
         // Ensure user profile exists in database
-        await loadUserFromDatabase(data.user.id);
+        await loadUserFromDatabase(data.user.id, data.user);
       } else {
         throw new Error('Login failed: No user data returned');
       }
@@ -338,13 +377,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       throw error;
     }
   };
-  
+
   const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
         redirectTo: `${window.location.origin}/reset-password`,
       });
-      
+
       if (error) throw error;
     } catch (error: any) {
       console.error('Error resetting password:', error);
@@ -359,7 +398,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .from('users')
         .select('id, status, email')
         .eq('email', email.trim().toLowerCase())
-        .limit(1);
+        .limit(1) as any;
 
       if (checkError && checkError.code !== 'PGRST116') {
         // PGRST116 = not found, which is fine
@@ -369,10 +408,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // If user exists and was rejected, reset them to pending
       if (existingUsers && existingUsers.length > 0) {
         const existingUser = existingUsers[0];
-        
+
         if (existingUser.status === 'rejected') {
           console.log('User was previously rejected. Resetting to pending status...');
-          
+
           // Update their status back to pending and update their name
           const { error: updateError } = await supabase
             .from('users')
@@ -382,7 +421,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               approved_at: null,
               approved_by: null,
               updated_at: new Date().toISOString(),
-            })
+            } as any)
             .eq('id', existingUser.id);
 
           if (updateError) {
@@ -405,9 +444,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
 
           if (signInData.user) {
-            await loadUserFromDatabase(signInData.user.id);
+            await loadUserFromDatabase(signInData.user.id, signInData.user);
           }
-          
+
           return;
         } else if (existingUser.status === 'pending' || existingUser.status === 'approved') {
           // User already exists and is not rejected - they should login instead
@@ -447,10 +486,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const supabaseUrl = getSupabaseUrl();
           const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-          
+
           if (supabaseUrl && supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey) {
             const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-welcome-email`;
-            
+
             // Call Edge Function asynchronously (don't wait for response)
             fetch(edgeFunctionUrl, {
               method: 'POST',
@@ -477,7 +516,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Try to load user from database
-        await loadUserFromDatabase(data.user.id);
+        await loadUserFromDatabase(data.user.id, data.user);
       }
     } catch (error: any) {
       console.error('Error signing up with email:', error);
@@ -498,10 +537,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (error) {
         console.error('Google OAuth error:', error);
-        
+
         // Provide user-friendly error messages
         let errorMessage = 'Failed to sign in with Google. Please try again.';
-        
+
         if (error.message.includes('provider_disabled') || error.message.includes('Provider not enabled')) {
           errorMessage = 'Google authentication is not enabled. Please contact the administrator or use email/password login.';
         } else if (error.message.includes('invalid_token') || error.message.includes('Invalid token')) {
@@ -511,7 +550,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         const authError = new Error(errorMessage);
         (authError as any).code = error.code;
         throw authError;
@@ -544,7 +583,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else if (dbUser.status === 'rejected') {
           // If user was previously rejected, reset them to pending
           console.log('Google OAuth: User was previously rejected. Resetting to pending status...');
-          
+
           const { error: updateError } = await supabase
             .from('users')
             .update({
@@ -552,7 +591,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               approved_at: null,
               approved_by: null,
               updated_at: new Date().toISOString(),
-            })
+            } as any)
             .eq('id', dbUser.id);
 
           if (updateError) {
@@ -561,7 +600,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
 
-        await loadUserFromDatabase(data.user.id);
+        await loadUserFromDatabase(data.user.id, data.user);
       }
     } catch (error: any) {
       console.error('Error signing in with Google:', error);

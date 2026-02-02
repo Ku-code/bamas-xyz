@@ -74,6 +74,11 @@ const PARTNERS: Partner[] = [
     name: "3D PrintX",
     url: "https://3dprintx.bg/",
   },
+  {
+    logo: "/partnerlogos/resonator_logo.png",
+    name: "Resonator",
+    url: "https://www.rsntr.com/",
+  },
 ];
 
 // Duplicate partners for seamless infinite loop
@@ -185,7 +190,7 @@ const PartnerLogosCarousel = () => {
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity dark:invert"
+            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
             loading="lazy"
             decoding="async"
             onError={(e) => {
