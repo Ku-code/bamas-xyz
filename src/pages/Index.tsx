@@ -231,7 +231,7 @@ const Index = () => {
           {/* Board Members Section */}
           <div className="mt-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200">
             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-8 text-center text-foreground px-4">
-              {language === "bg" ? "Управителен съвет" : "Board of Directors"}
+              {language === "bg" ? "Управителен съвет и Представителство" : "Board of Directors"}
             </h3>
             <BoardMembersCarousel />
           </div>
