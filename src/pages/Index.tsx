@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, useCallback, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -22,13 +23,34 @@ import BoardMembersCarousel from "@/components/BoardMembersCarousel";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import MembershipForm, { ApplicationType } from "@/components/MembershipForm";
 import { DotGlobeHero } from "@/components/ui/globe-hero";
 
 const Index = () => {
   const { toast } = useToast();
   const { t, language, setLanguage } = useLanguage();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [expandedCard, setExpandedCard] = useState<'vision' | 'mission' | null>(null);
+  const [isMembershipOpen, setIsMembershipOpen] = useState(false);
+  const [membershipType, setMembershipType] = useState<ApplicationType | undefined>(undefined);
+
+  const openMembership = (type?: ApplicationType) => {
+    setMembershipType(type);
+    setIsMembershipOpen(true);
+  };
+
+  const handleMembershipSuccess = (data: { email: string; name: string }) => {
+    setIsMembershipOpen(false);
+    navigate('/membership-success', { state: data });
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -560,9 +582,12 @@ const Index = () => {
                         ? "bg-muted hover:bg-muted/80 text-foreground"
                         : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                       }`}
-                    asChild
+                    onClick={() => {
+                      const types: ApplicationType[] = ['individual', 'company', 'academic', 'foreign'];
+                      openMembership(types[index]);
+                    }}
                   >
-                    <a href="#contact">{t("membership.pricing.cta")}</a>
+                    {t("membership.pricing.cta")}
                   </Button>
                 </div>
               </Card>
@@ -622,82 +647,160 @@ const Index = () => {
               </Card>
             ))}
           </div>
+
+          {/* Apply for Membership CTA */}
+          <div className="mt-12 text-center animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-500">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <Button
+                size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-xl shadow-xl hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 group"
+                onClick={() => openMembership()}
+              >
+                <span>{language === 'bg' ? 'Кандидатствайте за членство' : 'Apply for Membership'}</span>
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+              <p className="mt-4 text-sm text-foreground/60">
+                {language === 'bg'
+                  ? 'Попълнете формуляра за кандидатстване и станете част от БАЗАП'
+                  : 'Fill out the application form and become a BAMAS member'}
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      <section id="events" className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
+      <section id="events" className="py-16 md:py-24 bg-muted/30 scroll-mt-20 md:scroll-mt-24 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
-            {t("events.title")}
-          </h2>
+          <div className="text-center mb-10 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              {t("events.title")}
+            </h2>
+            <div className="w-16 h-1 bg-primary mx-auto"></div>
+          </div>
 
-          {/* Timeline Container - Single Line Layout */}
-          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
-              {/* Past Events Section */}
-              <div className="flex-1 max-w-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
-                <h3 className="text-lg font-semibold mb-4 text-center text-foreground/60">
-                  {t("events.past.title")}
-                </h3>
-                <div className="bg-muted/70 p-6 rounded-lg shadow-sm border border-border/30">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-2 h-2 rounded-full bg-foreground/30 mt-2"></div>
-                    <div className="flex-grow">
-                      <h4 className="text-lg font-bold text-foreground/60 mb-2">{t("events.conference.title")}</h4>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <div className="bg-background/60 px-2 py-1 rounded text-xs font-medium text-foreground/50">{t("events.conference.date")}</div>
-                        <div className="bg-background/60 px-2 py-1 rounded text-xs font-medium text-foreground/50">{t("events.conference.location")}</div>
-                      </div>
-                    </div>
+          <div className="max-w-4xl mx-auto relative px-4">
+            {/* Minimalist Vertical Line */}
+            <div className="absolute left-6 md:left-1/2 md:-translate-x-px top-2 bottom-0 w-px bg-border sm:block"></div>
+
+            <div className="space-y-8 md:space-y-12">
+              {/* Event 1: July 2025 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-end md:pr-10"
+              >
+                <div className="absolute left-[7px] md:left-1/2 md:-translate-x-1/2 w-2.5 h-2.5 rounded-full bg-muted-foreground/30 z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[45%]">
+                  <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.july2025.date")}</span>
+                    <h4 className="text-sm font-bold text-foreground/80">{t("events.july2025.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{t("events.july2025.location")}</p>
                   </div>
+                </div>
+              </motion.div>
+
+              {/* Event 2: Nov 2025 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-start md:pl-10"
+              >
+                <div className="absolute left-[7px] md:left-1/2 md:-translate-x-1/2 w-2.5 h-2.5 rounded-full bg-muted-foreground/30 z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[45%]">
+                  <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.nov2025.date")}</span>
+                    <h4 className="text-sm font-bold text-foreground/80">{t("events.nov2025.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{t("events.nov2025.location")}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Event 3: Jan 2026 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-end md:pr-10"
+              >
+                <div className="absolute left-[7px] md:left-1/2 md:-translate-x-1/2 w-2.5 h-2.5 rounded-full bg-muted-foreground/30 z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[45%]">
+                  <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.jan2026.date")}</span>
+                    <h4 className="text-sm font-bold text-foreground/80">{t("events.jan2026.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{t("events.jan2026.location")}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Status Separator */}
+              <div className="relative flex justify-center py-2">
+                <div className="bg-primary/5 text-primary px-3 py-0.5 rounded-full text-[10px] font-bold border border-primary/10 relative z-20 backdrop-blur-sm">
+                  {language === 'bg' ? 'ПРЕДСТОЯЩИ' : 'UPCOMING'}
                 </div>
               </div>
 
-              {/* Timeline Arrow/Divider */}
-              <div className="flex-shrink-0 flex items-center justify-center animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200">
-                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-                  <div className="hidden md:block flex-grow h-0.5 w-12 bg-gradient-to-r from-foreground/20 to-transparent"></div>
-                  <div className="relative">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                      <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center">
-                        <ArrowRight className="h-3 w-3 md:h-5 md:w-5 text-primary-foreground" />
-                      </div>
-                    </div>
+              {/* Event 4: Online Discussion */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-start md:pl-10"
+              >
+                <div className="absolute left-[5px] md:left-1/2 md:-translate-x-1/2 w-3.5 h-3.5 rounded-full bg-primary border-4 border-background z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[45%]">
+                  <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg shadow-sm">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">{t("events.online_discussion.date")}</span>
+                    <h4 className="text-sm font-bold text-foreground">{t("events.online_discussion.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{t("events.online_discussion.description")}</p>
                   </div>
-                  <div className="hidden md:block flex-grow h-0.5 w-12 bg-gradient-to-l from-primary to-transparent"></div>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* Upcoming Events Section */}
-              <div className="flex-1 max-w-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-300">
-                <h3 className="text-lg font-semibold mb-4 text-center text-primary">
-                  {t("events.upcoming.title")}
-                </h3>
-                <div className="bg-gradient-to-br from-primary via-primary to-primary/80 p-6 rounded-lg shadow-lg text-primary-foreground">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-2 h-2 rounded-full bg-primary-foreground mt-2 animate-pulse"></div>
-                    <div className="flex-grow">
-                      <h4 className="text-lg font-bold mb-2">{t("events.planning2026.title")}</h4>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        <div className="bg-primary-foreground/20 px-2 py-1 rounded text-xs font-medium backdrop-blur-sm">{t("events.planning2026.date")}</div>
-                        <div className="bg-primary-foreground/20 px-2 py-1 rounded text-xs font-medium backdrop-blur-sm">{t("events.planning2026.location")}</div>
-                      </div>
-                      <p className="text-primary-foreground/90 text-sm leading-relaxed mb-4">
-                        {t("events.planning2026.description")}
-                      </p>
-                      <Button
-                        size="sm"
-                        className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg text-xs"
-                        asChild
-                      >
-                        <a href="#contact">
-                          {t("membership.pricing.cta")}
-                        </a>
+              {/* Event 5: June 2026 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-end md:pr-10"
+              >
+                <div className="absolute left-[5px] md:left-1/2 md:-translate-x-1/2 w-3.5 h-3.5 rounded-full bg-primary border-4 border-background z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[45%]">
+                  <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg shadow-sm">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">{t("events.board_meeting_june.date")}</span>
+                    <h4 className="text-sm font-bold text-foreground">{t("events.board_meeting_june.title")}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">{t("events.board_meeting_june.description")}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Event 6: Nov 2026 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative flex flex-col md:flex-row items-start md:items-center md:justify-start md:pl-10 pb-4"
+              >
+                <div className="absolute left-[5px] md:left-1/2 md:-translate-x-1/2 w-3.5 h-3.5 rounded-full bg-primary border-4 border-background z-10"></div>
+                <div className="ml-10 md:ml-0 md:w-[60%]">
+                  <div className="bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-5 rounded-xl border-none shadow-lg text-primary-foreground relative overflow-hidden">
+                    <div className="relative z-10">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-1">{t("events.conference_nov.date")}</span>
+                      <h4 className="text-lg font-black leading-tight mb-2">{t("events.conference_nov.title")}</h4>
+                      <p className="text-xs opacity-90 mb-4">{t("events.conference_nov.description")}</p>
+                      <Button size="sm" className="bg-background text-primary hover:bg-background/90 h-8 text-[10px] font-bold px-4" asChild>
+                        <a href="#contact">{language === 'bg' ? 'Заявка за интерес' : 'Register Interest'}</a>
                       </Button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -724,11 +827,9 @@ const Index = () => {
               </p>
               <Button
                 className="bg-primary hover:bg-primary/90 text-primary-foreground w-full"
-                asChild
+                onClick={() => openMembership('foreign')}
               >
-                <a href="https://forms.gle/gU4GR2iWpJ22hiC26" target="_blank" rel="noopener noreferrer">
-                  {t("partner.interest.cta")}
-                </a>
+                {t("partner.interest.cta")}
               </Button>
             </div>
           </div>
@@ -873,6 +974,22 @@ const Index = () => {
           });
         }}
       />
+
+      <Dialog open={isMembershipOpen} onOpenChange={setIsMembershipOpen}>
+        <DialogContent className="max-w-5xl max-h-[98vh] sm:max-h-[90vh] bg-slate-950 border-white/10 p-0 sm:rounded-3xl overflow-hidden glassmorphism shadow-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Membership Application</DialogTitle>
+          </DialogHeader>
+          <div className="h-[98vh] sm:h-[90vh]">
+            <MembershipForm
+              initialType={membershipType}
+              onSuccess={handleMembershipSuccess}
+              onClose={() => setIsMembershipOpen(false)}
+              isModal={true}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -25,6 +25,8 @@ const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Settings = lazy(() => import("./pages/Settings"));
+const MembershipApplication = lazy(() => import("./pages/MembershipApplication"));
+const MembershipSuccess = lazy(() => import("./pages/MembershipSuccess"));
 
 // Lightweight loading fallback component
 const LoadingFallback = () => (
@@ -102,10 +104,10 @@ const AppContent: React.FC = () => {
   }
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-  
+
   // Check if Supabase is configured
   const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
-  
+
   // Debug logging in production to help diagnose env var issues
   if (import.meta.env.MODE === 'production') {
     if (!isSupabaseConfigured) {
@@ -115,7 +117,7 @@ const AppContent: React.FC = () => {
       console.warn('⚠️ Google OAuth Client ID is not configured. Google login will not be available.');
     }
   }
-  
+
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <QueryClientProvider client={queryClient}>
@@ -153,6 +155,8 @@ const AppContent: React.FC = () => {
                   }
                 />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/membership-application" element={<MembershipApplication />} />
+                <Route path="/membership-success" element={<MembershipSuccess />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

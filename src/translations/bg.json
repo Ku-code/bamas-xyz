@@ -9,16 +9,13 @@
   "nav.language": "Език",
   "nav.language.en": "Английски",
   "nav.language.bg": "Български",
-
   "hero.title": "Българска асоциация за адитивно производство",
   "hero.subtitle": "Обединяваме иновациите. Укрепваме индустрията. Формираме бъдещето.",
   "hero.cta": "Стани член",
   "hero.badge": "БАЗАП",
-
   "about.title": "За нас",
   "about.subtitle": "Нашият фокус е бъдещето на Индустрия 4.0 в България, като обединяваме производители, изследователи, образователни институции и технологични новатори за създаване на благоприятна среда за върхови постижения в адитивното производство.",
   "about.description": "Българската асоциация за адитивно производството (БАЗАП) е създадена, за да отговори на необходимостта от структурирано сътрудничество в развиващата се екосистема на 3D печат в България. В условия на бърза еволюция на индустрията, ние предоставяме неутрална, некомерсиална платформа, която насърчава иновациите и стратегическия растеж.",
-
   "mission.section.title": "БЪЛГАРСКИЯТ АДИТИВЕН ЦЕНТЪР",
   "mission.vision.title": "Нашата визия",
   "mission.vision.short": "Да утвърди България като водещ европейски център за високотехнологични адитивни иновации и дигитални индустриални постижения.",
@@ -32,7 +29,6 @@
   "mission.mission.item2": "Да насърчаваме технологичния напредък и регулаторната подкрепа",
   "mission.mission.item3": "Да промотираме иновациите и върховите постижения в 3D производството",
   "mission.mission.item4": "Да изграждаме международни партньорства за въвеждане на световни добри практики в България",
-
   "objectives.title": "Основни цели",
   "objectives.item1.title": "Укрепване на комуникацията",
   "objectives.item1.description": "Насърчаване на диалог и споделяне на знания между 3D печат компании в България.",
@@ -42,7 +38,6 @@
   "objectives.item3.description": "Създаване на съвместни инициативи с ИИ, аерокосмически, автомобилен, медицински и образователен сектори.",
   "objectives.item4.title": "Стимулиране на пазарното развитие",
   "objectives.item4.description": "Подпомагане на растежа чрез стратегически събития, диалог по политики и международни партньорства.",
-
   "membership.pricing.title": "Цени на членство",
   "membership.pricing.subtitle": "Изберете нивото на членство, което отговаря на вашите нужди",
   "membership.pricing.individual.title": "Индивидуално",
@@ -69,33 +64,39 @@
   "membership.benefits.item5.description": "Съвместни промоционални възможности чрез платформите и медиите на БАЗАП.",
   "membership.benefits.item6.title": "Глас в индустрията",
   "membership.benefits.item6.description": "Представляване на интересите на сектора в дискусии по политики и регулации.",
-
   "events.title": "Времева линия на събития",
   "events.past.title": "Минали събития",
   "events.upcoming.title": "Предстоящи събития",
-  "events.conference.title": "Учредителна конференция на БАЗАП",
-  "events.conference.date": "Дата: Очаква се обявяване",
-  "events.conference.location": "Място: София, България",
-  "events.conference.topics": "Предварителни теми",
-  "events.conference.topic1": "Тенденции в индустрията и пазарни възможности",
-  "events.conference.topic2": "Приложения на изкуствения интелект в 3D печата",
-  "events.conference.topic3": "Образование и готовност на работната сила",
-  "events.conference.topic4": "Инициативи за сътрудничество между сектори",
-  "events.conference.register.title": "Регистрация за конференцията",
-  "events.conference.register.description": "Присъединете се към учредителната конференция на БАЗАП, за да се свържете с лидери от индустрията и да откриете бъдещето на адитивното производство в България.",
-  "events.conference.register.cta": "Регистрирай се сега",
-  "events.planning2026.title": "2026 Първа планираща среща",
-  "events.planning2026.date": "Дата: Q1 2026",
-  "events.planning2026.location": "Място: София, България",
-  "events.planning2026.description": "Присъединете се към първата планираща среща за 2026 година, за да обсъдим стратегически инициативи, предстоящи проекти и възможности за сътрудничество за годината напред.",
-
+  "events.july2025.title": "Първа среща за визия",
+  "events.july2025.date": "2 юли 2025",
+  "events.july2025.location": "Capital Fort, София",
+  "events.july2025.description": "Първа среща за установяване на основната идея на асоциацията.",
+  "events.nov2025.title": "Официално учредително събрание",
+  "events.nov2025.date": "5 ноември 2025",
+  "events.nov2025.location": "Resonator, София",
+  "events.nov2025.description": "Официално събрание на Управителния съвет за учредяване на БАЗАП.",
+  "events.jan2026.title": "Годишно откриване 2026",
+  "events.jan2026.date": "26 януари 2026",
+  "events.jan2026.location": "Resonator, София",
+  "events.jan2026.description": "Първа стратегическа среща за пътната карта през 2026 г.",
+  "events.online_discussion.title": "Онлайн дискусия",
+  "events.online_discussion.date": "Предстоящо: Очаква се обявяване",
+  "events.online_discussion.location": "Онлайн",
+  "events.online_discussion.description": "Дискусия на членовете по специфични теми от адитивното производство.",
+  "events.board_meeting_june.title": "Общо събрание",
+  "events.board_meeting_june.date": "Юни 2026",
+  "events.board_meeting_june.location": "Очаква се обявяване",
+  "events.board_meeting_june.description": "Полугодишен преглед на стратегическите цели.",
+  "events.conference_nov.title": "БАЗАП Конференция и Общо събрание",
+  "events.conference_nov.date": "Ноември 2026",
+  "events.conference_nov.location": "София, България",
+  "events.conference_nov.description": "Основно годишно събитие за всички членове.",
   "partner.title": "Партнирайте с нас",
   "partner.description1": "БАЗАП кани компании, университети, научни институции и организации, занимаващи се с адитивно производство, да се присъединят към нашата мрежа. Заедно можем да ускорим иновациите, да споделяме знания и да укрепим позицията на България в глобалната 3D печатна сцена.",
   "partner.description2": "Нашите партньори се възползват от съвместни възможности, споделени ресурси, достъп до специализирана експертиза и по-широка платформа за видимост и въздействие.",
   "partner.interest.title": "Изразете интерес",
   "partner.interest.description": "Готови ли сте да се обедините с БАЗАП? Натиснете бутона по-долу, за да попълните нашия формуляр за кандидатстване за партньорство.",
   "partner.interest.cta": "Стани член",
-
   "contact.title": "Свържете се с нас",
   "contact.form.title": "Изпратете съобщение",
   "contact.form.description": "Имате въпроси относно БАЗАП или искате да научите повече за нашите инициативи? Натиснете бутона по-долу, за да ни изпратите съобщение чрез формуляра за контакт.",
@@ -108,7 +109,6 @@
   "contact.viber.cta": "Присъедини се към Viber общността",
   "contact.location.title": "Нашето присъствие",
   "contact.location.description": "БАЗАП е национална асоциация, която работи в цяла България, свързвайки общността на адитивното производство из страната.",
-
   "footer.resources": "Ресурси",
   "footer.contact": "Контакт",
   "footer.copyright": "© {year} Българска Асоциация за Адитивно Производство. Всички права запазени.",
@@ -119,7 +119,6 @@
   "footer.newsletter.placeholder": "Въведете вашия имейл",
   "footer.newsletter.subscribe": "Абонирай се",
   "footer.addliance.text": "Част от (Add)liance - Европейският център за Адитивно Производство",
-  
   "nav.login": "Вход",
   "nav.register": "Регистрация",
   "auth.login.title": "Вход",
@@ -177,7 +176,6 @@
   "auth.resetPassword.error.invalidLink": "Тази връзка за възстановяване на парола е невалидна или е изтекла. Моля, поискайте нова.",
   "auth.resetPassword.error.passwordLength": "Паролата трябва да бъде поне 6 символа.",
   "auth.login.link": "Влизане",
-  
   "cookies.consent.title": "Съгласие за бисквитки",
   "cookies.consent.description": "Използваме бисквитки, за да подобрим вашето изживяване при сърфиране, да анализираме трафика на сайта и да персонализираме съдържанието. Като кликнете 'Приемам', вие се съгласявате с използването на бисквитки.",
   "cookies.consent.accept": "Приемам всички",
@@ -185,7 +183,6 @@
   "cookies.consent.close": "Затвори",
   "cookies.consent.learnMore": "Научете повече за нашата ",
   "cookies.consent.policyLink": "Политика за бисквитки",
-  
   "documents.title": "Официални документи",
   "documents.subtitle": "Устав и информация от Търговския регистър",
   "documents.commercial_register": "Търговски регистър",
@@ -211,11 +208,9 @@
   "documents.results": "резултата",
   "documents.no_results": "Няма намерени резултати",
   "documents.search_tip": "Съвет: Натиснете Enter за следващ резултат, Escape за изчистване",
-  
   "nav.dashboard": "Табло",
   "nav.settings": "Настройки",
   "nav.logout": "Изход",
-  
   "dashboard.menu.history": "История",
   "dashboard.menu.meetings": "Срещи",
   "dashboard.menu.votes": "Гласувания",
@@ -226,7 +221,6 @@
   "dashboard.menu.settings": "Настройки",
   "dashboard.backToHome": "Обратно към началото",
   "dashboard.home": "Начало",
-  
   "dashboard.history.title": "История на дейностите",
   "dashboard.history.recent": "Последни дейности",
   "dashboard.history.description": "Прегледайте вашите последни действия и взаимодействия",
@@ -267,7 +261,6 @@
   "dashboard.history.clear.confirm.description": "Това действие не може да бъде отменено. Това ще изтрие завинаги всички записи от историята. Сигурни ли сте, че искате да продължите?",
   "dashboard.history.clear.confirm.button": "Изчисти всичко",
   "dashboard.history.clear.cancel": "Отказ",
-  
   "dashboard.votes.title": "Гласувания и анкети",
   "dashboard.votes.active": "Активни анкети",
   "dashboard.votes.description": "Участвайте в гласувания и анкети на асоциацията",
@@ -318,7 +311,6 @@
   "dashboard.votes.ends": "Приключва",
   "dashboard.votes.yourVote": "Вашият глас",
   "dashboard.votes.changeVote": "Промени глас",
-  
   "dashboard.agenda.title": "Програма и срещи",
   "dashboard.agenda.upcoming": "Предстоящи срещи",
   "dashboard.agenda.description": "Прегледайте и управлявайте вашия график за срещи",
@@ -368,7 +360,6 @@
   "dashboard.agenda.delete.confirm.description": "Това действие не може да бъде отменено. Това ще изтрие завинаги елемента от програмата и всички негови коментари.",
   "dashboard.agenda.delete.confirm.button": "Изтрий",
   "dashboard.agenda.delete.cancel": "Отказ",
-  
   "dashboard.documents.title": "Документи",
   "dashboard.documents.library": "Библиотека с документи",
   "dashboard.documents.description": "Достъп до документи и ресурси на асоциацията",
@@ -463,7 +454,6 @@
   "dashboard.signatures.info.title": "За цифровите подписи",
   "dashboard.signatures.info.description": "Критичните документи изискват юридически обвързващи цифрови подписи от упълномощени членове.",
   "dashboard.signatures.info.process": "Кликнете 'Подпиши сега', за да прегледате документа, след което начертайте подписа си. Документът ще бъде финализиран, когато всички задължителни подписващи завършат.",
-
   "dashboard.meetings.title": "Срещи и дневни редове",
   "dashboard.meetings.description": "Планирайте, провеждайте и документирайте срещите на асоциацията",
   "dashboard.meetings.empty": "Няма намерени срещи.",
@@ -568,7 +558,6 @@
   "dashboard.signatures.success.description": "Вашият подпис е запазен. Документът ще бъде финализиран, когато всички подписващи завършат.",
   "dashboard.signatures.dialog.title": "Подпишете документ",
   "dashboard.signatures.dialog.description": "Моля, прегледайте и подпишете документа по-долу",
-  
   "dashboard.documents.signatures.ready": "Изискват се подписи",
   "dashboard.documents.signatures.created": "Документът е създаден и готов за подписи",
   "dashboard.documents.signatures.warning": "Предупреждение за настройка на подписи",
@@ -592,7 +581,6 @@
   "common.close": "Затвори",
   "common.retry": "Опитай отново",
   "common.cancel": "Отказ",
-  
   "dashboard.menu.resources": "Ресурси",
   "dashboard.menu.additivemap": "AdditiveMAP",
   "dashboard.resources.title": "Ресурси",
@@ -651,7 +639,6 @@
   "dashboard.resources.sort.name": "Име",
   "dashboard.resources.sort.size": "Размер",
   "dashboard.resources.sort.category": "Категория",
-  
   "dashboard.additivemap.title": "Карта на адитивното производство",
   "dashboard.additivemap.register.button": "Регистрирай компания",
   "dashboard.additivemap.error.title": "Грешка при зареждане на компании",
@@ -731,7 +718,6 @@
   "dashboard.additivemap.map.exitFullscreen": "Излез от цял екран",
   "dashboard.additivemap.panel.open": "Отвори панел",
   "dashboard.additivemap.panel.close": "Затвори панел",
-
   "company.page.noDescription": "Компания за адитивно производство",
   "company.page.contactLocation": "Контакт и местоположение",
   "company.page.address": "Адрес",
@@ -746,9 +732,7 @@
   "company.page.visitWebsite": "Посети уебсайта",
   "company.page.edit": "Редактирай",
   "company.page.delete": "Изтрий",
-  
   "dashboard.menu.eufunds": "ЕС Финансиране",
-
   "dashboard.eufunds.title": "Радар за ЕС Финансиране",
   "dashboard.eufunds.subtitle": "Открийте възможности за финансиране за адитивно производство",
   "dashboard.eufunds.portal.title": "Портал за финансиране и търгове на ЕС",
@@ -779,13 +763,11 @@
   "dashboard.eufunds.support.title": "Нуждаете се от помощ с предложения за ЕС?",
   "dashboard.eufunds.support.description": "Членовете на БАЗАП имат достъп до подкрепа за изграждане на консорциуми и услуги за преглед на предложения.",
   "dashboard.eufunds.support.button": "Свържете се с БАЗАП",
-
   "dashboard.menu.whiteboard": "Дъска",
   "dashboard.menu.standards": "AM Стандарти",
   "dashboard.menu.amclub": "AM Клуб",
   "dashboard.menu.embed": "БАЗАП Баджове",
   "dashboard.menu.calendarintegration": "Синхронизация",
-
   "whiteboard.title": "Колаборативна дъска",
   "whiteboard.save": "Запази",
   "whiteboard.load": "Зареди",
@@ -823,7 +805,6 @@
   "whiteboard.shortcut.delete": "Изтрий",
   "whiteboard.shortcut.paste": "Постави изображение",
   "whiteboard.shortcut.drag": "Плъзгане и пускане на изображения",
-
   "dashboard.menu.workinggroups": "Работни групи",
   "dashboard.menu.signatures": "Подписи",
   "dashboard.menu.terminology": "Терминология",
@@ -975,12 +956,10 @@
   "dashboard.workinggroups.members.joined": "Присъединен",
   "dashboard.workinggroups.members.empty": "Все още няма членове.",
   "dashboard.workinggroups.members.noResults": "Не са намерени членове, отговарящи на вашето търсене.",
-  
   "dashboard.budget.title": "Бюджет и финанси",
   "dashboard.budget.overview": "Преглед на бюджета",
   "dashboard.budget.description": "Прегледайте финансова информация и детайли за бюджета",
   "dashboard.budget.empty": "Няма налична информация за бюджета.",
-  
   "dashboard.network.title": "Мрежа",
   "dashboard.network.members": "членове",
   "dashboard.network.reload": "Презареди мрежови данни",
@@ -1108,7 +1087,6 @@
   "dashboard.network.suspended.title": "Спряни членове",
   "dashboard.network.suspended.description": "Членове, които са временно спрени",
   "dashboard.network.suspended.empty": "Няма спрени членове.",
-  
   "settings.title": "Настройки",
   "settings.description": "Управлявайте настройките и предпочитанията на вашия акаунт",
   "settings.back": "Назад към таблото",
@@ -1140,7 +1118,6 @@
   "settings.logout.button": "Изход",
   "settings.logout.success": "Излязохте",
   "settings.logout.description": "Успешно излязохте от акаунта си.",
-  
   "dashboard.pendingApproval.title": "Акаунт в очакване на одобрение",
   "dashboard.pendingApproval.description": "Вашият акаунт чака одобрение от администратор.",
   "dashboard.pendingApproval.message": "Какво следва?",
@@ -1158,7 +1135,6 @@
   "dashboard.status.approved": "Одобрен",
   "dashboard.status.rejected": "Отхвърлен",
   "dashboard.status.suspended": "Спрян",
-  
   "dashboard.terminology.title": "Терминологичен речник",
   "dashboard.terminology.description": "Терминология на адитивното производство",
   "dashboard.terminology.search": "Търсене на термини...",
@@ -1212,7 +1188,6 @@
   "dashboard.terminology.addRelated": "Свържи свързан термин",
   "dashboard.terminology.bulkEdit": "Масово редактиране",
   "dashboard.terminology.analytics": "Аналитика",
-  
   "settings.title": "Настройки",
   "settings.description": "Управление на настройките и предпочитанията на акаунта",
   "settings.back": "Обратно към таблото",
@@ -1237,7 +1212,6 @@
   "settings.profile.phone.placeholder": "+359 888 123 456",
   "settings.profile.company": "Компания / Организация",
   "settings.profile.company.placeholder": "Името на вашата компания или организация",
-  
   "settings.preferences.title": "Предпочитания",
   "settings.preferences.description": "Персонализирайте вашето изживяване",
   "settings.preferences.language": "Език",
@@ -1247,7 +1221,6 @@
   "settings.preferences.theme.system": "Системна",
   "settings.preferences.theme.systemHint": "Използва системните настройки за тема",
   "settings.preferences.theme.selected": "Избрана тема",
-  
   "settings.billing.title": "Членство и плащания",
   "settings.billing.description": "Статус на абонамента и информация за плащанията",
   "settings.billing.subscriptionStatus": "Статус на абонамента",
@@ -1264,7 +1237,6 @@
   "settings.billing.overdueDays": "Просрочено",
   "settings.billing.invoiceId": "Номер на фактура",
   "settings.billing.note": "За плащане или актуализиране на информацията за фактуриране, моля свържете се с асоциацията на",
-  
   "settings.account.title": "Управление на акаунта",
   "settings.account.description": "Управлявайте вашия акаунт",
   "settings.save.button": "Запази промените",
@@ -1277,7 +1249,6 @@
   "settings.logout.description": "Успешно излязохте от профила си.",
   "settings.logout.error.title": "Грешка при изход",
   "settings.logout.error.description": "Неуспешен изход. Моля, опитайте отново.",
-  
   "jobboard.title": "Обяви за Работа",
   "jobboard.description": "Намерете възможности или публикувайте обяви за работа",
   "jobboard.filters": "Филтри",
@@ -1315,14 +1286,12 @@
   "jobboard.portfolioItems": "портфолио файла",
   "jobboard.openToRemote": "Отворен за Дистанционна Работа",
   "jobboard.openToHybrid": "Отворен за Хибридна Работа",
-  
   "jobboard.error.loadFailed": "Грешка",
   "jobboard.error.loadFailedDesc": "Неуспешно зареждане на данни",
   "jobboard.error.favoriteFailed": "Грешка",
   "jobboard.error.favoriteFailedDesc": "Неуспешно актуализиране на любими",
   "jobboard.error.tablesMissing": "Изисква се настройка на базата данни",
   "jobboard.error.tablesMissingDesc": "Таблиците на обявите за работа не са намерени. Моля, изпълнете миграцията 020_job_board.sql в SQL Editor на Supabase.",
-  
   "jobboard.form.editTitle": "Редактирай Обява за Работа",
   "jobboard.form.createTitle": "Създай Обява за Работа",
   "jobboard.form.editDesc": "Актуализирай информацията за обявата",
@@ -1383,7 +1352,6 @@
   "jobboard.form.changeCoverLetter": "Промени Мотивационно Писмо",
   "jobboard.form.uploadCoverLetter": "Качи Мотивационно Писмо",
   "jobboard.form.uploadPortfolio": "Качи Портфолио Файлове",
-  
   "jobboard.form.editProfileTitle": "Редактирай Профил",
   "jobboard.form.createProfileTitle": "Създай Профил на Търсещ Работа",
   "jobboard.form.editProfileDesc": "Актуализирай своя професионален профил",
@@ -1402,7 +1370,6 @@
   "jobboard.form.showSalaryExpectation": "Покажи очаквана заплата",
   "jobboard.form.success.updateProfileDesc": "Профилът е актуализиран успешно",
   "jobboard.form.success.createProfileDesc": "Профилът е създаден успешно",
-  
   "jobboard.filters.title": "Филтри",
   "jobboard.filters.clear": "Изчисти Всички",
   "jobboard.filters.category": "Категория",
@@ -1421,7 +1388,6 @@
   "jobboard.filters.max": "Макс",
   "jobboard.filters.workPreferences": "Предпочитания за Работа",
   "jobboard.filters.hasPortfolio": "Има Портфолио",
-  
   "jobboard.detail.description": "Описание",
   "jobboard.detail.workHours": "Работни Часове",
   "jobboard.detail.salary": "Заплата",
@@ -1444,7 +1410,6 @@
   "jobboard.detail.portfolioFile": "Портфолио Файл",
   "jobboard.detail.portfolioWebsite": "Уебсайт на Портфолио",
   "jobboard.detail.contact": "Контакт",
-  
   "jobboard.application.title": "Кандидатствай за",
   "jobboard.application.description": "Изпрати своята кандидатура за тази позиция",
   "jobboard.application.message": "Съобщение",
@@ -1462,13 +1427,11 @@
   "jobboard.application.successDesc": "Вашата кандидатура е изпратена успешно",
   "jobboard.application.error": "Грешка",
   "jobboard.application.errorDesc": "Неуспешно изпращане на кандидатура",
-  
   "jobboard.availability.immediately": "Веднага",
   "jobboard.availability.2_weeks": "2 седмици",
   "jobboard.availability.1_month": "1 месец",
   "jobboard.availability.3_months": "3 месеца",
   "jobboard.availability.currently_employed": "В момента работя (отворен за предложения)",
-  
   "common.cancel": "Отказ",
   "common.loading": "Зареждане...",
   "common.update": "Актуализирай",
@@ -1483,7 +1446,6 @@
   "common.grid": "Мрежа",
   "common.yes": "Да",
   "common.no": "Не",
-  
   "materials.title": "База Данни Материали",
   "materials.description": "Разгледайте и търсете материали за адитивно производство",
   "materials.loading": "Зареждане на материали...",
@@ -1494,7 +1456,6 @@
   "materials.category.polymer": "Полимер",
   "materials.error.tablesMissing": "Изисква се настройка на базата данни",
   "materials.error.tablesMissingDesc": "Таблиците на базата данни за материали не са намерени. Моля, изпълнете миграцията 021_material_database.sql в Supabase SQL Editor.",
-  
   "materials.wizard.title": "Магьосник за Съвместимост на Материали",
   "materials.wizard.description": "Намерете перфектния материал за вашето приложение",
   "materials.wizard.step1.title": "Изисквания",
@@ -1530,7 +1491,6 @@
   "materials.wizard.startOver": "Започни отново",
   "materials.wizard.error.title": "Грешка",
   "materials.wizard.error.calculation": "Неуспешно изчисляване на съвпадения на материали.",
-  
   "materials.properties.tensileStrength": "Якост на Опън",
   "materials.properties.yieldStrength": "Граница на Провлачване",
   "materials.properties.elongation": "Удължение",
@@ -1541,7 +1501,6 @@
   "materials.properties.cost": "Цена",
   "materials.properties.printability": "Печатаемост",
   "materials.properties.postProcessing": "Изисква се Обработка След Печат",
-  
   "materials.card.properties": "Свойства на Материала",
   "materials.card.detailedProperties": "Подробни Свойства",
   "materials.card.compatiblePrinters": "Съвместими Принтери",
@@ -1552,7 +1511,6 @@
   "materials.card.safetyNotes": "Бележки за Безопасност",
   "materials.card.standardReference": "Стандартна Референция",
   "materials.chart.value": "Стойност",
-  
   "dashboard.menu.vault": "BAMAS Трезор",
   "dashboard.vault.title": "BAMAS Трезор",
   "dashboard.vault.locked.title": "Трезорът е Заключен",
@@ -1638,7 +1596,6 @@
   "dashboard.vault.logs.action": "Действие",
   "dashboard.vault.logs.document": "Документ",
   "dashboard.vault.logs.time": "Време",
-  
   "dashboard.menu.strategiccalendar": "Стратегически Календар",
   "dashboard.calendar.title": "Стратегически Календар",
   "dashboard.calendar.addEvent": "Добави Събитие",
@@ -1686,7 +1643,6 @@
   "dashboard.calendar.error.deleteFailed": "Неуспешно Изтриване",
   "dashboard.calendar.delete.title": "Изтрий Събитието?",
   "dashboard.calendar.delete.description": "Това действие не може да бъде отменено. Събитието ще бъде окончателно премахнато.",
-  
   "dashboard.network.filter.technologies": "Филтриране по Технология",
   "dashboard.network.filter.filtered": "филтрирано по"
 }

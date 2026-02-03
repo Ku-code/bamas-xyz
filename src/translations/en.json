@@ -9,16 +9,13 @@
   "nav.language": "Language",
   "nav.language.en": "English",
   "nav.language.bg": "Bulgarian",
-  
   "hero.title": "Bulgarian Additive Manufacturing Association",
   "hero.subtitle": "Uniting Innovation. Empowering Industry. Shaping the Future.",
   "hero.cta": "Become a Member",
   "hero.badge": "BAMAS",
-  
   "about.title": "About Us",
   "about.description": "The Bulgarian Additive Manufacturing Association (BAMAS) was established to address the pressing need for structured collaboration within Bulgaria's growing 3D printing ecosystem. As the industry evolves rapidly, we provide a neutral, non-commercial platform that fosters innovation and strategic growth.",
   "about.subtitle": "Our focus is on the future of Industry 4.0 in Bulgaria, bringing together manufacturers, researchers, educational institutions, and technology innovators to create a thriving environment for additive manufacturing excellence.",
-  
   "mission.section.title": "BULGARIAN ADDITIVE HUB",
   "mission.vision.title": "Our Vision",
   "mission.vision.short": "To establish Bulgaria as a premier European hub for high-tech additive innovation and digital industrial excellence.",
@@ -32,7 +29,6 @@
   "mission.mission.item2": "Advocate for technological progress and regulatory support",
   "mission.mission.item3": "Promote innovation and excellence in 3D manufacturing",
   "mission.mission.item4": "Build international partnerships to bring global best practices to Bulgaria",
-  
   "objectives.title": "Core Objectives",
   "objectives.item1.title": "Strengthen Communication",
   "objectives.item1.description": "Foster dialogue and knowledge sharing between 3D printing companies across Bulgaria.",
@@ -42,7 +38,6 @@
   "objectives.item3.description": "Create joint ventures with AI, aerospace, automotive, medical, and educational sectors.",
   "objectives.item4.title": "Stimulate Market Development",
   "objectives.item4.description": "Drive growth through strategic events, policy dialogue and international partnerships.",
-  
   "membership.pricing.title": "Membership Pricing",
   "membership.pricing.subtitle": "Choose the membership tier that fits your needs",
   "membership.pricing.individual.title": "Individual",
@@ -69,33 +64,39 @@
   "membership.benefits.item5.description": "Shared promotional opportunities through BAMAS's platforms and media partnerships.",
   "membership.benefits.item6.title": "Industry Voice",
   "membership.benefits.item6.description": "Represent the sector's interests in policy discussions and regulatory frameworks.",
-  
   "events.title": "Events Timeline",
   "events.past.title": "Past Events",
   "events.upcoming.title": "Upcoming Events",
-  "events.conference.title": "Founding Conference of BAMAS",
-  "events.conference.date": "Date: TBA",
-  "events.conference.location": "Location: Sofia, Bulgaria",
-  "events.conference.topics": "Topics Preview",
-  "events.conference.topic1": "Industry trends & market opportunities",
-  "events.conference.topic2": "AI applications in 3D printing",
-  "events.conference.topic3": "Education & workforce readiness",
-  "events.conference.topic4": "Cross-sector collaboration initiatives",
-  "events.conference.register.title": "Register for the Conference",
-  "events.conference.register.description": "Join us at the founding conference of BAMAS to connect with industry leaders and discover the future of additive manufacturing in Bulgaria.",
-  "events.conference.register.cta": "Register Now",
-  "events.planning2026.title": "2026 First Planning Meeting",
-  "events.planning2026.date": "Date: Q1 2026",
-  "events.planning2026.location": "Location: Sofia, Bulgaria",
-  "events.planning2026.description": "Join us for the first planning meeting of 2026 to discuss strategic initiatives, upcoming projects, and collaboration opportunities for the year ahead.",
-  
+  "events.july2025.title": "Initial Vision Meeting",
+  "events.july2025.date": "July 2, 2025",
+  "events.july2025.location": "Capital Fort, Sofia",
+  "events.july2025.description": "First meeting for establishing the core idea of the association.",
+  "events.nov2025.title": "Official Foundation Assembly",
+  "events.nov2025.date": "November 5, 2025",
+  "events.nov2025.location": "Resonator, Sofia",
+  "events.nov2025.description": "Official Board Assembly for Establishing BAMAS.",
+  "events.jan2026.title": "2026 Annual Kick-off",
+  "events.jan2026.date": "January 26, 2026",
+  "events.jan2026.location": "Resonator, Sofia",
+  "events.jan2026.description": "First strategic meeting for the 2026 roadmap.",
+  "events.online_discussion.title": "Online Discussion",
+  "events.online_discussion.date": "Upcoming: TBA",
+  "events.online_discussion.location": "Online",
+  "events.online_discussion.description": "Member discussion on specific AM topics.",
+  "events.board_meeting_june.title": "Board Assembly",
+  "events.board_meeting_june.date": "June 2026",
+  "events.board_meeting_june.location": "TBA",
+  "events.board_meeting_june.description": "Mid-year review of strategic goals.",
+  "events.conference_nov.title": "BAMAS Conference & General Assembly",
+  "events.conference_nov.date": "November 2026",
+  "events.conference_nov.location": "Sofia, Bulgaria",
+  "events.conference_nov.description": "Premier annual event for all members.",
   "partner.title": "Partner With Us",
   "partner.description1": "BAMAS invites companies, universities, research institutions, and organizations involved in additive manufacturing to join our network. Together, we can accelerate innovation, share knowledge, and strengthen Bulgaria's position in the global 3D printing landscape.",
   "partner.description2": "Our partners benefit from collaborative opportunities, shared resources, access to specialized expertise, and a wider platform for visibility and impact.",
   "partner.interest.title": "Express Your Interest",
   "partner.interest.description": "Ready to join forces with BAMAS? Click the button below to fill out our partnership application form.",
   "partner.interest.cta": "Partner With Us",
-  
   "contact.title": "Contact Us",
   "contact.form.title": "Send a Message",
   "contact.form.description": "Have questions about BAMAS or interested in learning more about our initiatives? Click the button below to send us a message through our contact form.",
@@ -108,7 +109,6 @@
   "contact.viber.cta": "Join Viber Community",
   "contact.location.title": "Our Presence",
   "contact.location.description": "BAMAS is a national association operating throughout Bulgaria, connecting the additive manufacturing community across the country.",
-  
   "footer.resources": "Resources",
   "footer.contact": "Contact",
   "footer.copyright": "© {year} Bulgarian Additive Manufacturing Association. All rights reserved.",
@@ -119,7 +119,6 @@
   "footer.newsletter.placeholder": "Enter your email",
   "footer.newsletter.subscribe": "Subscribe",
   "footer.addliance.text": "Part of (Add)liance - The European Additive Manufacturing Hub",
-  
   "nav.login": "Login",
   "nav.register": "Register",
   "auth.login.title": "Login",
@@ -176,7 +175,6 @@
   "auth.resetPassword.error.description": "Failed to reset password. Please try again or request a new reset link.",
   "auth.resetPassword.error.invalidLink": "This password reset link is invalid or has expired. Please request a new one.",
   "auth.resetPassword.error.passwordLength": "Password must be at least 6 characters long.",
-  
   "cookies.consent.title": "Cookie Consent",
   "cookies.consent.description": "We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking 'Accept', you consent to our use of cookies.",
   "cookies.consent.accept": "Accept All",
@@ -184,7 +182,6 @@
   "cookies.consent.close": "Close",
   "cookies.consent.learnMore": "Learn more about our ",
   "cookies.consent.policyLink": "Cookie Policy",
-  
   "documents.title": "Official Documents",
   "documents.subtitle": "Articles of Association and Official Registry Information",
   "documents.commercial_register": "Commercial Register",
@@ -210,11 +207,9 @@
   "documents.results": "results",
   "documents.no_results": "No results found",
   "documents.search_tip": "Tip: Press Enter to jump to next result, Escape to clear search",
-  
   "nav.dashboard": "Dashboard",
   "nav.settings": "Settings",
   "nav.logout": "Logout",
-  
   "dashboard.menu.history": "History",
   "dashboard.menu.meetings": "Meetings",
   "dashboard.menu.votes": "Votes",
@@ -232,7 +227,6 @@
   "dashboard.menu.settings": "Settings",
   "dashboard.backToHome": "Back to Home",
   "dashboard.home": "Home",
-  
   "dashboard.history.title": "Activity History",
   "dashboard.history.recent": "Recent Activity",
   "dashboard.history.description": "View your recent actions and interactions",
@@ -256,7 +250,6 @@
   "dashboard.history.filters.timeRange": "Time Range",
   "dashboard.history.filters.startTime": "Start",
   "dashboard.history.filters.endTime": "End",
-  
   "dashboard.votes.title": "Votes & Polls",
   "dashboard.votes.active": "Active Polls",
   "dashboard.votes.description": "Participate in association votes and polls",
@@ -310,7 +303,6 @@
   "dashboard.votes.ends": "Ends",
   "dashboard.votes.yourVote": "Your vote",
   "dashboard.votes.changeVote": "Change Vote",
-  
   "dashboard.agenda.title": "Agenda & Meetings",
   "dashboard.agenda.upcoming": "Upcoming Meetings",
   "dashboard.agenda.description": "View and manage your meeting schedule",
@@ -363,7 +355,6 @@
   "dashboard.agenda.delete.confirm.description": "This action cannot be undone. This will permanently delete the agenda item and all its comments.",
   "dashboard.agenda.delete.confirm.button": "Delete",
   "dashboard.agenda.delete.cancel": "Cancel",
-  
   "dashboard.documents.title": "Documents",
   "dashboard.documents.library": "Document Library",
   "dashboard.documents.description": "Access association documents and resources",
@@ -459,7 +450,6 @@
   "dashboard.signatures.info.title": "About Digital Signatures",
   "dashboard.signatures.info.description": "Critical documents require legally binding digital signatures from authorized members.",
   "dashboard.signatures.info.process": "Click 'Sign Now' to preview the document, then draw your signature. The document will be finalized when all required signers complete.",
-  
   "dashboard.meetings.title": "Meetings & Agendas",
   "dashboard.meetings.description": "Plan, run, and document association meetings",
   "dashboard.meetings.empty": "No meetings found.",
@@ -530,7 +520,6 @@
   "dashboard.meetings.execution.complete": "Complete Item",
   "dashboard.meetings.execution.completed": "Completed",
   "dashboard.meetings.execution.progress": "Progress",
-  
   "dashboard.proposals.submit.title": "Submit Proposal",
   "dashboard.proposals.submit.button": "New Proposal",
   "dashboard.proposals.submit.dialog.title": "Submit Agenda Proposal",
@@ -567,7 +556,6 @@
   "dashboard.proposals.review.error.noAgenda": "Agenda must be created first.",
   "dashboard.proposals.review.error.description": "Failed to review proposal.",
   "dashboard.proposals.review.reviewed": "Reviewed Proposals",
-  
   "dashboard.minutes.title": "Meeting Minutes",
   "dashboard.minutes.discussion": "Discussion Summary",
   "dashboard.minutes.discussionPlaceholder": "Summarize the discussion...",
@@ -587,7 +575,6 @@
   "dashboard.minutes.approve.error.title": "Error",
   "dashboard.minutes.approve.error.description": "Failed to approve minutes.",
   "dashboard.minutes.approved": "Approved",
-  
   "dashboard.votes.link.button": "Link to Agenda Item",
   "dashboard.votes.link.dialog.title": "Link Poll to Agenda Item",
   "dashboard.votes.link.dialog.description": "Connect this poll to a specific agenda item for meeting voting.",
@@ -638,7 +625,6 @@
   "dashboard.signatures.success.description": "Your signature has been saved. The document will be finalized when all signers complete.",
   "dashboard.signatures.dialog.title": "Sign Document",
   "dashboard.signatures.dialog.description": "Please review and sign the document below",
-  
   "dashboard.documents.signatures.ready": "Signatures Required",
   "dashboard.documents.signatures.created": "Document created and ready for signatures",
   "dashboard.documents.signatures.warning": "Signature Setup Warning",
@@ -667,7 +653,6 @@
   "common.close": "Close",
   "common.retry": "Retry",
   "common.cancel": "Cancel",
-  
   "dashboard.menu.resources": "Resources",
   "dashboard.menu.additivemap": "AdditiveMAP",
   "dashboard.menu.workinggroups": "Working Groups",
@@ -730,7 +715,6 @@
   "dashboard.resources.sort.name": "Name",
   "dashboard.resources.sort.size": "Size",
   "dashboard.resources.sort.category": "Category",
-  
   "dashboard.additivemap.title": "Additive Manufacturing Map",
   "dashboard.additivemap.register.button": "Register Company",
   "dashboard.additivemap.error.title": "Error Loading Companies",
@@ -810,7 +794,6 @@
   "dashboard.additivemap.map.exitFullscreen": "Exit Fullscreen",
   "dashboard.additivemap.panel.open": "Open Panel",
   "dashboard.additivemap.panel.close": "Close Panel",
-
   "company.page.noDescription": "Additive Manufacturing Company",
   "company.page.contactLocation": "Contact & Location",
   "company.page.address": "Address",
@@ -825,7 +808,6 @@
   "company.page.visitWebsite": "Visit Website",
   "company.page.edit": "Edit",
   "company.page.delete": "Delete",
-
   "dashboard.eufunds.title": "EU Funds Radar",
   "dashboard.eufunds.subtitle": "Discover funding opportunities for additive manufacturing",
   "dashboard.eufunds.portal.title": "EU Funding & Tenders Portal",
@@ -856,7 +838,6 @@
   "dashboard.eufunds.support.title": "Need Help with EU Proposals?",
   "dashboard.eufunds.support.description": "BAMAS members can access consortium-building support and proposal review services.",
   "dashboard.eufunds.support.button": "Contact BAMAS",
-
   "whiteboard.title": "Collaborative Whiteboard",
   "whiteboard.save": "Save",
   "whiteboard.load": "Load",
@@ -894,7 +875,6 @@
   "whiteboard.shortcut.delete": "Delete",
   "whiteboard.shortcut.paste": "Paste Image",
   "whiteboard.shortcut.drag": "Drag & Drop images supported",
-  
   "dashboard.workinggroups.title": "Working Groups",
   "dashboard.workinggroups.overview.title": "Available Working Groups",
   "dashboard.workinggroups.overview.description": "Select a working group to view its workspace and collaborate with members.",
@@ -1040,12 +1020,10 @@
   "dashboard.workinggroups.members.joined": "Joined",
   "dashboard.workinggroups.members.empty": "No members yet.",
   "dashboard.workinggroups.members.noResults": "No members found matching your search.",
-  
   "dashboard.budget.title": "Budget & Financials",
   "dashboard.budget.overview": "Budget Overview",
   "dashboard.budget.description": "View financial information and budget details",
   "dashboard.budget.empty": "No budget information available.",
-  
   "dashboard.network.title": "Network",
   "dashboard.network.members": "members",
   "dashboard.network.reload": "Reload network data",
@@ -1181,7 +1159,6 @@
   "dashboard.network.suspended.title": "Suspended Members",
   "dashboard.network.suspended.description": "Members who have been temporarily suspended",
   "dashboard.network.suspended.empty": "No suspended members.",
-  
   "settings.title": "Settings",
   "settings.description": "Manage your account settings and preferences",
   "settings.back": "Back to Dashboard",
@@ -1221,14 +1198,12 @@
   "settings.profile.imageError.uploadFailed": "Failed to upload image. Please try again.",
   "settings.profile.company": "Company / Organization",
   "settings.profile.company.placeholder": "Your company or organization name",
-  
   "settings.preferences.theme": "Theme",
   "settings.preferences.theme.light": "Light",
   "settings.preferences.theme.dark": "Dark",
   "settings.preferences.theme.system": "System",
   "settings.preferences.theme.systemHint": "Currently using system theme preference",
   "settings.preferences.theme.selected": "Theme selected",
-  
   "settings.billing.title": "Membership & Billing",
   "settings.billing.description": "Your subscription status and payment information",
   "settings.billing.subscriptionStatus": "Subscription Status",
@@ -1245,7 +1220,6 @@
   "settings.billing.overdueDays": "Overdue",
   "settings.billing.invoiceId": "Invoice ID",
   "settings.billing.note": "To make a payment or update your billing information, please contact the association at",
-  
   "dashboard.pendingApproval.title": "Account Pending Approval",
   "dashboard.pendingApproval.description": "Your account is waiting for administrator approval.",
   "dashboard.pendingApproval.message": "What happens next?",
@@ -1263,7 +1237,6 @@
   "dashboard.status.approved": "Approved",
   "dashboard.status.rejected": "Rejected",
   "dashboard.status.suspended": "Suspended",
-  
   "dashboard.terminology.title": "Terminology Dictionary",
   "dashboard.terminology.description": "Additive Manufacturing Terminology",
   "dashboard.terminology.search": "Search terms...",
@@ -1317,7 +1290,6 @@
   "dashboard.terminology.addRelated": "Link Related Term",
   "dashboard.terminology.bulkEdit": "Bulk Edit",
   "dashboard.terminology.analytics": "Analytics",
-  
   "jobboard.title": "Job Board",
   "jobboard.description": "Find opportunities or post job openings",
   "jobboard.filters": "Filters",
@@ -1355,14 +1327,12 @@
   "jobboard.portfolioItems": "portfolio items",
   "jobboard.openToRemote": "Open to Remote",
   "jobboard.openToHybrid": "Open to Hybrid",
-  
   "jobboard.error.loadFailed": "Error",
   "jobboard.error.loadFailedDesc": "Failed to load data",
   "jobboard.error.favoriteFailed": "Error",
   "jobboard.error.favoriteFailedDesc": "Failed to update favorite",
   "jobboard.error.tablesMissing": "Database Setup Required",
   "jobboard.error.tablesMissingDesc": "Job board tables not found. Please run migration 020_job_board.sql in Supabase SQL Editor.",
-  
   "jobboard.form.editTitle": "Edit Job Posting",
   "jobboard.form.createTitle": "Create Job Posting",
   "jobboard.form.editDesc": "Update the job posting information",
@@ -1423,7 +1393,6 @@
   "jobboard.form.changeCoverLetter": "Change Cover Letter",
   "jobboard.form.uploadCoverLetter": "Upload Cover Letter",
   "jobboard.form.uploadPortfolio": "Upload Portfolio Files",
-  
   "jobboard.form.editProfileTitle": "Edit Profile",
   "jobboard.form.createProfileTitle": "Create Job Seeker Profile",
   "jobboard.form.editProfileDesc": "Update your professional profile",
@@ -1442,7 +1411,6 @@
   "jobboard.form.showSalaryExpectation": "Show salary expectation",
   "jobboard.form.success.updateProfileDesc": "Profile updated successfully",
   "jobboard.form.success.createProfileDesc": "Profile created successfully",
-  
   "jobboard.filters.title": "Filters",
   "jobboard.filters.clear": "Clear All",
   "jobboard.filters.category": "Category",
@@ -1461,7 +1429,6 @@
   "jobboard.filters.max": "Max",
   "jobboard.filters.workPreferences": "Work Preferences",
   "jobboard.filters.hasPortfolio": "Has Portfolio",
-  
   "jobboard.detail.description": "Description",
   "jobboard.detail.workHours": "Work Hours",
   "jobboard.detail.salary": "Salary",
@@ -1484,7 +1451,6 @@
   "jobboard.detail.portfolioFile": "Portfolio File",
   "jobboard.detail.portfolioWebsite": "Portfolio Website",
   "jobboard.detail.contact": "Contact",
-  
   "jobboard.application.title": "Apply to",
   "jobboard.application.description": "Submit your application for this position",
   "jobboard.application.message": "Message",
@@ -1502,13 +1468,11 @@
   "jobboard.application.successDesc": "Your application has been submitted successfully",
   "jobboard.application.error": "Error",
   "jobboard.application.errorDesc": "Failed to submit application",
-  
   "jobboard.availability.immediately": "Immediately",
   "jobboard.availability.2_weeks": "2 Weeks",
   "jobboard.availability.1_month": "1 Month",
   "jobboard.availability.3_months": "3 Months",
   "jobboard.availability.currently_employed": "Currently Employed (Open to Offers)",
-  
   "common.cancel": "Cancel",
   "common.loading": "Loading...",
   "common.update": "Update",
@@ -1523,7 +1487,6 @@
   "common.grid": "Grid",
   "common.yes": "Yes",
   "common.no": "No",
-  
   "materials.title": "Material Database",
   "materials.description": "Browse and search additive manufacturing materials",
   "materials.loading": "Loading materials...",
@@ -1534,7 +1497,6 @@
   "materials.category.polymer": "Polymer",
   "materials.error.tablesMissing": "Database Setup Required",
   "materials.error.tablesMissingDesc": "Material database tables not found. Please run migration 021_material_database.sql in Supabase SQL Editor.",
-  
   "materials.wizard.title": "Material Compatibility Wizard",
   "materials.wizard.description": "Find the perfect material for your application",
   "materials.wizard.step1.title": "Requirements",
@@ -1570,7 +1532,6 @@
   "materials.wizard.startOver": "Start Over",
   "materials.wizard.error.title": "Error",
   "materials.wizard.error.calculation": "Failed to calculate material matches.",
-  
   "materials.properties.tensileStrength": "Tensile Strength",
   "materials.properties.yieldStrength": "Yield Strength",
   "materials.properties.elongation": "Elongation",
@@ -1581,7 +1542,6 @@
   "materials.properties.cost": "Cost",
   "materials.properties.printability": "Printability",
   "materials.properties.postProcessing": "Post Processing Required",
-  
   "materials.card.properties": "Material Properties",
   "materials.card.detailedProperties": "Detailed Properties",
   "materials.card.compatiblePrinters": "Compatible Printers",
@@ -1592,7 +1552,6 @@
   "materials.card.safetyNotes": "Safety Notes",
   "materials.card.standardReference": "Standard Reference",
   "materials.chart.value": "Value",
-  
   "dashboard.menu.vault": "BAMAS Vault",
   "dashboard.vault.title": "BAMAS Vault",
   "dashboard.vault.locked.title": "Vault Locked",
@@ -1678,7 +1637,6 @@
   "dashboard.vault.logs.action": "Action",
   "dashboard.vault.logs.document": "Document",
   "dashboard.vault.logs.time": "Time",
-  
   "dashboard.menu.strategiccalendar": "Strategic Calendar",
   "dashboard.calendar.title": "Strategic Calendar",
   "dashboard.calendar.addEvent": "Add Event",
@@ -1726,7 +1684,6 @@
   "dashboard.calendar.error.deleteFailed": "Delete Failed",
   "dashboard.calendar.delete.title": "Delete Event?",
   "dashboard.calendar.delete.description": "This action cannot be undone. The event will be permanently removed.",
-  
   "dashboard.network.filter.technologies": "Filter by Technology",
   "dashboard.network.filter.filtered": "filtered by"
-} 
+}
