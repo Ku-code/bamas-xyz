@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
@@ -288,19 +288,35 @@ const MembershipForm: React.FC<MembershipFormProps> = ({
     };
 
     const handleSubmit = async () => {
-        if (!validateStep()) return;
+        console.log('Starting form submission...', formData);
+
+        if (!validateStep()) {
+            console.warn('Validation failed on last step');
+            return;
+        }
 
         setIsSubmitting(true);
         try {
-            // Capture submission time in local Sofia timezone format if possible, or ISO
+            // Capture submission time in local Sofia timezone format
             const now = new Date();
             const appliedAt = now.toLocaleString('en-GB', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit', second: '2-digit'
             });
 
+            console.log('Invoking edge function: send-membership-application');
+
+            if (!isSupabaseConfigured()) {
+                console.error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+                toast.error(language === 'bg'
+                    ? 'Системата за съобщения не е конфигурирана. Моля, свържете се с нас директно на info@bamas.xyz.'
+                    : 'Email system not configured. Please contact us directly at info@bamas.xyz.');
+                setIsSubmitting(false);
+                return;
+            }
+
             // Call the edge function to generate PDF and send emails
-            const { data, error } = await supabase.functions.invoke('send-membership-application', {
+            const { data, error: invokeError } = await (supabase as any).functions.invoke('send-membership-application', {
                 body: {
                     formData: {
                         ...formData,
@@ -310,18 +326,35 @@ const MembershipForm: React.FC<MembershipFormProps> = ({
                 },
             });
 
-            if (error) throw error;
+            if (invokeError) {
+                console.error('Edge function invocation error:', invokeError);
+                throw new Error(invokeError.message || 'Failed to invoke email function');
+            }
+
+            console.log('Submission successful:', data);
 
             toast.success(language === 'bg' ? 'Заявлението е изпратено успешно!' : 'Application submitted successfully!');
-            if (onSuccess) {
-                onSuccess({
-                    email: formData.email,
-                    name: formData.fullName || formData.legalName
-                });
-            }
+
+            // Move to a success state or close modal after a short delay
+            setTimeout(() => {
+                if (onSuccess) {
+                    onSuccess({
+                        email: formData.email,
+                        name: formData.fullName || formData.legalName
+                    });
+                }
+            }, 1500);
+
         } catch (error: any) {
-            console.error('Submit error:', error);
-            toast.error(error.message || (language === 'bg' ? 'Възникна грешка. Моля, опитайте отново.' : 'Failed to submit application. Please try again.'));
+            console.error('Submit error details:', error);
+
+            // Handle specific error cases
+            const errorMessage = error.message || '';
+            if (errorMessage.includes('Failed to fetch')) {
+                toast.error(language === 'bg' ? 'Няма връзка със сървъра. Проверете интернет връзката си.' : 'Server connection failed. Please check your internet connection.');
+            } else {
+                toast.error(error.message || (language === 'bg' ? 'Възникна грешка при изпращането. Моля, опитайте отново.' : 'An error occurred during submission. Please try again.'));
+            }
         } finally {
             setIsSubmitting(false);
         }

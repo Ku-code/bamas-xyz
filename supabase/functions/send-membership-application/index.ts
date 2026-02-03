@@ -6,397 +6,397 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
 
 const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers":
-        "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface FormData {
-    applicationType: string;
-    fullName: string;
-    dateOfBirth: string;
-    age: string;
-    gender: string;
-    nationality: string;
-    currentEmployment: string;
-    experienceLevel: string;
-    legalName: string;
-    legalForm: string;
-    registrationNumber: string;
-    countryOfRegistration: string;
-    registeredAddress: string;
-    website: string;
-    mainActivity: string;
-    address: string;
-    city: string;
-    country: string;
-    email: string;
-    phone: string;
-    linkedIn: string;
-    motivation: string;
-    willingToContribute: string;
-    contributeExplanation: string;
-    valuesAlign: string;
-    valuesExplanation: string;
-    industryReputation: string;
-    amCompanyRelationships: string;
-    politicalAffiliations: string;
-    readArticles: boolean;
-    confirmAccuracy: boolean;
-    understandApproval: boolean;
-    agreeGDPR: boolean;
-    signaturePlace: string;
-    signatureDate: string;
-    signatureName: string;
+  applicationType: string;
+  fullName: string;
+  dateOfBirth: string;
+  age: string;
+  gender: string;
+  nationality: string;
+  currentEmployment: string;
+  experienceLevel: string;
+  legalName: string;
+  legalForm: string;
+  registrationNumber: string;
+  countryOfRegistration: string;
+  registeredAddress: string;
+  website: string;
+  mainActivity: string;
+  address: string;
+  city: string;
+  country: string;
+  email: string;
+  phone: string;
+  linkedIn: string;
+  motivation: string;
+  willingToContribute: string;
+  contributeExplanation: string;
+  valuesAlign: string;
+  valuesExplanation: string;
+  industryReputation: string;
+  amCompanyRelationships: string;
+  politicalAffiliations: string;
+  readArticles: boolean;
+  confirmAccuracy: boolean;
+  understandApproval: boolean;
+  agreeGDPR: boolean;
+  signaturePlace: string;
+  signatureDate: string;
+  signatureName: string;
 }
 
 interface MembershipApplicationRequest {
-    formData: FormData;
-    language: string;
+  formData: FormData;
+  language: string;
 }
 
 // Generate the PDF document
 async function generatePDF(formData: FormData): Promise<Uint8Array> {
-    const pdfDoc = await PDFDocument.create();
+  const pdfDoc = await PDFDocument.create();
 
-    // Embed fonts
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  // Embed fonts
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // Colors
-    const tealColor = rgb(0.06, 0.46, 0.43); // #0f766e
-    const grayColor = rgb(0.4, 0.4, 0.4);
-    const blackColor = rgb(0, 0, 0);
+  // Colors
+  const tealColor = rgb(0.06, 0.46, 0.43); // #0f766e
+  const grayColor = rgb(0.4, 0.4, 0.4);
+  const blackColor = rgb(0, 0, 0);
 
-    // Add first page
-    let page = pdfDoc.addPage([595, 842]); // A4 size
-    const { width, height } = page.getSize();
-    let yPosition = height - 50;
+  // Add first page
+  let page = pdfDoc.addPage([595, 842]); // A4 size
+  const { width, height } = page.getSize();
+  let yPosition = height - 50;
 
-    // Header
-    page.drawText("BULGARIAN ADDITIVE MANUFACTURING ASSOCIATION", {
-        x: 50,
-        y: yPosition,
-        size: 12,
-        font: fontBold,
-        color: tealColor,
-    });
+  // Header
+  page.drawText("BULGARIAN ADDITIVE MANUFACTURING ASSOCIATION", {
+    x: 50,
+    y: yPosition,
+    size: 12,
+    font: fontBold,
+    color: tealColor,
+  });
 
-    yPosition -= 15;
-    page.drawText("БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО (БАЗАП / BAMAS)", {
-        x: 50,
-        y: yPosition,
-        size: 10,
-        font: font,
-        color: grayColor,
-    });
+  yPosition -= 15;
+  page.drawText("БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО (БАЗАП / BAMAS)", {
+    x: 50,
+    y: yPosition,
+    size: 10,
+    font: font,
+    color: grayColor,
+  });
 
-    yPosition -= 30;
-    page.drawText("MEMBERSHIP APPLICATION FORM", {
-        x: 50,
-        y: yPosition,
-        size: 16,
-        font: fontBold,
-        color: blackColor,
-    });
+  yPosition -= 30;
+  page.drawText("MEMBERSHIP APPLICATION FORM", {
+    x: 50,
+    y: yPosition,
+    size: 16,
+    font: fontBold,
+    color: blackColor,
+  });
 
-    yPosition -= 15;
-    page.drawText("ЗАЯВЛЕНИЕ ЗА ЧЛЕНСТВО", {
-        x: 50,
-        y: yPosition,
-        size: 12,
-        font: font,
-        color: grayColor,
-    });
+  yPosition -= 15;
+  page.drawText("ЗАЯВЛЕНИЕ ЗА ЧЛЕНСТВО", {
+    x: 50,
+    y: yPosition,
+    size: 12,
+    font: font,
+    color: grayColor,
+  });
 
-    // Helper function to add a section
-    const addSection = (title: string, titleBg?: string) => {
-        yPosition -= 25;
-        if (yPosition < 80) {
-            page = pdfDoc.addPage([595, 842]);
-            yPosition = height - 50;
-        }
-        page.drawText(title, {
-            x: 50,
-            y: yPosition,
-            size: 11,
-            font: fontBold,
-            color: tealColor,
-        });
-        if (titleBg) {
-            yPosition -= 12;
-            page.drawText(titleBg, {
-                x: 50,
-                y: yPosition,
-                size: 9,
-                font: font,
-                color: grayColor,
-            });
-        }
-    };
-
-    // Helper function to add a field
-    const addField = (label: string, value: string, labelBg?: string) => {
-        yPosition -= 18;
-        if (yPosition < 80) {
-            page = pdfDoc.addPage([595, 842]);
-            yPosition = height - 50;
-        }
-
-        page.drawText(`${label}:`, {
-            x: 50,
-            y: yPosition,
-            size: 9,
-            font: font,
-            color: grayColor,
-        });
-
-        page.drawText(value || "N/A", {
-            x: 220,
-            y: yPosition,
-            size: 9,
-            font: font,
-            color: blackColor,
-        });
-
-        if (labelBg) {
-            yPosition -= 10;
-            page.drawText(labelBg, {
-                x: 50,
-                y: yPosition,
-                size: 7,
-                font: font,
-                color: grayColor,
-            });
-        }
-    };
-
-    // Helper to add checkbox field
-    const addCheckbox = (label: string, checked: boolean) => {
-        yPosition -= 16;
-        if (yPosition < 80) {
-            page = pdfDoc.addPage([595, 842]);
-            yPosition = height - 50;
-        }
-
-        const checkMark = checked ? "☑" : "☐";
-        page.drawText(checkMark, {
-            x: 50,
-            y: yPosition,
-            size: 12,
-            font: font,
-            color: checked ? tealColor : grayColor,
-        });
-
-        page.drawText(label, {
-            x: 70,
-            y: yPosition,
-            size: 8,
-            font: font,
-            color: blackColor,
-        });
-    };
-
-    // Application Type
-    addSection("A. APPLICANT INFORMATION", "ИНФОРМАЦИЯ ЗА КАНДИДАТА");
-
-    const applicationTypeLabels: Record<string, string> = {
-        individual: "Individual Membership / Индивидуално членство",
-        company: "Company / Legal Entity / Компания / Юридическо лице",
-        academic: "Academic / Research Institution / Академична институция",
-        public: "Public Organisation / Публична организация",
-        private: "Private Organisation / Частна организация",
-        foreign: "Foreign Partner / International Org. / Чуждестранен партньор",
-    };
-
-    addField("Type of Application", applicationTypeLabels[formData.applicationType] || formData.applicationType);
-
-    // Personal or Organization details based on type
-    if (formData.applicationType === "individual") {
-        addSection("B. PERSONAL DETAILS", "ЛИЧНИ ДАННИ");
-        addField("Full Name", formData.fullName, "Три имена");
-        addField("Date of Birth", formData.dateOfBirth, "Дата на раждане");
-        addField("Age", formData.age, "Възраст");
-        addField("Gender", formData.gender || "Not specified", "Пол");
-        addField("Nationality", formData.nationality, "Гражданство");
-        addField("Current Employment", formData.currentEmployment, "Текуща заетост");
-
-        const experienceLabels: Record<string, string> = {
-            none: "None / Нямам",
-            "1-3": "1-3 years / 1-3 години",
-            "3-5": "3-5 years / 3-5 години",
-            "5-10": "5-10 years / 5-10 години",
-            "10+": "10+ years / 10+ години",
-        };
-        addField("Experience in AM", experienceLabels[formData.experienceLevel] || "Not specified");
-    } else {
-        addSection("C. ORGANISATION DETAILS", "ДАННИ ЗА ОРГАНИЗАЦИЯТА");
-        addField("Legal Name", formData.legalName, "Юридическо наименование");
-        addField("Legal Form", formData.legalForm, "Правна форма");
-        addField("Registration Number", formData.registrationNumber, "ЕИК / Регистрационен номер");
-        addField("Country of Registration", formData.countryOfRegistration, "Държава на регистрация");
-        addField("Registered Address", formData.registeredAddress, "Адрес на регистрация");
-        addField("Website", formData.website, "Уебсайт");
-        addField("Main Activity (AM)", formData.mainActivity?.substring(0, 80) || "N/A");
+  // Helper function to add a section
+  const addSection = (title: string, titleBg?: string) => {
+    yPosition -= 25;
+    if (yPosition < 80) {
+      page = pdfDoc.addPage([595, 842]);
+      yPosition = height - 50;
     }
-
-    // Contact Information
-    addSection("D. CONTACT INFORMATION", "ИНФОРМАЦИЯ ЗА КОНТАКТ");
-    addField("Address", formData.address, "Адрес за кореспонденция");
-    addField("City", formData.city, "Град");
-    addField("Country", formData.country, "Държава");
-    addField("Email", formData.email, "Имейл адрес");
-    addField("Phone", formData.phone, "Телефон за връзка");
-    addField("LinkedIn", formData.linkedIn || "Not provided", "LinkedIn профил");
-
-    // Motivation
-    addSection("E. MOTIVATION AND ALIGNMENT", "МОТИВАЦИЯ И СЪОТВЕТСТВИЕ");
-
-    // Wrap motivation text
-    const motivationLines = wrapText(formData.motivation || "Not provided", 70);
-    yPosition -= 15;
-    page.drawText("Motivation for membership:", {
+    page.drawText(title, {
+      x: 50,
+      y: yPosition,
+      size: 11,
+      font: fontBold,
+      color: tealColor,
+    });
+    if (titleBg) {
+      yPosition -= 12;
+      page.drawText(titleBg, {
         x: 50,
         y: yPosition,
         size: 9,
         font: font,
         color: grayColor,
-    });
+      });
+    }
+  };
 
-    for (const line of motivationLines.slice(0, 4)) {
-        yPosition -= 12;
-        if (yPosition < 80) {
-            page = pdfDoc.addPage([595, 842]);
-            yPosition = height - 50;
-        }
-        page.drawText(line, {
-            x: 50,
-            y: yPosition,
-            size: 9,
-            font: font,
-            color: blackColor,
-        });
+  // Helper function to add a field
+  const addField = (label: string, value: string, labelBg?: string) => {
+    yPosition -= 18;
+    if (yPosition < 80) {
+      page = pdfDoc.addPage([595, 842]);
+      yPosition = height - 50;
     }
 
-    const contributionLabels: Record<string, string> = {
-        yes: "Yes / Да",
-        no: "No / Не",
-        partially: `Partially / Частично: ${formData.contributeExplanation}`,
-    };
-    addField("Willing to contribute", contributionLabels[formData.willingToContribute] || "Not specified");
-
-    const valuesLabels: Record<string, string> = {
-        yes: "Yes / Да",
-        no: "No / Не",
-        partially: `Partially / Частично: ${formData.valuesExplanation}`,
-    };
-    addField("Values align with BAMAS", valuesLabels[formData.valuesAlign] || "Not specified");
-
-    // Professional Background
-    addSection("F. PROFESSIONAL BACKGROUND", "ПРОФЕСИОНАЛЕН ОПИТ И СВЪРЗАНОСТ");
-
-    const reputationLabels: Record<string, string> = {
-        no_prior: "No prior experience / Без предходен опит",
-        positive: "Positive / Позитивна",
-        negative: "Negative / Негативна",
-        mixed: "Mixed/Neutral / Смесена",
-    };
-    addField("Industry Reputation", reputationLabels[formData.industryReputation] || "Not specified");
-    addField("AM Company Relationships", formData.amCompanyRelationships?.substring(0, 60) || "None specified");
-    addField("Political Affiliations", formData.politicalAffiliations?.substring(0, 60) || "None");
-
-    // Compliance
-    addSection("G. COMPLIANCE AND DECLARATIONS", "СЪОТВЕТСТВИЕ И ДЕКЛАРАЦИИ");
-    addCheckbox("I have read and understood the Articles of Association of BAMAS", formData.readArticles);
-    addCheckbox("I confirm that the information provided is true, complete, and accurate", formData.confirmAccuracy);
-    addCheckbox("I understand membership is subject to approval by the BAMAS Board", formData.understandApproval);
-    addCheckbox("I agree to data processing in accordance with GDPR", formData.agreeGDPR);
-
-    // Signature
-    addSection("H. SIGNATURE", "ПОДПИС");
-    addField("Place", formData.signaturePlace, "Място");
-    addField("Date", formData.signatureDate, "Дата");
-    addField("Full Name", formData.signatureName, "Имена на кандидата / Законния представител");
-
-    yPosition -= 25;
-    page.drawText("Digital Signature: ✓ Signed electronically", {
-        x: 50,
-        y: yPosition,
-        size: 10,
-        font: fontBold,
-        color: tealColor,
+    page.drawText(`${label}:`, {
+      x: 50,
+      y: yPosition,
+      size: 9,
+      font: font,
+      color: grayColor,
     });
 
-    // Footer on last page
-    yPosition -= 40;
-    page.drawLine({
-        start: { x: 50, y: yPosition },
-        end: { x: width - 50, y: yPosition },
-        thickness: 0.5,
-        color: grayColor,
+    page.drawText(value || "N/A", {
+      x: 220,
+      y: yPosition,
+      size: 9,
+      font: font,
+      color: blackColor,
     });
 
-    yPosition -= 15;
-    page.drawText(`Application submitted: ${new Date().toISOString()}`, {
+    if (labelBg) {
+      yPosition -= 10;
+      page.drawText(labelBg, {
         x: 50,
         y: yPosition,
-        size: 8,
+        size: 7,
         font: font,
         color: grayColor,
+      });
+    }
+  };
+
+  // Helper to add checkbox field
+  const addCheckbox = (label: string, checked: boolean) => {
+    yPosition -= 16;
+    if (yPosition < 80) {
+      page = pdfDoc.addPage([595, 842]);
+      yPosition = height - 50;
+    }
+
+    const checkMark = checked ? "[X]" : "[ ]";
+    page.drawText(checkMark, {
+      x: 50,
+      y: yPosition,
+      size: 10,
+      font: fontBold,
+      color: checked ? tealColor : grayColor,
     });
 
+    page.drawText(label, {
+      x: 70,
+      y: yPosition,
+      size: 8,
+      font: font,
+      color: blackColor,
+    });
+  };
+
+  // Application Type
+  addSection("A. APPLICANT INFORMATION", "ИНФОРМАЦИЯ ЗА КАНДИДАТА");
+
+  const applicationTypeLabels: Record<string, string> = {
+    individual: "Individual Membership / Индивидуално членство",
+    company: "Company / Legal Entity / Компания / Юридическо лице",
+    academic: "Academic / Research Institution / Академична институция",
+    public: "Public Organisation / Публична организация",
+    private: "Private Organisation / Частна организация",
+    foreign: "Foreign Partner / International Org. / Чуждестранен партньор",
+  };
+
+  addField("Type of Application", applicationTypeLabels[formData.applicationType] || formData.applicationType);
+
+  // Personal or Organization details based on type
+  if (formData.applicationType === "individual") {
+    addSection("B. PERSONAL DETAILS", "ЛИЧНИ ДАННИ");
+    addField("Full Name", formData.fullName, "Три имена");
+    addField("Date of Birth", formData.dateOfBirth, "Дата на раждане");
+    addField("Age", formData.age, "Възраст");
+    addField("Gender", formData.gender || "Not specified", "Пол");
+    addField("Nationality", formData.nationality, "Гражданство");
+    addField("Current Employment", formData.currentEmployment, "Текуща заетост");
+
+    const experienceLabels: Record<string, string> = {
+      none: "None / Нямам",
+      "1-3": "1-3 years / 1-3 години",
+      "3-5": "3-5 years / 3-5 години",
+      "5-10": "5-10 years / 5-10 години",
+      "10+": "10+ years / 10+ години",
+    };
+    addField("Experience in AM", experienceLabels[formData.experienceLevel] || "Not specified");
+  } else {
+    addSection("C. ORGANISATION DETAILS", "ДАННИ ЗА ОРГАНИЗАЦИЯТА");
+    addField("Legal Name", formData.legalName, "Юридическо наименование");
+    addField("Legal Form", formData.legalForm, "Правна форма");
+    addField("Registration Number", formData.registrationNumber, "ЕИК / Регистрационен номер");
+    addField("Country of Registration", formData.countryOfRegistration, "Държава на регистрация");
+    addField("Registered Address", formData.registeredAddress, "Адрес на регистрация");
+    addField("Website", formData.website, "Уебсайт");
+    addField("Main Activity (AM)", formData.mainActivity?.substring(0, 80) || "N/A");
+  }
+
+  // Contact Information
+  addSection("D. CONTACT INFORMATION", "ИНФОРМАЦИЯ ЗА КОНТАКТ");
+  addField("Address", formData.address, "Адрес за кореспонденция");
+  addField("City", formData.city, "Град");
+  addField("Country", formData.country, "Държава");
+  addField("Email", formData.email, "Имейл адрес");
+  addField("Phone", formData.phone, "Телефон за връзка");
+  addField("LinkedIn", formData.linkedIn || "Not provided", "LinkedIn профил");
+
+  // Motivation
+  addSection("E. MOTIVATION AND ALIGNMENT", "МОТИВАЦИЯ И СЪОТВЕТСТВИЕ");
+
+  // Wrap motivation text
+  const motivationLines = wrapText(formData.motivation || "Not provided", 70);
+  yPosition -= 15;
+  page.drawText("Motivation for membership:", {
+    x: 50,
+    y: yPosition,
+    size: 9,
+    font: font,
+    color: grayColor,
+  });
+
+  for (const line of motivationLines.slice(0, 4)) {
     yPosition -= 12;
-    page.drawText("BULGARIAN ADDITIVE MANUFACTURING ASSOCIATION (BAMAS) - www.bamas.xyz", {
-        x: 50,
-        y: yPosition,
-        size: 8,
-        font: font,
-        color: tealColor,
+    if (yPosition < 80) {
+      page = pdfDoc.addPage([595, 842]);
+      yPosition = height - 50;
+    }
+    page.drawText(line, {
+      x: 50,
+      y: yPosition,
+      size: 9,
+      font: font,
+      color: blackColor,
     });
+  }
 
-    // Save the PDF
-    const pdfBytes = await pdfDoc.save();
-    return pdfBytes;
+  const contributionLabels: Record<string, string> = {
+    yes: "Yes / Да",
+    no: "No / Не",
+    partially: `Partially / Частично: ${formData.contributeExplanation}`,
+  };
+  addField("Willing to contribute", contributionLabels[formData.willingToContribute] || "Not specified");
+
+  const valuesLabels: Record<string, string> = {
+    yes: "Yes / Да",
+    no: "No / Не",
+    partially: `Partially / Частично: ${formData.valuesExplanation}`,
+  };
+  addField("Values align with BAMAS", valuesLabels[formData.valuesAlign] || "Not specified");
+
+  // Professional Background
+  addSection("F. PROFESSIONAL BACKGROUND", "ПРОФЕСИОНАЛЕН ОПИТ И СВЪРЗАНОСТ");
+
+  const reputationLabels: Record<string, string> = {
+    no_prior: "No prior experience / Без предходен опит",
+    positive: "Positive / Позитивна",
+    negative: "Negative / Негативна",
+    mixed: "Mixed/Neutral / Смесена",
+  };
+  addField("Industry Reputation", reputationLabels[formData.industryReputation] || "Not specified");
+  addField("AM Company Relationships", formData.amCompanyRelationships?.substring(0, 60) || "None specified");
+  addField("Political Affiliations", formData.politicalAffiliations?.substring(0, 60) || "None");
+
+  // Compliance
+  addSection("G. COMPLIANCE AND DECLARATIONS", "СЪОТВЕТСТВИЕ И ДЕКЛАРАЦИИ");
+  addCheckbox("I have read and understood the Articles of Association of BAMAS", formData.readArticles);
+  addCheckbox("I confirm that the information provided is true, complete, and accurate", formData.confirmAccuracy);
+  addCheckbox("I understand membership is subject to approval by the BAMAS Board", formData.understandApproval);
+  addCheckbox("I agree to data processing in accordance with GDPR", formData.agreeGDPR);
+
+  // Signature
+  addSection("H. SIGNATURE", "ПОДПИС");
+  addField("Place", formData.signaturePlace, "Място");
+  addField("Date", formData.signatureDate, "Дата");
+  addField("Full Name", formData.signatureName, "Имена на кандидата / Законния представител");
+
+  yPosition -= 25;
+  page.drawText("Digital Signature: ✓ Signed electronically", {
+    x: 50,
+    y: yPosition,
+    size: 10,
+    font: fontBold,
+    color: tealColor,
+  });
+
+  // Footer on last page
+  yPosition -= 40;
+  page.drawLine({
+    start: { x: 50, y: yPosition },
+    end: { x: width - 50, y: yPosition },
+    thickness: 0.5,
+    color: grayColor,
+  });
+
+  yPosition -= 15;
+  page.drawText(`Application submitted: ${new Date().toISOString()}`, {
+    x: 50,
+    y: yPosition,
+    size: 8,
+    font: font,
+    color: grayColor,
+  });
+
+  yPosition -= 12;
+  page.drawText("BULGARIAN ADDITIVE MANUFACTURING ASSOCIATION (BAMAS) - www.bamas.xyz", {
+    x: 50,
+    y: yPosition,
+    size: 8,
+    font: font,
+    color: tealColor,
+  });
+
+  // Save the PDF
+  const pdfBytes = await pdfDoc.save();
+  return pdfBytes;
 }
 
 // Helper function to wrap text
 function wrapText(text: string, maxChars: number): string[] {
-    const words = text.split(" ");
-    const lines: string[] = [];
-    let currentLine = "";
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let currentLine = "";
 
-    for (const word of words) {
-        if ((currentLine + word).length > maxChars) {
-            lines.push(currentLine.trim());
-            currentLine = word + " ";
-        } else {
-            currentLine += word + " ";
-        }
+  for (const word of words) {
+    if ((currentLine + word).length > maxChars) {
+      lines.push(currentLine.trim());
+      currentLine = word + " ";
+    } else {
+      currentLine += word + " ";
     }
+  }
 
-    if (currentLine.trim()) {
-        lines.push(currentLine.trim());
-    }
+  if (currentLine.trim()) {
+    lines.push(currentLine.trim());
+  }
 
-    return lines;
+  return lines;
 }
 
 // Base64 encode the PDF for email attachment
 function base64Encode(bytes: Uint8Array): string {
-    let binary = "";
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
+  let binary = "";
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 // Create email HTML template
 function createEmailHTML(formData: FormData, isAdminCopy: boolean): string {
-    const applicantName = formData.fullName || formData.legalName || "Applicant";
+  const applicantName = formData.fullName || formData.legalName || "Applicant";
 
-    if (isAdminCopy) {
-        return `
+  if (isAdminCopy) {
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -501,12 +501,12 @@ function createEmailHTML(formData: FormData, isAdminCopy: boolean): string {
       <div class="info-item">
         <div class="info-label">Submitted</div>
         <div class="info-value">${new Date().toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        })}</div>
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}</div>
       </div>
     </div>
     
@@ -520,9 +520,9 @@ function createEmailHTML(formData: FormData, isAdminCopy: boolean): string {
 </body>
 </html>
     `;
-    } else {
-        // Applicant confirmation email
-        return `
+  } else {
+    // Applicant confirmation email
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -673,150 +673,150 @@ function createEmailHTML(formData: FormData, isAdminCopy: boolean): string {
 </body>
 </html>
     `;
-    }
+  }
 }
 
 serve(async (req) => {
-    // Handle CORS preflight requests
-    if (req.method === "OPTIONS") {
-        return new Response("ok", { headers: corsHeaders });
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    // Get environment variables
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
+    const adminEmail = "info@bamas.xyz";
+
+    // Parse request body
+    const { formData, language }: MembershipApplicationRequest = await req.json();
+
+    if (!formData || !formData.email) {
+      return new Response(
+        JSON.stringify({ error: "Form data with email is required" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    try {
-        // Get environment variables
-        const resendApiKey = Deno.env.get("RESEND_API_KEY") ?? "";
-        const adminEmail = "info@bamas.xyz";
+    console.log(`Processing membership application for: ${formData.email}`);
 
-        // Parse request body
-        const { formData, language }: MembershipApplicationRequest = await req.json();
+    // Generate the PDF
+    const pdfBytes = await generatePDF(formData);
+    const pdfBase64 = base64Encode(pdfBytes);
 
-        if (!formData || !formData.email) {
-            return new Response(
-                JSON.stringify({ error: "Form data with email is required" }),
-                {
-                    status: 400,
-                    headers: { ...corsHeaders, "Content-Type": "application/json" },
-                }
-            );
-        }
+    console.log(`PDF generated successfully, size: ${pdfBytes.length} bytes`);
 
-        console.log(`Processing membership application for: ${formData.email}`);
+    // Create email content
+    const adminEmailHtml = createEmailHTML(formData, true);
+    const applicantEmailHtml = createEmailHTML(formData, false);
 
-        // Generate the PDF
-        const pdfBytes = await generatePDF(formData);
-        const pdfBase64 = base64Encode(pdfBytes);
+    const applicantName = formData.fullName || formData.legalName || "Applicant";
+    const fileName = `BAMAS_Application_${applicantName.replace(/\s+/g, "_")}_${formData.signatureDate}.pdf`;
 
-        console.log(`PDF generated successfully, size: ${pdfBytes.length} bytes`);
-
-        // Create email content
-        const adminEmailHtml = createEmailHTML(formData, true);
-        const applicantEmailHtml = createEmailHTML(formData, false);
-
-        const applicantName = formData.fullName || formData.legalName || "Applicant";
-        const fileName = `BAMAS_Application_${applicantName.replace(/\s+/g, "_")}_${formData.signatureDate}.pdf`;
-
-        // Send emails using Resend API
-        if (resendApiKey) {
-            // Send to admin (info@bamas.xyz)
-            const adminResponse = await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${resendApiKey}`,
-                },
-                body: JSON.stringify({
-                    from: "BAMAS Membership <noreply@bamas.xyz>",
-                    to: [adminEmail],
-                    subject: `New Membership Application: ${applicantName}`,
-                    html: adminEmailHtml,
-                    attachments: [
-                        {
-                            filename: fileName,
-                            content: pdfBase64,
-                        },
-                    ],
-                }),
-            });
-
-            if (!adminResponse.ok) {
-                const error = await adminResponse.text();
-                console.error("Failed to send admin email:", error);
-                throw new Error(`Failed to send admin email: ${error}`);
-            }
-
-            console.log("Admin email sent successfully");
-
-            // Send to applicant
-            const applicantResponse = await fetch("https://api.resend.com/emails", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${resendApiKey}`,
-                },
-                body: JSON.stringify({
-                    from: "BAMAS <noreply@bamas.xyz>",
-                    to: [formData.email],
-                    subject: "Application Received - BAMAS Membership",
-                    html: applicantEmailHtml,
-                    attachments: [
-                        {
-                            filename: fileName,
-                            content: pdfBase64,
-                        },
-                    ],
-                }),
-            });
-
-            if (!applicantResponse.ok) {
-                const error = await applicantResponse.text();
-                console.error("Failed to send applicant email:", error);
-                // Don't throw here, admin email was sent successfully
-            } else {
-                console.log("Applicant confirmation email sent successfully");
-            }
-
-            return new Response(
-                JSON.stringify({
-                    success: true,
-                    message: "Application submitted and emails sent successfully",
-                    applicant: applicantName,
-                    email: formData.email,
-                }),
-                {
-                    status: 200,
-                    headers: { ...corsHeaders, "Content-Type": "application/json" },
-                }
-            );
-        } else {
-            // No Resend API key - just log
-            console.warn("RESEND_API_KEY not configured. Emails not sent.");
-            console.log("Application would be sent to:", adminEmail);
-            console.log("Confirmation would be sent to:", formData.email);
-
-            return new Response(
-                JSON.stringify({
-                    success: true,
-                    message: "Application processed (email service not configured)",
-                    warning: "Email sending is not configured. Please contact info@bamas.xyz directly.",
-                    applicant: applicantName,
-                    email: formData.email,
-                }),
-                {
-                    status: 200,
-                    headers: { ...corsHeaders, "Content-Type": "application/json" },
-                }
-            );
-        }
-    } catch (error) {
-        console.error("Error processing membership application:", error);
-        return new Response(
-            JSON.stringify({
-                error: error.message || "Failed to process membership application",
-            }),
+    // Send emails using Resend API
+    if (resendApiKey) {
+      // Send to admin (info@bamas.xyz)
+      const adminResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: "BAMAS Membership <noreply@bamas.xyz>",
+          to: [adminEmail],
+          subject: `New Membership Application: ${applicantName}`,
+          html: adminEmailHtml,
+          attachments: [
             {
-                status: 500,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-            }
-        );
+              filename: fileName,
+              content: pdfBase64,
+            },
+          ],
+        }),
+      });
+
+      if (!adminResponse.ok) {
+        const error = await adminResponse.text();
+        console.error("Failed to send admin email:", error);
+        throw new Error(`Failed to send admin email: ${error}`);
+      }
+
+      console.log("Admin email sent successfully");
+
+      // Send to applicant
+      const applicantResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: "BAMAS <noreply@bamas.xyz>",
+          to: [formData.email],
+          subject: "Application Received - BAMAS Membership",
+          html: applicantEmailHtml,
+          attachments: [
+            {
+              filename: fileName,
+              content: pdfBase64,
+            },
+          ],
+        }),
+      });
+
+      if (!applicantResponse.ok) {
+        const error = await applicantResponse.text();
+        console.error("Failed to send applicant email:", error);
+        // Don't throw here, admin email was sent successfully
+      } else {
+        console.log("Applicant confirmation email sent successfully");
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Application submitted and emails sent successfully",
+          applicant: applicantName,
+          email: formData.email,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    } else {
+      // No Resend API key - just log
+      console.warn("RESEND_API_KEY not configured. Emails not sent.");
+      console.log("Application would be sent to:", adminEmail);
+      console.log("Confirmation would be sent to:", formData.email);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Application processed (email service not configured)",
+          warning: "Email sending is not configured. Please contact info@bamas.xyz directly.",
+          applicant: applicantName,
+          email: formData.email,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
+  } catch (error) {
+    console.error("Error processing membership application:", error);
+    return new Response(
+      JSON.stringify({
+        error: error.message || "Failed to process membership application",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
 });
