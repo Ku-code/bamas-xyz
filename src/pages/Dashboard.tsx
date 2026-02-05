@@ -130,18 +130,18 @@ const Dashboard = () => {
     if (!user) {
       return null;
     }
-    
+
     // Check if user is pending approval
     const isPending = user.status === 'pending';
     const isRejected = user.status === 'rejected';
     const isSuspended = user.status === 'suspended';
-    
+
     // Allow superadmin/admin to always see content (for testing/management)
-    // Also treat undefined/null status as pending (new users)
-    const canAccessContent = user.status === 'approved' || 
-                            user.role === 'superadmin' || 
-                            user.role === 'admin';
-    
+    // This ensures they aren't blocked even if their status is temporarily 'pending'
+    const canAccessContent = user.role === 'superadmin' ||
+      user.role === 'admin' ||
+      user.status === 'approved';
+
     // Show pending/rejected/suspended message if not approved
     if (!canAccessContent) {
       if (isPending || !user.status) {
@@ -157,7 +157,7 @@ const Dashboard = () => {
       // Fallback: if status is unknown, show pending message
       return <PendingApproval />;
     }
-    
+
     // Normal content rendering for approved users - wrapped in Suspense for lazy loading
     const renderLazyContent = () => {
       switch (activeItem) {
@@ -217,7 +217,7 @@ const Dashboard = () => {
     );
   };
 
-  const logoPath = language === 'bg' 
+  const logoPath = language === 'bg'
     ? '/bamas-uploads/BAMAS_Logo_bg.png'
     : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
 
@@ -287,25 +287,25 @@ const Dashboard = () => {
                 <span className="text-sm font-medium truncate">{user?.name}</span>
                 <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
                 {user?.status && (
-                  <Badge 
+                  <Badge
                     variant={
-                      user.status === 'approved' 
-                        ? 'default' 
+                      user.status === 'approved'
+                        ? 'default'
                         : user.status === 'pending'
-                        ? 'outline'
-                        : 'destructive'
+                          ? 'outline'
+                          : 'destructive'
                     }
                     className="mt-1 text-xs w-fit"
                   >
-                    {user.status === 'pending' 
+                    {user.status === 'pending'
                       ? (t("dashboard.status.pending") || "Pending")
                       : user.status === 'approved'
-                      ? (t("dashboard.status.approved") || "Approved")
-                      : user.status === 'rejected'
-                      ? (t("dashboard.status.rejected") || "Rejected")
-                      : user.status === 'suspended'
-                      ? (t("dashboard.status.suspended") || "Suspended")
-                      : (t("dashboard.status.pending") || "Pending")}
+                        ? (t("dashboard.status.approved") || "Approved")
+                        : user.status === 'rejected'
+                          ? (t("dashboard.status.rejected") || "Rejected")
+                          : user.status === 'suspended'
+                            ? (t("dashboard.status.suspended") || "Suspended")
+                            : (t("dashboard.status.pending") || "Pending")}
                   </Badge>
                 )}
               </div>

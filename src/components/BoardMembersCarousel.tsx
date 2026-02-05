@@ -30,14 +30,14 @@ const BOARD_MEMBERS: BoardMember[] = [
         nameEn: "NIKOLAY YORDANOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/НИКОЛАЙ ЙОРДАНОВ.png",
+        image: "/no background images members/НИКОЛАЙ ЙОРДАНОВ.png",
     },
     {
         nameBg: "ГЕОРГИ ТОЛЕВ",
         nameEn: "GEORGI TOLEV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/George Tolev  Background Removed.png",
+        image: "/no background images members/ГЕОРГИ ТОЛЕВ.png",
     },
     {
         nameBg: "КРАСИМИР ГЕОРГИЕВ",
@@ -65,14 +65,14 @@ const BOARD_MEMBERS: BoardMember[] = [
         nameEn: "DANIEL HRISTEV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/Daniel Hristev Background Removed.png",
+        image: "/no background images members/ДАНИЕЛ ХРИСТЕВ.png",
     },
     {
         nameBg: "АНДРЕЙ ДУНИЦОВ",
         nameEn: "ANDREY DUNITSOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "",
+        image: "/no background images members/АНДРЕЙ ДУНИЦОВ.png",
     },
     {
         nameBg: "ДИМО ДИМОВ",
@@ -112,13 +112,16 @@ const BoardMembersCarousel = () => {
                     <div className="flex items-center p-3 sm:p-6 gap-3 sm:gap-8 h-full relative z-10">
                         {/* Member Profile Image - Enhanced visibility and mobile optimization */}
                         <div className="relative flex-shrink-0">
-                            <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full bg-gradient-to-br from-primary via-primary/70 to-primary/40 p-1 shadow-xl relative overflow-hidden">
-                                <div className="w-full h-full rounded-full overflow-hidden bg-background">
+                            <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary via-primary/50 to-primary/20 p-[2px] shadow-2xl relative group-hover:scale-105 transition-transform duration-500">
+                                <div className="w-full h-full rounded-2xl sm:rounded-3xl overflow-hidden bg-muted/30 relative">
+                                    {/* Subtle background glow for transparent images */}
+                                    <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
+
                                     {member.image ? (
                                         <img
                                             src={member.image}
                                             alt={name}
-                                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110"
+                                            className="w-full h-full object-contain object-bottom transition-all duration-700 group-hover:scale-110 drop-shadow-2xl"
                                             loading="eager"
                                             decoding="sync"
                                             onError={(e) => {
@@ -128,30 +131,32 @@ const BoardMembersCarousel = () => {
                                             }}
                                         />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/30 to-primary/10">
-                                            <span className="text-3xl sm:text-4xl font-black text-primary/60">
+                                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+                                            <span className="text-3xl sm:text-4xl font-black text-primary/40">
                                                 {name.charAt(0)}
                                             </span>
                                         </div>
                                     )}
                                 </div>
                             </div>
+                            {/* Decorative accent */}
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 bg-primary/20 backdrop-blur-md rounded-lg border border-primary/20 flex items-center justify-center -z-10 group-hover:rotate-12 transition-transform duration-500" />
                         </div>
 
                         {/* Member Info - Responsive Typography */}
-                        <div className="flex-grow flex flex-col justify-center min-w-0">
+                        <div className="flex-grow flex flex-col justify-center min-w-0 py-2">
                             <motion.div
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                className="flex flex-col gap-1"
+                                className="flex flex-col gap-1 sm:gap-2"
                             >
-                                <span className="text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-primary/80 mb-1">
+                                <span className="text-[10px] sm:text-[11px] md:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-primary/70 mb-0.5 sm:mb-1">
                                     {role}
                                 </span>
-                                <h3 className="text-base sm:text-xl md:text-2xl font-black text-foreground tracking-tight leading-tight group-hover:text-primary transition-colors duration-300 truncate">
+                                <h3 className="text-lg sm:text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none group-hover:text-primary transition-colors duration-300 truncate pb-1">
                                     {name}
                                 </h3>
-                                <div className="w-8 sm:w-12 h-1 bg-primary/20 rounded-full mt-1 sm:mt-2 group-hover:w-16 sm:group-hover:w-24 group-hover:bg-primary/40 transition-all duration-500" />
+                                <div className="w-8 sm:w-16 h-1 sm:h-1.5 bg-primary/20 rounded-full group-hover:w-24 sm:group-hover:w-32 group-hover:bg-primary/40 transition-all duration-500" />
                             </motion.div>
                         </div>
                     </div>
@@ -168,8 +173,8 @@ const BoardMembersCarousel = () => {
             {/* Main Carousel Container */}
             <div className="relative rounded-2xl sm:rounded-[2.5rem] border border-primary/10 bg-muted/5 p-2 sm:p-4 backdrop-blur-sm overflow-hidden shadow-inner">
                 {/* Superior Fade Effects - Responsive */}
-                <div className="absolute top-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-b from-background via-background/60 to-transparent z-20 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 right-0 h-32 sm:h-48 bg-gradient-to-t from-background via-background/60 to-transparent z-20 pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-b from-background via-background/60 to-transparent z-20 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-background via-background/60 to-transparent z-20 pointer-events-none" />
 
                 {/* The Scroller - Mobile optimized height */}
                 <div

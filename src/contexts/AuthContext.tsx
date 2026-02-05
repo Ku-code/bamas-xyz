@@ -2,6 +2,16 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { supabase, isSupabaseConfigured, getSupabaseUrl } from '@/lib/supabase';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { db } from '@/lib/database';
+import { useToast } from '@/hooks/use-toast';
+
+// CRITICAL: Fail-safe list of emails that are ALWAYS treated as superadmins
+// This prevents lockouts if the database is out of sync or RLS is misconfigured.
+const SUPERADMIN_EMAILS = [
+  'kuzodonchev@3dopendesign.com',
+  'kuzodonchev@gmail.com',
+  'info@bamas.xyz'
+];
+
 
 export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
@@ -80,8 +90,8 @@ const convertSupabaseUserToUser = (dbUser: any): User => {
     location: dbUser.location || undefined,
     website: dbUser.website || undefined,
     phone: dbUser.phone || undefined,
-    role: dbUser.role || 'member',
-    status: dbUser.status || 'pending',
+    role: dbUser.role || (SUPERADMIN_EMAILS.includes(dbUser.email) ? 'superadmin' : 'member'),
+    status: dbUser.status || (SUPERADMIN_EMAILS.includes(dbUser.email) ? 'approved' : 'pending'),
     createdAt: dbUser.created_at,
     approvedAt: dbUser.approved_at || undefined,
     approvedBy: dbUser.approved_by || undefined,
@@ -203,12 +213,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const fallbackUser = authUser || (await supabase.auth.getUser()).data.user;
         if (fallbackUser) {
           console.log('Using fallback auth user data');
+          const isHardcodedAdmin = SUPERADMIN_EMAILS.includes(fallbackUser.email || '');
           setUser({
             id: fallbackUser.id,
             email: fallbackUser.email || '',
             name: fallbackUser.user_metadata?.name || fallbackUser.email?.split('@')[0] || 'User',
-            role: 'member', // Default safe role
-            status: 'pending',
+            role: isHardcodedAdmin ? 'superadmin' : 'member',
+            status: isHardcodedAdmin ? 'approved' : 'pending',
             createdAt: fallbackUser.created_at,
           });
         } else {
@@ -228,12 +239,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Do nothing, keep existing user
       } else if (authUser) {
         console.log('Constructing fallback user from auth session despite DB error');
+        const isHardcodedAdmin = SUPERADMIN_EMAILS.includes(authUser.email || '');
         setUser({
           id: authUser.id,
           email: authUser.email || '',
           name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
-          role: 'member',
-          status: 'pending',
+          role: isHardcodedAdmin ? 'superadmin' : 'member',
+          status: isHardcodedAdmin ? 'approved' : 'pending',
           createdAt: authUser.created_at,
         });
       } else {

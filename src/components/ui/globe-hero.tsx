@@ -1,6 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei";
-import React, { useRef } from "react";
+import React, { useRef, useMemo, useEffect } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
@@ -15,66 +14,54 @@ const Globe: React.FC<{
   rotationSpeed: number;
   radius: number;
 }> = ({ rotationSpeed, radius }) => {
-  const groupRef = useRef<THREE.Group>(null!);
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null!);
-  
-  // Adaptive geometry quality and size based on device
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const segments = isMobile ? 24 : 64;
-  // Scale radius based on device - smaller on mobile to fit screen
-  const scaledRadius = isMobile ? radius * 0.7 : radius * 1.5;
+  const pointsRef = useRef<THREE.Points>(null!);
+  const materialRef = useRef<THREE.PointsMaterial>(null!);
 
-  // Check if dark mode is active and set color accordingly
-  React.useEffect(() => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const scaledRadius = isMobile ? radius * 0.75 : radius * 1.5;
+
+  // Create points geometry for a "Dot Globe" effect
+  const points = useMemo(() => {
+    const geo = new THREE.SphereGeometry(scaledRadius, isMobile ? 32 : 48, isMobile ? 32 : 48);
+    return geo;
+  }, [scaledRadius, isMobile]);
+
+  // Handle color updates for dark/light mode
+  useEffect(() => {
     const updateColor = () => {
       if (materialRef.current) {
         const isDark = document.documentElement.classList.contains('dark');
-        // Bright white for dark mode, vibrant primary color for light mode
-        if (isDark) {
-          materialRef.current.color.setStyle('#FFFFFF'); // Bright white for visibility
-        } else {
-          // Primary green color for light mode
-          materialRef.current.color.setStyle('#0C9D6A'); // Primary green
-        }
+        materialRef.current.color.setStyle(isDark ? '#ffffff' : '#0C9D6A');
+        materialRef.current.opacity = isDark ? 0.8 : 0.6;
       }
     };
 
     updateColor();
-    
-    // Watch for dark mode changes
     const observer = new MutationObserver(updateColor);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
   }, []);
 
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += rotationSpeed;
-      groupRef.current.rotation.x += rotationSpeed * 0.3;
-      groupRef.current.rotation.z += rotationSpeed * 0.1;
+  useFrame((state) => {
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y += rotationSpeed;
+      pointsRef.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.2) * 0.1;
     }
   });
 
   return (
-    <group ref={groupRef}>
-      <mesh>
-        <sphereGeometry args={[scaledRadius, segments, segments]} />
-        <meshBasicMaterial
-          ref={materialRef}
-          transparent
-          opacity={0.5}
-          wireframe
-        />
-      </mesh>
-    </group>
+    <points ref={pointsRef} geometry={points}>
+      <pointsMaterial
+        ref={materialRef}
+        size={isMobile ? 0.015 : 0.02}
+        sizeAttenuation={true}
+        transparent
+        alphaTest={0.5}
+        color="#ffffff"
+      />
+    </points>
   );
 };
-
-
 
 const DotGlobeHero = React.forwardRef<
   HTMLDivElement,
@@ -86,6 +73,8 @@ const DotGlobeHero = React.forwardRef<
   children,
   ...props
 }, ref) => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
     <div
       ref={ref}
@@ -98,35 +87,45 @@ const DotGlobeHero = React.forwardRef<
       <div className="absolute inset-0 z-[10] flex flex-col items-center justify-center h-full w-full px-4">
         {children}
       </div>
-      
-      {/* Lightweight CSS placeholder: visible before 3D Canvas paints, prevents layout shift */}
+
+      {/* HIGH-PERFORMANCE INSTANT CSS PLACEHOLDER */}
+      {/* This renders instantly while Three.js initializes */}
       <div
         className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none"
-        aria-hidden
+        style={{ perspective: '1000px' }}
       >
-        <div className="w-48 h-48 md:w-80 md:h-80 rounded-full border-2 border-dashed border-primary/20 bg-primary/5" />
+        <div className="relative w-72 h-72 md:w-[600px] md:h-[600px] opacity-20">
+          <div
+            className="absolute inset-0 rounded-full border border-primary/40 dark:border-white/40"
+            style={{ animation: 'spin 20s linear infinite' }}
+          />
+          <div
+            className="absolute inset-0 rounded-full border border-primary/20 dark:border-white/20 rotate-45"
+            style={{ animation: 'spin 30s linear infinite' }}
+          />
+          <div
+            className="absolute inset-0 rounded-full border border-primary/10 dark:border-white/10 -rotate-45"
+            style={{ animation: 'spin 40s linear infinite' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 dark:from-white/10 via-transparent to-primary/5 dark:to-white/5 rounded-full blur-3xl" />
+        </div>
       </div>
+
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas
           dpr={[1, 1.5]}
-          performance={{ min: 0.5 }}
-          gl={{ 
-            antialias: false, 
+          gl={{
+            antialias: true,
             alpha: true,
             powerPreference: "high-performance",
-            stencil: false,
-            depth: false,
-            preserveDrawingBuffer: false,
-            failIfMajorPerformanceCaveat: false
           }}
-          frameloop="always"
-          style={{ width: '100%', height: '100%' }}
+          camera={{
+            position: [0, 0, isMobile ? 3.5 : 3],
+            fov: isMobile ? 60 : 75
+          }}
         >
-          <PerspectiveCamera makeDefault position={[0, 0, typeof window !== 'undefined' && window.innerWidth < 768 ? 3.5 : 3]} fov={typeof window !== 'undefined' && window.innerWidth < 768 ? 60 : 75} />
-          <ambientLight intensity={0.8} />
-          <pointLight position={[10, 10, 10]} intensity={1.2} />
-          <pointLight position={[-10, -10, -10]} intensity={0.8} />
-          
+          <ambientLight intensity={1.5} />
+          <pointLight position={[10, 10, 10]} intensity={2} />
           <Globe
             rotationSpeed={rotationSpeed}
             radius={globeRadius}
