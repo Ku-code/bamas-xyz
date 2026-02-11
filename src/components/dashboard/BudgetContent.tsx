@@ -227,34 +227,34 @@ const BudgetContent = () => {
     reference: "",
     notes: "",
   });
-  
+
   const dateLocale = language === 'bg' ? bg : enUS;
   const canManage = isSuperAdmin || isAdmin;
-  
+
   // Calculate totals
   const totalBalance = accounts.reduce((sum, acc) => {
     // Convert EUR to BGN for total (approximate rate)
     const amount = acc.currency === 'EUR' ? acc.balance * 1.96 : acc.balance;
     return sum + amount;
   }, 0);
-  
+
   const currentMonthIncome = transactions
     .filter(t => t.category === 'income' && t.date.startsWith('2026-01'))
     .reduce((sum, t) => sum + (t.currency === 'EUR' ? t.amount * 1.96 : t.amount), 0);
-  
+
   const currentMonthExpenses = transactions
     .filter(t => t.category === 'expense' && t.date.startsWith('2026-01'))
     .reduce((sum, t) => sum + (t.currency === 'EUR' ? t.amount * 1.96 : t.amount), 0);
-  
+
   const totalBudgetedIncome = budget.filter(b => b.type === 'income').reduce((sum, b) => sum + b.budgeted, 0);
   const totalActualIncome = budget.filter(b => b.type === 'income').reduce((sum, b) => sum + b.actual, 0);
   const totalBudgetedExpenses = budget.filter(b => b.type === 'expense').reduce((sum, b) => sum + b.budgeted, 0);
   const totalActualExpenses = budget.filter(b => b.type === 'expense').reduce((sum, b) => sum + b.actual, 0);
-  
+
   const toggleIbanVisibility = (accountId: string) => {
     setShowIban(prev => ({ ...prev, [accountId]: !prev[accountId] }));
   };
-  
+
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat(language === 'bg' ? 'bg-BG' : 'en-US', {
       style: 'currency',
@@ -262,7 +262,17 @@ const BudgetContent = () => {
       minimumFractionDigits: 2,
     }).format(amount);
   };
-  
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    toast({
+      title: t("dashboard.budget.bankDetails.copied") || "Copied to clipboard!",
+      duration: 2000,
+    });
+    setTimeout(() => setCopiedField(null), 2000);
+  };
+
   const handleAddTransaction = () => {
     if (!newTransaction.description || !newTransaction.amount || !newTransaction.account_id) {
       toast({
@@ -272,7 +282,7 @@ const BudgetContent = () => {
       });
       return;
     }
-    
+
     const transaction: Transaction = {
       id: `t-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
@@ -286,18 +296,18 @@ const BudgetContent = () => {
       notes: newTransaction.notes || undefined,
       created_by: user?.id || "",
     };
-    
+
     setTransactions(prev => [transaction, ...prev]);
-    
+
     // Update account balance
     const account = accounts.find(a => a.id === newTransaction.account_id);
     if (account) {
       const delta = newTransaction.category === 'income' ? parseFloat(newTransaction.amount) : -parseFloat(newTransaction.amount);
-      setAccounts(prev => prev.map(a => 
+      setAccounts(prev => prev.map(a =>
         a.id === newTransaction.account_id ? { ...a, balance: a.balance + delta } : a
       ));
     }
-    
+
     setNewTransaction({
       description: "",
       category: "expense",
@@ -309,21 +319,42 @@ const BudgetContent = () => {
       notes: "",
     });
     setIsAddTransactionOpen(false);
-    
+
     toast({
       title: t("dashboard.budget.success.transaction") || "Transaction Added",
       description: t("dashboard.budget.success.transactionDesc") || "Transaction recorded successfully",
     });
   };
-  
+
   const getAccountIcon = (type: BankAccount["type"]) => {
     switch (type) {
       case 'checking': return <Wallet className="h-5 w-5" />;
       case 'savings': return <PiggyBank className="h-5 w-5" />;
       case 'grant': return <Shield className="h-5 w-5" />;
+      default: return <CreditCard className="h-5 w-5" />;
     }
   };
-  
+
+  const bankAccountsDetails = [
+    {
+      accountName: t("dashboard.budget.bankDetails.account1Name") || "Account 1",
+      accountNumber: "EVP3410018837611",
+      iban: "BG55BPBI79421200077761",
+      bankName: "EUROBANK BULGARIA AD",
+      swift: "BPBIBGSFXXX",
+      recipient: t("dashboard.budget.bankDetails.recipient") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
+      address: "260 OKOLOVRASTEN PAT STR. SOFIA 1766, BULGARIA"
+    },
+    {
+      accountName: t("dashboard.budget.bankDetails.account2Name") || "Account 2",
+      iban: "LT443500010018837611",
+      bankName: "Paysera LT, UAB",
+      swift: "EVIULT2VXXX",
+      recipient: t("dashboard.budget.bankDetails.recipient") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
+      address: "Pilaitės pr. 16, Vilnius, LT-04352, Lithuania"
+    }
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -331,16 +362,23 @@ const BudgetContent = () => {
           <DollarSign className="h-6 w-6" />
           <h2 className="text-2xl font-bold">{t("dashboard.budget.title") || "Budget & Financials"}</h2>
         </div>
-        {canManage && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          <Button
+            className="rounded-full"
+            onClick={() => setShowBankDetails(true)}
+          >
+            <Building2 className="mr-2 h-4 w-4" />
+            {t("dashboard.budget.bankDetails") || "BANK ACCOUNT DETAILS"}
+          </Button>
+          {canManage && (
             <Button onClick={() => setIsAddTransactionOpen(true)} className="rounded-full">
               <Plus className="mr-2 h-4 w-4" />
               {t("dashboard.budget.addTransaction") || "Add Transaction"}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-      
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
@@ -356,7 +394,7 @@ const BudgetContent = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -370,7 +408,7 @@ const BudgetContent = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -384,7 +422,7 @@ const BudgetContent = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -401,7 +439,7 @@ const BudgetContent = () => {
           </CardContent>
         </Card>
       </div>
-      
+
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="rounded-full">
           <TabsTrigger value="overview" className="rounded-full">{t("dashboard.budget.tabs.overview") || "Overview"}</TabsTrigger>
@@ -409,7 +447,7 @@ const BudgetContent = () => {
           <TabsTrigger value="transactions" className="rounded-full">{t("dashboard.budget.tabs.transactions") || "Transactions"}</TabsTrigger>
           <TabsTrigger value="budget" className="rounded-full">{t("dashboard.budget.tabs.budget") || "Annual Budget"}</TabsTrigger>
         </TabsList>
-        
+
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -433,8 +471,8 @@ const BudgetContent = () => {
                         {formatCurrency(category.actual, 'BGN')} / {formatCurrency(category.budgeted, 'BGN')}
                       </span>
                     </div>
-                    <Progress 
-                      value={(category.actual / category.budgeted) * 100} 
+                    <Progress
+                      value={(category.actual / category.budgeted) * 100}
                       className="h-2"
                       style={{ '--progress-color': category.color } as any}
                     />
@@ -449,7 +487,7 @@ const BudgetContent = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Expenses vs Budget */}
             <Card>
               <CardHeader>
@@ -470,8 +508,8 @@ const BudgetContent = () => {
                         {formatCurrency(category.actual, 'BGN')} / {formatCurrency(category.budgeted, 'BGN')}
                       </span>
                     </div>
-                    <Progress 
-                      value={(category.actual / category.budgeted) * 100} 
+                    <Progress
+                      value={(category.actual / category.budgeted) * 100}
                       className="h-2"
                       style={{ '--progress-color': category.color } as any}
                     />
@@ -487,7 +525,7 @@ const BudgetContent = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Recent Transactions */}
           <Card>
             <CardHeader>
@@ -533,7 +571,7 @@ const BudgetContent = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         {/* Bank Accounts Tab */}
         <TabsContent value="accounts" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -580,7 +618,7 @@ const BudgetContent = () => {
             ))}
           </div>
         </TabsContent>
-        
+
         {/* Transactions Tab */}
         <TabsContent value="transactions">
           <Card>
@@ -641,7 +679,7 @@ const BudgetContent = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         {/* Annual Budget Tab */}
         <TabsContent value="budget">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -686,7 +724,7 @@ const BudgetContent = () => {
                 </div>
               </CardFooter>
             </Card>
-            
+
             {/* Expense Budget */}
             <Card>
               <CardHeader>
@@ -731,7 +769,7 @@ const BudgetContent = () => {
           </div>
         </TabsContent>
       </Tabs>
-      
+
       {/* Add Transaction Dialog */}
       <Dialog open={isAddTransactionOpen} onOpenChange={setIsAddTransactionOpen}>
         <DialogContent className="sm:max-w-[500px]">
@@ -741,7 +779,7 @@ const BudgetContent = () => {
               {t("dashboard.budget.addTransactionDesc") || "Record a new income or expense"}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.type") || "Type"}</Label>
@@ -764,7 +802,7 @@ const BudgetContent = () => {
                 </Button>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.description") || "Description"} *</Label>
               <Input
@@ -774,7 +812,7 @@ const BudgetContent = () => {
                 className="rounded-full"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t("dashboard.budget.form.amount") || "Amount"} *</Label>
@@ -802,7 +840,7 @@ const BudgetContent = () => {
                 </Select>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.category") || "Category"}</Label>
               <Select
@@ -819,7 +857,7 @@ const BudgetContent = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.account") || "Account"} *</Label>
               <Select
@@ -838,7 +876,7 @@ const BudgetContent = () => {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.reference") || "Reference"}</Label>
               <Input
@@ -848,7 +886,7 @@ const BudgetContent = () => {
                 className="rounded-full"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label>{t("dashboard.budget.form.notes") || "Notes"}</Label>
               <Textarea
@@ -858,7 +896,7 @@ const BudgetContent = () => {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddTransactionOpen(false)} className="rounded-full">
               {t("common.cancel") || "Cancel"}

@@ -1,7 +1,9 @@
 import { Canvas, useFrame } from "@react-three/fiber";
+import { Preload } from "@react-three/drei";
 import React, { useRef, useMemo, useEffect } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DotGlobeHeroProps {
   rotationSpeed?: number;
@@ -17,7 +19,7 @@ const Globe: React.FC<{
   const pointsRef = useRef<THREE.Points>(null!);
   const materialRef = useRef<THREE.PointsMaterial>(null!);
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useIsMobile();
   const scaledRadius = isMobile ? radius * 0.75 : radius * 1.5;
 
   // Create points geometry for a "Dot Globe" effect
@@ -73,7 +75,21 @@ const DotGlobeHero = React.forwardRef<
   children,
   ...props
 }, ref) => {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isMobile = useIsMobile();
+
+  const cameraProps = useMemo(() => ({
+    position: [0, 0, isMobile ? 3.5 : 3] as [number, number, number],
+    fov: isMobile ? 60 : 75,
+    near: 0.1,
+    far: 1000
+  }), [isMobile]);
+
+  const glProps = useMemo(() => ({
+    antialias: true,
+    alpha: true,
+    powerPreference: "high-performance" as const,
+    preserveDrawingBuffer: true,
+  }), []);
 
   return (
     <div
@@ -113,15 +129,14 @@ const DotGlobeHero = React.forwardRef<
 
       <div className="absolute inset-0 z-[1] pointer-events-none">
         <Canvas
-          dpr={[1, 1.5]}
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: "high-performance",
-          }}
-          camera={{
-            position: [0, 0, isMobile ? 3.5 : 3],
-            fov: isMobile ? 60 : 75
+          dpr={[1, 2]}
+          frameloop="always"
+          gl={glProps}
+          camera={cameraProps}
+          onCreated={({ gl, scene, camera }) => {
+            gl.setClearColor(0x000000, 0);
+            // Force an initial render to avoid white flash/empty state
+            gl.render(scene, camera);
           }}
         >
           <ambientLight intensity={1.5} />
@@ -130,6 +145,7 @@ const DotGlobeHero = React.forwardRef<
             rotationSpeed={rotationSpeed}
             radius={globeRadius}
           />
+          <Preload all />
         </Canvas>
       </div>
     </div>
