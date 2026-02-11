@@ -107,17 +107,17 @@ const EventCalendarIntegration = () => {
     setReminder: true,
     reminderMinutes: 30,
   });
-  
+
   // Generate ICS file content for single event
   const generateICS = (event: CalendarEvent) => {
     const formatDate = (date: Date) => {
       return format(date, "yyyyMMdd'T'HHmmss");
     };
-    
+
     const escapeText = (text: string) => {
       return text.replace(/[,;\\]/g, '\\$&').replace(/\n/g, '\\n');
     };
-    
+
     const ics = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -130,19 +130,19 @@ const EventCalendarIntegration = () => {
       `DTEND:${formatDate(event.end)}`,
       `SUMMARY:${escapeText(event.title)}`,
     ];
-    
+
     if (exportSettings.includeDescription && event.description) {
       ics.push(`DESCRIPTION:${escapeText(event.description)}`);
     }
-    
+
     if (exportSettings.includeLocation && event.location) {
       ics.push(`LOCATION:${escapeText(event.location)}`);
     }
-    
+
     if (event.url) {
       ics.push(`URL:${event.url}`);
     }
-    
+
     if (exportSettings.setReminder) {
       ics.push('BEGIN:VALARM');
       ics.push('ACTION:DISPLAY');
@@ -150,23 +150,23 @@ const EventCalendarIntegration = () => {
       ics.push(`DESCRIPTION:Reminder: ${escapeText(event.title)}`);
       ics.push('END:VALARM');
     }
-    
+
     ics.push('END:VEVENT');
     ics.push('END:VCALENDAR');
-    
+
     return ics.join('\r\n');
   };
-  
+
   // Generate ICS for all events
   const generateAllEventsICS = () => {
     const formatDate = (date: Date) => {
       return format(date, "yyyyMMdd'T'HHmmss");
     };
-    
+
     const escapeText = (text: string) => {
       return text.replace(/[,;\\]/g, '\\$&').replace(/\n/g, '\\n');
     };
-    
+
     const icsLines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
@@ -175,26 +175,26 @@ const EventCalendarIntegration = () => {
       'METHOD:PUBLISH',
       'X-WR-CALNAME:BAMAS Events',
     ];
-    
+
     events.forEach(event => {
       icsLines.push('BEGIN:VEVENT');
       icsLines.push(`UID:${event.id}@bamas.xyz`);
       icsLines.push(`DTSTART:${formatDate(event.start)}`);
       icsLines.push(`DTEND:${formatDate(event.end)}`);
       icsLines.push(`SUMMARY:${escapeText(event.title)}`);
-      
+
       if (exportSettings.includeDescription && event.description) {
         icsLines.push(`DESCRIPTION:${escapeText(event.description)}`);
       }
-      
+
       if (exportSettings.includeLocation && event.location) {
         icsLines.push(`LOCATION:${escapeText(event.location)}`);
       }
-      
+
       if (event.url) {
         icsLines.push(`URL:${event.url}`);
       }
-      
+
       if (exportSettings.setReminder) {
         icsLines.push('BEGIN:VALARM');
         icsLines.push('ACTION:DISPLAY');
@@ -202,39 +202,39 @@ const EventCalendarIntegration = () => {
         icsLines.push(`DESCRIPTION:Reminder: ${escapeText(event.title)}`);
         icsLines.push('END:VALARM');
       }
-      
+
       icsLines.push('END:VEVENT');
     });
-    
+
     icsLines.push('END:VCALENDAR');
     return icsLines.join('\r\n');
   };
-  
+
   // Generate Google Calendar URL
   const generateGoogleCalendarUrl = (event: CalendarEvent) => {
     const formatDate = (date: Date) => format(date, "yyyyMMdd'T'HHmmss'Z'");
-    
+
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: event.title,
       dates: `${formatDate(event.start)}/${formatDate(event.end)}`,
     });
-    
+
     if (event.description) {
       params.append('details', event.description);
     }
-    
+
     if (event.location) {
       params.append('location', event.location);
     }
-    
+
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   };
-  
+
   // Generate Outlook Web URL
   const generateOutlookUrl = (event: CalendarEvent) => {
     const formatDate = (date: Date) => date.toISOString();
-    
+
     const params = new URLSearchParams({
       path: '/calendar/action/compose',
       rru: 'addevent',
@@ -242,18 +242,18 @@ const EventCalendarIntegration = () => {
       startdt: formatDate(event.start),
       enddt: formatDate(event.end),
     });
-    
+
     if (event.description) {
       params.append('body', event.description);
     }
-    
+
     if (event.location) {
       params.append('location', event.location);
     }
-    
+
     return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
   };
-  
+
   const handleDownloadICS = (event?: CalendarEvent) => {
     const icsContent = event ? generateICS(event) : generateAllEventsICS();
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
@@ -265,13 +265,13 @@ const EventCalendarIntegration = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: t("dashboard.calendar.downloaded") || "Calendar Downloaded",
       description: t("dashboard.calendar.downloadedDesc") || "ICS file downloaded successfully",
     });
   };
-  
+
   const handleCopyLink = async (type: 'google' | 'outlook', event: CalendarEvent) => {
     const url = type === 'google' ? generateGoogleCalendarUrl(event) : generateOutlookUrl(event);
     try {
@@ -290,12 +290,12 @@ const EventCalendarIntegration = () => {
       });
     }
   };
-  
+
   const handleOpenCalendar = (type: 'google' | 'outlook', event: CalendarEvent) => {
     const url = type === 'google' ? generateGoogleCalendarUrl(event) : generateOutlookUrl(event);
     window.open(url, '_blank');
   };
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -308,11 +308,11 @@ const EventCalendarIntegration = () => {
           {t("dashboard.calendar.exportAll") || "Export All Events"}
         </Button>
       </div>
-      
+
       <p className="text-muted-foreground">
         {t("dashboard.calendar.description") || "Add BAMAS events to your personal calendar. Export to Google Calendar, Outlook, Apple Calendar, or download ICS files."}
       </p>
-      
+
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleDownloadICS()}>
@@ -321,13 +321,13 @@ const EventCalendarIntegration = () => {
               <Download className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="font-semibold">{t("dashboard.calendar.downloadICS") || "Download ICS"}</h3>
-              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.downloadICSDesc") || "For any calendar app"}</p>
+              <h3 className="font-semibold">{t("dashboard.calendar.export.ics.title") || "Download ICS"}</h3>
+              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.export.ics.description") || "For any calendar app"}</p>
             </div>
           </CardContent>
         </Card>
-        
-        <Card 
+
+        <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => events.length > 0 && handleOpenCalendar('google', events[0])}
         >
@@ -336,13 +336,13 @@ const EventCalendarIntegration = () => {
               <CalendarDays className="h-6 w-6 text-red-500" />
             </div>
             <div>
-              <h3 className="font-semibold">{t("dashboard.calendar.googleCalendar") || "Google Calendar"}</h3>
-              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.addToGoogle") || "Add events directly"}</p>
+              <h3 className="font-semibold">{t("dashboard.calendar.export.google.title") || "Google Calendar"}</h3>
+              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.export.google.description") || "Add events directly"}</p>
             </div>
           </CardContent>
         </Card>
-        
-        <Card 
+
+        <Card
           className="cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => events.length > 0 && handleOpenCalendar('outlook', events[0])}
         >
@@ -351,13 +351,13 @@ const EventCalendarIntegration = () => {
               <Mail className="h-6 w-6 text-blue-500" />
             </div>
             <div>
-              <h3 className="font-semibold">{t("dashboard.calendar.outlook") || "Outlook"}</h3>
-              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.addToOutlook") || "Add to Outlook calendar"}</p>
+              <h3 className="font-semibold">{t("dashboard.calendar.export.outlook.title") || "Outlook"}</h3>
+              <p className="text-sm text-muted-foreground">{t("dashboard.calendar.export.outlook.description") || "Add to Outlook calendar"}</p>
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Upcoming Events */}
       <Card>
         <CardHeader>
@@ -392,9 +392,9 @@ const EventCalendarIntegration = () => {
                       )}
                     </div>
                     {event.url && (
-                      <a 
-                        href={event.url} 
-                        target="_blank" 
+                      <a
+                        href={event.url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-primary flex items-center gap-1 mt-2 hover:underline"
                       >
@@ -403,7 +403,7 @@ const EventCalendarIntegration = () => {
                       </a>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-col gap-2">
                     <Button
                       variant="outline"
@@ -437,7 +437,7 @@ const EventCalendarIntegration = () => {
               </CardContent>
             </Card>
           ))}
-          
+
           {events.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -446,7 +446,7 @@ const EventCalendarIntegration = () => {
           )}
         </CardContent>
       </Card>
-      
+
       {/* iCal Feed URL */}
       <Card>
         <CardHeader>
@@ -460,9 +460,9 @@ const EventCalendarIntegration = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2">
-            <Input 
-              readOnly 
-              value="https://bamas.xyz/api/calendar/events.ics" 
+            <Input
+              readOnly
+              value="https://bamas.xyz/api/calendar/events.ics"
               className="font-mono text-sm"
             />
             <Button
@@ -481,7 +481,7 @@ const EventCalendarIntegration = () => {
           </p>
         </CardContent>
       </Card>
-      
+
       {/* Export Settings Dialog */}
       <Dialog open={showExportDialog} onOpenChange={setShowExportDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -491,7 +491,7 @@ const EventCalendarIntegration = () => {
               {t("dashboard.calendar.exportSettingsDesc") || "Customize what to include in the exported calendar"}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="flex items-center justify-between">
               <Label>{t("dashboard.calendar.includeDescription") || "Include descriptions"}</Label>
@@ -500,7 +500,7 @@ const EventCalendarIntegration = () => {
                 onCheckedChange={(v) => setExportSettings(prev => ({ ...prev, includeDescription: v }))}
               />
             </div>
-            
+
             <div className="flex items-center justify-between">
               <Label>{t("dashboard.calendar.includeLocation") || "Include locations"}</Label>
               <Switch
@@ -508,9 +508,9 @@ const EventCalendarIntegration = () => {
                 onCheckedChange={(v) => setExportSettings(prev => ({ ...prev, includeLocation: v }))}
               />
             </div>
-            
+
             <Separator />
-            
+
             <div className="flex items-center justify-between">
               <Label>{t("dashboard.calendar.setReminder") || "Set reminder"}</Label>
               <Switch
@@ -518,7 +518,7 @@ const EventCalendarIntegration = () => {
                 onCheckedChange={(v) => setExportSettings(prev => ({ ...prev, setReminder: v }))}
               />
             </div>
-            
+
             {exportSettings.setReminder && (
               <div className="space-y-2">
                 <Label>{t("dashboard.calendar.reminderTime") || "Reminder time"}</Label>
@@ -540,7 +540,7 @@ const EventCalendarIntegration = () => {
               </div>
             )}
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowExportDialog(false)} className="rounded-full">
               {t("common.cancel") || "Cancel"}

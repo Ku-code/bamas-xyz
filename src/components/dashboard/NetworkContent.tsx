@@ -73,12 +73,12 @@ const NetworkContent = () => {
   const [deviceCapability] = useState(() => detectDeviceCapability());
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
-  
+
   // Available technology filters
   const TECHNOLOGY_FILTERS = [
     "FDM", "SLA", "SLS", "SLM", "EBM", "MJF", "PolyJet", "DED", "Binder Jetting", "Material Jetting", "Metal"
   ];
-  
+
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -169,7 +169,7 @@ const NetworkContent = () => {
       // Generate a temporary ID for the new user
       // Note: In a real app, you might want to create a Supabase Auth user first
       const tempId = `member_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      
+
       const newUser = await db.insert('users', {
         id: tempId,
         name: newMember.name.trim(),
@@ -365,50 +365,50 @@ const NetworkContent = () => {
     return membersList.filter(member => {
       // Get companies for this member
       const userCompanies = companies.filter(c => c.created_by === member.id);
-      
+
       // Technology filter
       if (selectedTechnologies.length > 0) {
-        const memberHasTech = userCompanies.some(company => 
-          company.technologies?.some(tech => 
-            selectedTechnologies.some(filter => 
+        const memberHasTech = userCompanies.some(company =>
+          company.technologies?.some(tech =>
+            selectedTechnologies.some(filter =>
               tech.toLowerCase().includes(filter.toLowerCase())
             )
           )
         );
         if (!memberHasTech) return false;
       }
-      
+
       // Search query filter
       if (!searchQuery.trim()) return true;
-      
+
       const query = searchQuery.toLowerCase().trim();
-      
+
       // Search by member name
       const nameMatch = member.name.toLowerCase().includes(query);
-      
+
       // Search by member email
       const emailMatch = member.email.toLowerCase().includes(query);
-      
+
       // Search by company name
-      const companyMatch = userCompanies.some(company => 
+      const companyMatch = userCompanies.some(company =>
         company.name.toLowerCase().includes(query) ||
         company.activity_description?.toLowerCase().includes(query) ||
         company.technologies?.some(tech => tech.toLowerCase().includes(query))
       );
-      
+
       return nameMatch || emailMatch || companyMatch;
     });
   };
-  
+
   // Toggle technology filter
   const toggleTechnologyFilter = (tech: string) => {
-    setSelectedTechnologies(prev => 
-      prev.includes(tech) 
+    setSelectedTechnologies(prev =>
+      prev.includes(tech)
         ? prev.filter(t => t !== tech)
         : [...prev, tech]
     );
   };
-  
+
   // Clear all filters
   const clearAllFilters = () => {
     setSearchQuery("");
@@ -582,13 +582,13 @@ const NetworkContent = () => {
         <div className="flex items-center gap-2">
           <Users className="h-6 w-6" />
           <h2 className="text-2xl font-bold">{t("dashboard.network.title") || "Network"}</h2>
-          <Badge variant="secondary" className="ml-2">{approvedMembers.length} {t("dashboard.network.members") || "members"}</Badge>
+          <Badge variant="secondary" className="ml-2">{approvedMembers.length} {t("dashboard.network.label.members") || "members"}</Badge>
         </div>
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
-            onClick={loadData} 
+            onClick={loadData}
             className="rounded-full"
             title={t("dashboard.network.reload") || "Reload network data"}
           >
@@ -602,76 +602,76 @@ const NetworkContent = () => {
                   {t("dashboard.network.add.button") || "Add Member"}
                 </Button>
               </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>{t("dashboard.network.add.title") || "Add New Member"}</DialogTitle>
-                <DialogDescription>
-                  {t("dashboard.network.add.description") || "Add a new member to the network"}
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="member-name">
-                    {t("dashboard.network.add.form.name") || "Full Name"} <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="member-name"
-                    value={newMember.name}
-                    onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                    placeholder={t("dashboard.network.add.form.name.placeholder") || "Enter full name"}
-                    className="rounded-full"
-                    required
-                  />
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>{t("dashboard.network.add.title") || "Add New Member"}</DialogTitle>
+                  <DialogDescription>
+                    {t("dashboard.network.add.description") || "Add a new member to the network"}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="member-name">
+                      {t("dashboard.network.add.form.name") || "Full Name"} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="member-name"
+                      value={newMember.name}
+                      onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                      placeholder={t("dashboard.network.add.form.name.placeholder") || "Enter full name"}
+                      className="rounded-full"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="member-email">
+                      {t("dashboard.network.add.form.email") || "Email"} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="member-email"
+                      type="email"
+                      value={newMember.email}
+                      onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+                      placeholder={t("dashboard.network.add.form.email.placeholder") || "Enter email address"}
+                      className="rounded-full"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="member-phone">{t("dashboard.network.add.form.phone") || "Phone"}</Label>
+                    <Input
+                      id="member-phone"
+                      type="tel"
+                      value={newMember.phone}
+                      onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
+                      placeholder={t("dashboard.network.add.form.phone.placeholder") || "Enter phone number (optional)"}
+                      className="rounded-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="member-role">{t("dashboard.network.add.form.role") || "Role"}</Label>
+                    <Select value={newMember.role} onValueChange={(value) => setNewMember({ ...newMember, role: value as UserRole })}>
+                      <SelectTrigger className="rounded-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
+                        {isSuperAdmin && <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>}
+                        {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
+                        {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="member-email">
-                    {t("dashboard.network.add.form.email") || "Email"} <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="member-email"
-                    type="email"
-                    value={newMember.email}
-                    onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                    placeholder={t("dashboard.network.add.form.email.placeholder") || "Enter email address"}
-                    className="rounded-full"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="member-phone">{t("dashboard.network.add.form.phone") || "Phone"}</Label>
-                  <Input
-                    id="member-phone"
-                    type="tel"
-                    value={newMember.phone}
-                    onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                    placeholder={t("dashboard.network.add.form.phone.placeholder") || "Enter phone number (optional)"}
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="member-role">{t("dashboard.network.add.form.role") || "Role"}</Label>
-                  <Select value={newMember.role} onValueChange={(value) => setNewMember({ ...newMember, role: value as UserRole })}>
-                    <SelectTrigger className="rounded-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
-                      {isSuperAdmin && <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>}
-                      {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
-                      {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="rounded-full">
-                  {t("dashboard.network.add.cancel") || "Cancel"}
-                </Button>
-                <Button onClick={handleAddMember} className="rounded-full">
-                  {t("dashboard.network.add.submit") || "Add Member"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="rounded-full">
+                    {t("dashboard.network.add.cancel") || "Cancel"}
+                  </Button>
+                  <Button onClick={handleAddMember} className="rounded-full">
+                    {t("dashboard.network.add.submit") || "Add Member"}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
             </Dialog>
           )}
         </div>
@@ -722,7 +722,7 @@ const NetworkContent = () => {
                   </Button>
                 )}
               </div>
-              
+
               {/* Technology Filter Chips */}
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
@@ -739,7 +739,7 @@ const NetworkContent = () => {
                   ))}
                 </div>
               </div>
-              
+
               {(searchQuery || selectedTechnologies.length > 0) && (
                 <p className="text-sm text-muted-foreground">
                   {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
@@ -762,8 +762,8 @@ const NetworkContent = () => {
             </CardHeader>
             <CardContent>
               <div className="w-full h-[700px] rounded-lg overflow-hidden relative" id="network-graph-container">
-                <NetworkGraph 
-                  members={approvedMembers} 
+                <NetworkGraph
+                  members={approvedMembers}
                   companies={companies}
                   width={typeof window !== 'undefined' ? Math.max(800, window.innerWidth - 300) : 1200}
                   height={700}
@@ -809,7 +809,7 @@ const NetworkContent = () => {
                     </Button>
                   )}
                 </div>
-                
+
                 {/* Technology Filter Chips */}
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
@@ -826,7 +826,7 @@ const NetworkContent = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 {(searchQuery || selectedTechnologies.length > 0) && (
                   <p className="text-sm text-muted-foreground">
                     {t("dashboard.network.search.showing") || "Showing"} {approvedMembers.length} {t("dashboard.network.search.results_of") || "of"} {members.filter(m => m.status === 'approved').length} {t("dashboard.network.search.members") || "members"}
@@ -850,8 +850,8 @@ const NetworkContent = () => {
               <CardContent>
                 <div className="w-full h-[700px] rounded-lg overflow-hidden relative" id="network-graph-3d-container">
                   <Network3DErrorBoundary>
-                    <NetworkGraph3D 
-                      members={approvedMembers} 
+                    <NetworkGraph3D
+                      members={approvedMembers}
                       companies={companies}
                       width={typeof window !== 'undefined' ? Math.max(800, window.innerWidth - 300) : 1200}
                       height={700}
@@ -889,7 +889,7 @@ const NetworkContent = () => {
                   </Button>
                 )}
               </div>
-              
+
               {/* Technology Filter Chips */}
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">{t("dashboard.network.filter.technologies") || "Filter by Technology"}</Label>
@@ -906,10 +906,10 @@ const NetworkContent = () => {
                   ))}
                 </div>
               </div>
-              
+
               {(searchQuery || selectedTechnologies.length > 0) && (
                 <p className="text-sm text-muted-foreground">
-                  {t("dashboard.network.search.results") || "Showing results for"}: 
+                  {t("dashboard.network.search.results") || "Showing results for"}:
                   {searchQuery && <span className="font-medium ml-1">{searchQuery}</span>}
                   {selectedTechnologies.length > 0 && (
                     <span className="ml-2">
@@ -921,199 +921,40 @@ const NetworkContent = () => {
             </CardContent>
           </Card>
 
-      <Tabs defaultValue="approved" className="space-y-4">
-        <TabsList className="rounded-full">
-          <TabsTrigger value="approved" className="rounded-full">
-            {t("dashboard.network.tabs.approved") || "Approved"} ({approvedMembers.length})
-          </TabsTrigger>
-          {isAdmin && (
-            <>
-              <TabsTrigger value="pending" className="rounded-full">
-                {t("dashboard.network.tabs.pending") || "Pending"} ({pendingMembers.length})
+          <Tabs defaultValue="approved" className="space-y-4">
+            <TabsList className="rounded-full">
+              <TabsTrigger value="approved" className="rounded-full">
+                {t("dashboard.network.tabs.approved") || "Approved"} ({approvedMembers.length})
               </TabsTrigger>
-              <TabsTrigger value="rejected" className="rounded-full">
-                {t("dashboard.network.tabs.rejected") || "Rejected"} ({rejectedMembers.length})
-              </TabsTrigger>
-              {isSuperAdmin && (
-                <TabsTrigger value="suspended" className="rounded-full">
-                  {t("dashboard.network.tabs.suspended") || "Suspended"} ({suspendedMembers.length})
-                </TabsTrigger>
+              {isAdmin && (
+                <>
+                  <TabsTrigger value="pending" className="rounded-full">
+                    {t("dashboard.network.tabs.pending") || "Pending"} ({pendingMembers.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="rejected" className="rounded-full">
+                    {t("dashboard.network.tabs.rejected") || "Rejected"} ({rejectedMembers.length})
+                  </TabsTrigger>
+                  {isSuperAdmin && (
+                    <TabsTrigger value="suspended" className="rounded-full">
+                      {t("dashboard.network.tabs.suspended") || "Suspended"} ({suspendedMembers.length})
+                    </TabsTrigger>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </TabsList>
+            </TabsList>
 
-        <TabsContent value="approved" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("dashboard.network.approved.title") || "Approved Members"}</CardTitle>
-              <CardDescription>
-                {t("dashboard.network.approved.description") || "Members with full access to the platform"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {approvedMembers.length === 0 ? (
-                <p className="text-muted-foreground text-center py-8">
-                  {t("dashboard.network.approved.empty") || "No approved members yet."}
-                </p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
-                        <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
-                        <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
-                        <TableHead>{t("dashboard.network.table.role") || "Role"}</TableHead>
-                        <TableHead>{t("dashboard.network.table.status") || "Status"}</TableHead>
-                        {isAdmin && <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {approvedMembers.map((member) => (
-                        <TableRow key={member.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={member.image} alt={member.name} />
-                                <AvatarFallback>
-                                  {member.name
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .toUpperCase()
-                                    .slice(0, 2)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{member.name}</span>
-                                {companies.filter(c => c.created_by === member.id).length > 0 && (
-                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Building2 className="h-3 w-3" />
-                                    {t("dashboard.network.ownerOf") || "Owner of"}{" "}
-                                    {companies.filter(c => c.created_by === member.id).map(c => c.name).join(", ")}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Mail className="h-3 w-3 text-muted-foreground" />
-                              {member.email}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {member.phone ? (
-                              <div className="flex items-center gap-1">
-                                <Phone className="h-3 w-3 text-muted-foreground" />
-                                {member.phone}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getRoleBadgeVariant(member.role)} className="rounded-full">
-                              {member.role === 'superadmin' 
-                                ? t("dashboard.network.role.superadmin") || "Super Admin"
-                                : member.role === 'admin'
-                                ? t("dashboard.network.role.admin") || "Admin"
-                                : member.role === 'board_member'
-                                ? t("dashboard.network.role.board_member") || "Board Member"
-                                : member.role === 'wg_lead'
-                                ? t("dashboard.network.role.wg_lead") || "WG Lead"
-                                : t("dashboard.network.role.member") || "Member"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusBadgeVariant(member.status)} className="rounded-full">
-                              {member.status === 'approved' 
-                                ? t("dashboard.network.status.approved") || "Approved"
-                                : member.status === 'pending'
-                                ? t("dashboard.network.status.pending") || "Pending"
-                                : member.status === 'suspended'
-                                ? t("dashboard.network.status.suspended") || "Suspended"
-                                : t("dashboard.network.status.rejected") || "Rejected"}
-                            </Badge>
-                          </TableCell>
-                          {isAdmin && (
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Select
-                                  value={member.role || 'member'}
-                                  onValueChange={(value) => handleUpdateMemberRole(member.id, value as UserRole)}
-                                  disabled={member.role === 'superadmin' && !isSuperAdmin}
-                                >
-                                  <SelectTrigger className="w-32 h-8 text-xs rounded-full">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
-                                    <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>
-                                    {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
-                                    {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
-                                    {isSuperAdmin && <SelectItem value="superadmin">{t("dashboard.network.role.superadmin") || "Super Admin"}</SelectItem>}
-                                  </SelectContent>
-                                </Select>
-                                {isSuperAdmin && (
-                                  <div className="flex gap-1">
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setSuspendMemberId(member.id)}
-                                      className="h-8 px-2 rounded-full"
-                                      title={t("dashboard.network.suspend.button") || "Suspend"}
-                                    >
-                                      <Ban className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setBanMemberId(member.id)}
-                                      className="h-8 px-2 rounded-full"
-                                      title={t("dashboard.network.ban.button") || "Ban"}
-                                    >
-                                      <UserX className="h-3 w-3" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() => setDeleteMemberId(member.id)}
-                                      className="h-8 px-2 rounded-full text-destructive hover:text-destructive"
-                                      title={t("dashboard.network.delete.button") || "Delete"}
-                                    >
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {isAdmin && (
-          <>
-            <TabsContent value="pending" className="space-y-4">
+            <TabsContent value="approved" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("dashboard.network.pending.title") || "Pending Requests"}</CardTitle>
+                  <CardTitle>{t("dashboard.network.approved.title") || "Approved Members"}</CardTitle>
                   <CardDescription>
-                    {t("dashboard.network.pending.description") || "Members waiting for approval to join BAMAS"}
+                    {t("dashboard.network.approved.description") || "Members with full access to the platform"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {pendingMembers.length === 0 ? (
+                  {approvedMembers.length === 0 ? (
                     <p className="text-muted-foreground text-center py-8">
-                      {t("dashboard.network.pending.empty") || "No pending requests at the moment."}
+                      {t("dashboard.network.approved.empty") || "No approved members yet."}
                     </p>
                   ) : (
                     <div className="overflow-x-auto">
@@ -1123,12 +964,13 @@ const NetworkContent = () => {
                             <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
                             <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
                             <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
-                            <TableHead>{t("dashboard.network.table.requested") || "Requested"}</TableHead>
-                            <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
+                            <TableHead>{t("dashboard.network.table.role") || "Role"}</TableHead>
+                            <TableHead>{t("dashboard.network.table.status") || "Status"}</TableHead>
+                            {isAdmin && <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {pendingMembers.map((member) => (
+                          {approvedMembers.map((member) => (
                             <TableRow key={member.id}>
                               <TableCell>
                                 <div className="flex items-center gap-2">
@@ -1143,7 +985,16 @@ const NetworkContent = () => {
                                         .slice(0, 2)}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <span className="font-medium">{member.name}</span>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">{member.name}</span>
+                                    {companies.filter(c => c.created_by === member.id).length > 0 && (
+                                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Building2 className="h-3 w-3" />
+                                        {t("dashboard.network.ownerOf") || "Owner of"}{" "}
+                                        {companies.filter(c => c.created_by === member.id).map(c => c.name).join(", ")}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -1163,224 +1014,373 @@ const NetworkContent = () => {
                                 )}
                               </TableCell>
                               <TableCell>
-                                {member.createdAt ? (
-                                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Clock className="h-3 w-3" />
-                                    {format(new Date(member.createdAt), "PPp")}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground">-</span>
-                                )}
+                                <Badge variant={getRoleBadgeVariant(member.role)} className="rounded-full">
+                                  {member.role === 'superadmin'
+                                    ? t("dashboard.network.role.superadmin") || "Super Admin"
+                                    : member.role === 'admin'
+                                      ? t("dashboard.network.role.admin") || "Admin"
+                                      : member.role === 'board_member'
+                                        ? t("dashboard.network.role.board_member") || "Board Member"
+                                        : member.role === 'wg_lead'
+                                          ? t("dashboard.network.role.wg_lead") || "WG Lead"
+                                          : t("dashboard.network.role.member") || "Member"}
+                                </Badge>
                               </TableCell>
                               <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleApproveMember(member.id)}
-                                    className="rounded-full"
-                                  >
-                                    <Check className="mr-1 h-3 w-3" />
-                                    {t("dashboard.network.approve.button") || "Approve"}
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => setRejectMemberId(member.id)}
-                                    className="rounded-full"
-                                  >
-                                    <X className="mr-1 h-3 w-3" />
-                                    {t("dashboard.network.reject.button") || "Reject"}
-                                  </Button>
-                                </div>
+                                <Badge variant={getStatusBadgeVariant(member.status)} className="rounded-full">
+                                  {member.status === 'approved'
+                                    ? t("dashboard.network.status.approved") || "Approved"
+                                    : member.status === 'pending'
+                                      ? t("dashboard.network.status.pending") || "Pending"
+                                      : member.status === 'suspended'
+                                        ? t("dashboard.network.status.suspended") || "Suspended"
+                                        : t("dashboard.network.status.rejected") || "Rejected"}
+                                </Badge>
                               </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="rejected" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t("dashboard.network.rejected.title") || "Rejected Members"}</CardTitle>
-                  <CardDescription>
-                    {t("dashboard.network.rejected.description") || "Members whose requests were rejected"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {rejectedMembers.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">
-                      {t("dashboard.network.rejected.empty") || "No rejected members."}
-                    </p>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
-                            <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
-                            <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
-                            <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {rejectedMembers.map((member) => (
-                            <TableRow key={member.id}>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Avatar className="h-8 w-8">
-                                    <AvatarImage src={member.image} alt={member.name} />
-                                    <AvatarFallback>
-                                      {member.name
-                                        .split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .toUpperCase()
-                                        .slice(0, 2)}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <span className="font-medium">{member.name}</span>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1">
-                                  <Mail className="h-3 w-3 text-muted-foreground" />
-                                  {member.email}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {member.phone ? (
-                                  <div className="flex items-center gap-1">
-                                    <Phone className="h-3 w-3 text-muted-foreground" />
-                                    {member.phone}
-                                  </div>
-                                ) : (
-                                  <span className="text-muted-foreground">-</span>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleApproveMember(member.id)}
-                                  className="rounded-full"
-                                >
-                                  <Check className="mr-1 h-3 w-3" />
-                                  {t("dashboard.network.approve.button") || "Approve"}
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {isSuperAdmin && (
-              <TabsContent value="suspended" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t("dashboard.network.suspended.title") || "Suspended Members"}</CardTitle>
-                    <CardDescription>
-                      {t("dashboard.network.suspended.description") || "Members who have been temporarily suspended"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {suspendedMembers.length === 0 ? (
-                      <p className="text-muted-foreground text-center py-8">
-                        {t("dashboard.network.suspended.empty") || "No suspended members."}
-                      </p>
-                    ) : (
-                      <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
-                              <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
-                              <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
-                              <TableHead>{t("dashboard.network.table.role") || "Role"}</TableHead>
-                              <TableHead>{t("dashboard.network.table.status") || "Status"}</TableHead>
-                              <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {suspendedMembers.map((member) => (
-                              <TableRow key={member.id}>
+                              {isAdmin && (
                                 <TableCell>
                                   <div className="flex items-center gap-2">
-                                    <Avatar className="h-8 w-8">
-                                      <AvatarImage src={member.image} alt={member.name} />
-                                      <AvatarFallback>
-                                        {member.name
-                                          .split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .toUpperCase()
-                                          .slice(0, 2)}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <span className="font-medium">{member.name}</span>
+                                    <Select
+                                      value={member.role || 'member'}
+                                      onValueChange={(value) => handleUpdateMemberRole(member.id, value as UserRole)}
+                                      disabled={member.role === 'superadmin' && !isSuperAdmin}
+                                    >
+                                      <SelectTrigger className="w-32 h-8 text-xs rounded-full">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="member">{t("dashboard.network.role.member") || "Member"}</SelectItem>
+                                        <SelectItem value="admin">{t("dashboard.network.role.admin") || "Admin"}</SelectItem>
+                                        {isSuperAdmin && <SelectItem value="board_member">{t("dashboard.network.role.board_member") || "Board Member"}</SelectItem>}
+                                        {isSuperAdmin && <SelectItem value="wg_lead">{t("dashboard.network.role.wg_lead") || "WG Lead"}</SelectItem>}
+                                        {isSuperAdmin && <SelectItem value="superadmin">{t("dashboard.network.role.superadmin") || "Super Admin"}</SelectItem>}
+                                      </SelectContent>
+                                    </Select>
+                                    {isSuperAdmin && (
+                                      <div className="flex gap-1">
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => setSuspendMemberId(member.id)}
+                                          className="h-8 px-2 rounded-full"
+                                          title={t("dashboard.network.suspend.button") || "Suspend"}
+                                        >
+                                          <Ban className="h-3 w-3" />
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => setBanMemberId(member.id)}
+                                          className="h-8 px-2 rounded-full"
+                                          title={t("dashboard.network.ban.button") || "Ban"}
+                                        >
+                                          <UserX className="h-3 w-3" />
+                                        </Button>
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => setDeleteMemberId(member.id)}
+                                          className="h-8 px-2 rounded-full text-destructive hover:text-destructive"
+                                          title={t("dashboard.network.delete.button") || "Delete"}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    )}
                                   </div>
                                 </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-1">
-                                    <Mail className="h-3 w-3 text-muted-foreground" />
-                                    {member.email}
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  {member.phone ? (
-                                    <div className="flex items-center gap-1">
-                                      <Phone className="h-3 w-3 text-muted-foreground" />
-                                      {member.phone}
-                                    </div>
-                                  ) : (
-                                    <span className="text-muted-foreground">-</span>
-                                  )}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant={getRoleBadgeVariant(member.role)} className="rounded-full">
-                                    {member.role === 'superadmin' 
-                                      ? t("dashboard.network.role.superadmin") || "Super Admin"
-                                      : member.role === 'admin'
-                                      ? t("dashboard.network.role.admin") || "Admin"
-                                      : t("dashboard.network.role.member") || "Member"}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge variant={getStatusBadgeVariant(member.status)} className="rounded-full">
-                                    {t("dashboard.network.status.suspended") || "Suspended"}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    size="sm"
-                                    onClick={() => setRestoreMemberId(member.id)}
-                                    className="rounded-full"
-                                  >
-                                    <RotateCcw className="mr-1 h-3 w-3" />
-                                    {t("dashboard.network.restore.button") || "Restore"}
-                                  </Button>
-                                </TableCell>
+                              )}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {isAdmin && (
+              <>
+                <TabsContent value="pending" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t("dashboard.network.pending.title") || "Pending Requests"}</CardTitle>
+                      <CardDescription>
+                        {t("dashboard.network.pending.description") || "Members waiting for approval to join BAMAS"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {pendingMembers.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">
+                          {t("dashboard.network.pending.empty") || "No pending requests at the moment."}
+                        </p>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.requested") || "Requested"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                            </TableHeader>
+                            <TableBody>
+                              {pendingMembers.map((member) => (
+                                <TableRow key={member.id}>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarImage src={member.image} alt={member.name} />
+                                        <AvatarFallback>
+                                          {member.name
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .toUpperCase()
+                                            .slice(0, 2)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="font-medium">{member.name}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-1">
+                                      <Mail className="h-3 w-3 text-muted-foreground" />
+                                      {member.email}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {member.phone ? (
+                                      <div className="flex items-center gap-1">
+                                        <Phone className="h-3 w-3 text-muted-foreground" />
+                                        {member.phone}
+                                      </div>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    {member.createdAt ? (
+                                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        {format(new Date(member.createdAt), "PPp")}
+                                      </div>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        size="sm"
+                                        onClick={() => handleApproveMember(member.id)}
+                                        className="rounded-full"
+                                      >
+                                        <Check className="mr-1 h-3 w-3" />
+                                        {t("dashboard.network.approve.button") || "Approve"}
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => setRejectMemberId(member.id)}
+                                        className="rounded-full"
+                                      >
+                                        <X className="mr-1 h-3 w-3" />
+                                        {t("dashboard.network.reject.button") || "Reject"}
+                                      </Button>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="rejected" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{t("dashboard.network.rejected.title") || "Rejected Members"}</CardTitle>
+                      <CardDescription>
+                        {t("dashboard.network.rejected.description") || "Members whose requests were rejected"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {rejectedMembers.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-8">
+                          {t("dashboard.network.rejected.empty") || "No rejected members."}
+                        </p>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
+                                <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {rejectedMembers.map((member) => (
+                                <TableRow key={member.id}>
+                                  <TableCell>
+                                    <div className="flex items-center gap-2">
+                                      <Avatar className="h-8 w-8">
+                                        <AvatarImage src={member.image} alt={member.name} />
+                                        <AvatarFallback>
+                                          {member.name
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .toUpperCase()
+                                            .slice(0, 2)}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="font-medium">{member.name}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <div className="flex items-center gap-1">
+                                      <Mail className="h-3 w-3 text-muted-foreground" />
+                                      {member.email}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    {member.phone ? (
+                                      <div className="flex items-center gap-1">
+                                        <Phone className="h-3 w-3 text-muted-foreground" />
+                                        {member.phone}
+                                      </div>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleApproveMember(member.id)}
+                                      className="rounded-full"
+                                    >
+                                      <Check className="mr-1 h-3 w-3" />
+                                      {t("dashboard.network.approve.button") || "Approve"}
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {isSuperAdmin && (
+                  <TabsContent value="suspended" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>{t("dashboard.network.suspended.title") || "Suspended Members"}</CardTitle>
+                        <CardDescription>
+                          {t("dashboard.network.suspended.description") || "Members who have been temporarily suspended"}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        {suspendedMembers.length === 0 ? (
+                          <p className="text-muted-foreground text-center py-8">
+                            {t("dashboard.network.suspended.empty") || "No suspended members."}
+                          </p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>{t("dashboard.network.table.name") || "Name"}</TableHead>
+                                  <TableHead>{t("dashboard.network.table.email") || "Email"}</TableHead>
+                                  <TableHead>{t("dashboard.network.table.phone") || "Phone"}</TableHead>
+                                  <TableHead>{t("dashboard.network.table.role") || "Role"}</TableHead>
+                                  <TableHead>{t("dashboard.network.table.status") || "Status"}</TableHead>
+                                  <TableHead>{t("dashboard.network.table.actions") || "Actions"}</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {suspendedMembers.map((member) => (
+                                  <TableRow key={member.id}>
+                                    <TableCell>
+                                      <div className="flex items-center gap-2">
+                                        <Avatar className="h-8 w-8">
+                                          <AvatarImage src={member.image} alt={member.name} />
+                                          <AvatarFallback>
+                                            {member.name
+                                              .split(" ")
+                                              .map((n) => n[0])
+                                              .join("")
+                                              .toUpperCase()
+                                              .slice(0, 2)}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <span className="font-medium">{member.name}</span>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="flex items-center gap-1">
+                                        <Mail className="h-3 w-3 text-muted-foreground" />
+                                        {member.email}
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      {member.phone ? (
+                                        <div className="flex items-center gap-1">
+                                          <Phone className="h-3 w-3 text-muted-foreground" />
+                                          {member.phone}
+                                        </div>
+                                      ) : (
+                                        <span className="text-muted-foreground">-</span>
+                                      )}
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge variant={getRoleBadgeVariant(member.role)} className="rounded-full">
+                                        {member.role === 'superadmin'
+                                          ? t("dashboard.network.role.superadmin") || "Super Admin"
+                                          : member.role === 'admin'
+                                            ? t("dashboard.network.role.admin") || "Admin"
+                                            : t("dashboard.network.role.member") || "Member"}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Badge variant={getStatusBadgeVariant(member.status)} className="rounded-full">
+                                        {t("dashboard.network.status.suspended") || "Suspended"}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Button
+                                        size="sm"
+                                        onClick={() => setRestoreMemberId(member.id)}
+                                        className="rounded-full"
+                                      >
+                                        <RotateCcw className="mr-1 h-3 w-3" />
+                                        {t("dashboard.network.restore.button") || "Restore"}
+                                      </Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                )}
+              </>
             )}
-          </>
-        )}
-      </Tabs>
+          </Tabs>
         </TabsContent>
       </Tabs>
 
