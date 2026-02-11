@@ -57,6 +57,9 @@ import {
   Trash2,
   Eye,
   EyeOff,
+  Copy,
+  Check,
+  Info
 } from "lucide-react";
 
 interface Transaction {
@@ -98,105 +101,36 @@ const MOCK_ACCOUNTS: BankAccount[] = [
   {
     id: "acc1",
     name: "Основна сметка",
-    bank_name: "УниКредит Булбанк",
-    iban: "BG72UNCR70001522******",
+    bank_name: "EUROBANK BULGARIA AD",
+    iban: "BG55BPBI79421200077761",
     currency: "BGN",
-    balance: 45280.50,
+    balance: 0,
     type: "checking",
     is_primary: true,
   },
   {
     id: "acc2",
-    name: "ЕС Грантове",
-    bank_name: "Пощенска банка",
-    iban: "BG18BPBI79201034******",
+    name: "Secondary Account",
+    bank_name: "Paysera LT, UAB",
+    iban: "LT443500010018837611",
     currency: "EUR",
-    balance: 28500.00,
+    balance: 0,
     type: "grant",
     is_primary: false,
   },
-  {
-    id: "acc3",
-    name: "Резервен фонд",
-    bank_name: "УниКредит Булбанк",
-    iban: "BG55UNCR70001522******",
-    currency: "BGN",
-    balance: 15000.00,
-    type: "savings",
-    is_primary: false,
-  },
 ];
 
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "t1",
-    date: "2026-01-10",
-    description: "Членски внос - Q1 2026",
-    category: "income",
-    subcategory: "Membership Fees",
-    amount: 5000,
-    currency: "BGN",
-    account_id: "acc1",
-    reference: "INV-2026-001",
-    created_by: "admin",
-  },
-  {
-    id: "t2",
-    date: "2026-01-08",
-    description: "Наем на офис - Януари",
-    category: "expense",
-    subcategory: "Office",
-    amount: 1200,
-    currency: "BGN",
-    account_id: "acc1",
-    reference: "RENT-2026-01",
-    created_by: "admin",
-  },
-  {
-    id: "t3",
-    date: "2026-01-05",
-    description: "Horizon Europe - Първи транш",
-    category: "income",
-    subcategory: "Grants",
-    amount: 15000,
-    currency: "EUR",
-    account_id: "acc2",
-    reference: "HE-2025-0912",
-    created_by: "admin",
-  },
-  {
-    id: "t4",
-    date: "2026-01-03",
-    description: "Уеб хостинг и домейн",
-    category: "expense",
-    subcategory: "Technology",
-    amount: 450,
-    currency: "BGN",
-    account_id: "acc1",
-    created_by: "admin",
-  },
-  {
-    id: "t5",
-    date: "2025-12-28",
-    description: "Спонсорство - TechConf 2025",
-    category: "income",
-    subcategory: "Sponsorship",
-    amount: 3000,
-    currency: "BGN",
-    account_id: "acc1",
-    created_by: "admin",
-  },
-];
+const MOCK_TRANSACTIONS: Transaction[] = [];
 
 const MOCK_BUDGET: BudgetCategory[] = [
-  { id: "b1", name: "Membership Fees", type: "income", budgeted: 60000, actual: 45000, color: "#10B981" },
-  { id: "b2", name: "Grants", type: "income", budgeted: 100000, actual: 28500, color: "#3B82F6" },
-  { id: "b3", name: "Sponsorships", type: "income", budgeted: 20000, actual: 8000, color: "#8B5CF6" },
-  { id: "b4", name: "Events", type: "income", budgeted: 15000, actual: 5000, color: "#F59E0B" },
-  { id: "b5", name: "Office", type: "expense", budgeted: 15000, actual: 12000, color: "#EF4444" },
-  { id: "b6", name: "Technology", type: "expense", budgeted: 8000, actual: 4500, color: "#EC4899" },
-  { id: "b7", name: "Marketing", type: "expense", budgeted: 10000, actual: 3200, color: "#6366F1" },
-  { id: "b8", name: "Events Costs", type: "expense", budgeted: 25000, actual: 8500, color: "#14B8A6" },
+  { id: "b1", name: "Membership Fees", type: "income", budgeted: 0, actual: 0, color: "#10B981" },
+  { id: "b2", name: "Grants", type: "income", budgeted: 0, actual: 0, color: "#3B82F6" },
+  { id: "b3", name: "Sponsorships", type: "income", budgeted: 0, actual: 0, color: "#8B5CF6" },
+  { id: "b4", name: "Events", type: "income", budgeted: 0, actual: 0, color: "#F59E0B" },
+  { id: "b5", name: "Office", type: "expense", budgeted: 0, actual: 0, color: "#EF4444" },
+  { id: "b6", name: "Technology", type: "expense", budgeted: 0, actual: 0, color: "#EC4899" },
+  { id: "b7", name: "Marketing", type: "expense", budgeted: 0, actual: 0, color: "#6366F1" },
+  { id: "b8", name: "Events Costs", type: "expense", budgeted: 0, actual: 0, color: "#14B8A6" },
 ];
 
 const EXPENSE_CATEGORIES = [
@@ -217,6 +151,8 @@ const BudgetContent = () => {
   const [showIban, setShowIban] = useState<Record<string, boolean>>({});
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
+  const [showBankDetails, setShowBankDetails] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [newTransaction, setNewTransaction] = useState({
     description: "",
     category: "expense" as Transaction["category"],
@@ -798,7 +734,7 @@ const BudgetContent = () => {
                   onClick={() => setNewTransaction(prev => ({ ...prev, category: 'expense', subcategory: '' }))}
                 >
                   <ArrowDownLeft className="mr-2 h-4 w-4" />
-                  {t("dashboard.budget.expense") || "Expense"}
+                  {t("dashboard.budget.expenses") || "Expenses"}
                 </Button>
               </div>
             </div>
@@ -907,8 +843,109 @@ const BudgetContent = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bank Account Details Dialog */}
+      <Dialog open={showBankDetails} onOpenChange={setShowBankDetails}>
+        <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-md border border-white/20 p-0 overflow-hidden rounded-2xl">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="flex items-center gap-2 text-2xl font-bold">
+              <Building2 className="h-6 w-6 text-primary" />
+              {t("dashboard.budget.bankDetails.title") || "Bank Account Information"}
+            </DialogTitle>
+            <DialogDescription className="text-base text-muted-foreground mt-1">
+              {t("dashboard.budget.bankDetails.description") || "Transfer details for BAMA's financial transactions"}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+            {bankAccountsDetails.map((details, index) => (
+              <div key={index} className="space-y-4 p-5 rounded-2xl bg-white/5 border border-white/10 relative overflow-hidden group hover:border-primary/30 transition-all duration-300">
+                <div className="absolute top-0 right-0 p-4">
+                  <Building2 className="h-16 w-16 opacity-5 group-hover:opacity-10 transition-opacity duration-300" />
+                </div>
+
+                <div className="flex justify-between items-center relative z-10">
+                  <span className="font-bold text-lg text-primary">{details.accountName} - {details.bankName}</span>
+                  <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20">{index === 0 ? "Primary" : "Secondary"}</Badge>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
+                  {details.accountNumber && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Account Number</Label>
+                      <div className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10 group/row hover:border-primary/40 transition-colors">
+                        <code className="text-sm font-mono text-white/90">{details.accountNumber}</code>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-primary/20 hover:text-primary transition-colors"
+                          onClick={() => handleCopy(details.accountNumber!, `acc-${index}`)}
+                        >
+                          {copiedField === `acc-${index}` ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">IBAN</Label>
+                    <div className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10 group/row hover:border-primary/40 transition-colors">
+                      <code className="text-sm font-mono text-white/90">{details.iban}</code>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-primary/20 hover:text-primary transition-colors"
+                        onClick={() => handleCopy(details.iban, `iban-${index}`)}
+                      >
+                        {copiedField === `iban-${index}` ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">SWIFT / BIC</Label>
+                    <div className="text-sm font-medium bg-white/5 py-2 px-3 rounded-xl border border-white/5">{details.swift}</div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Recipient</Label>
+                    <div className="text-sm font-medium bg-white/5 py-2 px-3 rounded-xl border border-white/5 leading-tight">{details.recipient}</div>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-4 border-t border-white/10 relative z-10">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1.5">
+                    <Info className="h-3 w-3" />
+                    Recipient Entity (Legal Name)
+                  </Label>
+                  <p className="text-sm font-bold text-primary bg-primary/5 py-2 px-3 rounded-xl inline-block">Bulgarian Additive Manufacturing Association</p>
+                </div>
+
+                <div className="space-y-1.5 relative z-10">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Bank Address</Label>
+                  <div className="text-sm bg-white/5 py-2 px-3 rounded-xl border border-white/5 italic opacity-80">{details.address}</div>
+                </div>
+              </div>
+            ))}
+
+            <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3 items-start">
+              <Info className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-200/80 leading-relaxed">
+                Please include your <strong>Membership ID</strong> or <strong>Invoice Number</strong> in the payment description to ensure faster processing. For international transfers, please use the EUR account (Account 2).
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="p-6 pt-0">
+            <Button variant="outline" className="rounded-full w-full sm:w-auto h-11 px-8 font-semibold border-white/10 hover:bg-white/5" onClick={() => setShowBankDetails(false)}>
+              {t("common.close") || "Close"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 export default BudgetContent;
+
