@@ -100,7 +100,7 @@ interface BudgetCategory {
 const MOCK_ACCOUNTS: BankAccount[] = [
   {
     id: "acc1",
-    name: "Основна сметка",
+    name: "dashboard.budget.bankDetails.account1Name",
     bank_name: "EUROBANK BULGARIA AD",
     iban: "BG55BPBI79421200077761",
     currency: "BGN",
@@ -110,7 +110,7 @@ const MOCK_ACCOUNTS: BankAccount[] = [
   },
   {
     id: "acc2",
-    name: "Secondary Account",
+    name: "dashboard.budget.bankDetails.account2Name",
     bank_name: "Paysera LT, UAB",
     iban: "LT443500010018837611",
     currency: "EUR",
@@ -123,22 +123,22 @@ const MOCK_ACCOUNTS: BankAccount[] = [
 const MOCK_TRANSACTIONS: Transaction[] = [];
 
 const MOCK_BUDGET: BudgetCategory[] = [
-  { id: "b1", name: "Membership Fees", type: "income", budgeted: 0, actual: 0, color: "#10B981" },
-  { id: "b2", name: "Grants", type: "income", budgeted: 0, actual: 0, color: "#3B82F6" },
-  { id: "b3", name: "Sponsorships", type: "income", budgeted: 0, actual: 0, color: "#8B5CF6" },
-  { id: "b4", name: "Events", type: "income", budgeted: 0, actual: 0, color: "#F59E0B" },
-  { id: "b5", name: "Office", type: "expense", budgeted: 0, actual: 0, color: "#EF4444" },
-  { id: "b6", name: "Technology", type: "expense", budgeted: 0, actual: 0, color: "#EC4899" },
-  { id: "b7", name: "Marketing", type: "expense", budgeted: 0, actual: 0, color: "#6366F1" },
-  { id: "b8", name: "Events Costs", type: "expense", budgeted: 0, actual: 0, color: "#14B8A6" },
+  { id: "b1", name: "dashboard.budget.category.membershipFees", type: "income", budgeted: 0, actual: 0, color: "#10B981" },
+  { id: "b2", name: "dashboard.budget.category.grants", type: "income", budgeted: 0, actual: 0, color: "#3B82F6" },
+  { id: "b3", name: "dashboard.budget.category.sponsorships", type: "income", budgeted: 0, actual: 0, color: "#8B5CF6" },
+  { id: "b4", name: "dashboard.budget.category.events", type: "income", budgeted: 0, actual: 0, color: "#F59E0B" },
+  { id: "b5", name: "dashboard.budget.category.office", type: "expense", budgeted: 0, actual: 0, color: "#EF4444" },
+  { id: "b6", name: "dashboard.budget.category.technology", type: "expense", budgeted: 0, actual: 0, color: "#EC4899" },
+  { id: "b7", name: "dashboard.budget.category.marketing", type: "expense", budgeted: 0, actual: 0, color: "#6366F1" },
+  { id: "b8", name: "dashboard.budget.category.eventsCosts", type: "expense", budgeted: 0, actual: 0, color: "#14B8A6" },
 ];
 
 const EXPENSE_CATEGORIES = [
-  "Office", "Technology", "Marketing", "Events Costs", "Travel", "Legal", "Consulting", "Other"
+  "dashboard.budget.category.office", "dashboard.budget.category.technology", "dashboard.budget.category.marketing", "dashboard.budget.category.eventsCosts", "dashboard.budget.category.travel", "dashboard.budget.category.legal", "dashboard.budget.category.consulting", "dashboard.budget.category.services", "dashboard.budget.category.other"
 ];
 
 const INCOME_CATEGORIES = [
-  "Membership Fees", "Grants", "Sponsorships", "Events", "Services", "Donations", "Other"
+  "dashboard.budget.category.membershipFees", "dashboard.budget.category.grants", "dashboard.budget.category.sponsorships", "dashboard.budget.category.events", "dashboard.budget.category.services", "dashboard.budget.category.donations", "dashboard.budget.category.other"
 ];
 
 const BudgetContent = () => {
@@ -278,7 +278,7 @@ const BudgetContent = () => {
       iban: "BG55BPBI79421200077761",
       bankName: "EUROBANK BULGARIA AD",
       swift: "BPBIBGSFXXX",
-      recipient: t("dashboard.budget.bankDetails.recipient") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
+      recipient: t("dashboard.budget.bankDetails.recipientName") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
       address: "260 OKOLOVRASTEN PAT STR. SOFIA 1766, BULGARIA"
     },
     {
@@ -286,7 +286,7 @@ const BudgetContent = () => {
       iban: "LT443500010018837611",
       bankName: "Paysera LT, UAB",
       swift: "EVIULT2VXXX",
-      recipient: t("dashboard.budget.bankDetails.recipient") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
+      recipient: t("dashboard.budget.bankDetails.recipientName") || "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
       address: "Pilaitės pr. 16, Vilnius, LT-04352, Lithuania"
     }
   ];
@@ -402,7 +402,7 @@ const BudgetContent = () => {
                 {budget.filter(b => b.type === 'income').map(category => (
                   <div key={category.id} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>{category.name}</span>
+                      <span>{t(category.name)}</span>
                       <span className="font-medium">
                         {formatCurrency(category.actual, 'BGN')} / {formatCurrency(category.budgeted, 'BGN')}
                       </span>
@@ -439,7 +439,7 @@ const BudgetContent = () => {
                 {budget.filter(b => b.type === 'expense').map(category => (
                   <div key={category.id} className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>{category.name}</span>
+                      <span>{t(category.name)}</span>
                       <span className="font-medium">
                         {formatCurrency(category.actual, 'BGN')} / {formatCurrency(category.budgeted, 'BGN')}
                       </span>
@@ -495,7 +495,7 @@ const BudgetContent = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="rounded-full">{tx.subcategory}</Badge>
+                        <Badge variant="outline" className="rounded-full">{t(tx.subcategory)}</Badge>
                       </TableCell>
                       <TableCell className={`text-right font-medium ${tx.category === 'income' ? 'text-green-600' : 'text-red-600'}`}>
                         {tx.category === 'income' ? '+' : '-'}{formatCurrency(tx.amount, tx.currency)}
@@ -517,7 +517,7 @@ const BudgetContent = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {getAccountIcon(account.type)}
-                      <CardTitle className="text-base">{account.name}</CardTitle>
+                      <CardTitle className="text-base">{t(account.name)}</CardTitle>
                     </div>
                     {account.is_primary && (
                       <Badge className="rounded-full">{t("dashboard.budget.primary") || "Primary"}</Badge>
@@ -597,10 +597,10 @@ const BudgetContent = () => {
                         </TableCell>
                         <TableCell>
                           <Badge variant={tx.category === 'income' ? 'default' : 'secondary'} className="rounded-full">
-                            {tx.subcategory}
+                            {t(tx.subcategory)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{account?.name}</TableCell>
+                        <TableCell>{t(account?.name || '')}</TableCell>
                         <TableCell className="text-muted-foreground font-mono text-sm">
                           {tx.reference || '-'}
                         </TableCell>
@@ -788,7 +788,7 @@ const BudgetContent = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {(newTransaction.category === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    <SelectItem key={cat} value={cat}>{t(cat)}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -806,7 +806,7 @@ const BudgetContent = () => {
                 <SelectContent>
                   {accounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id}>
-                      {acc.name} ({acc.currency})
+                      {t(acc.name)} ({acc.currency})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -872,7 +872,7 @@ const BudgetContent = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
                   {details.accountNumber && (
                     <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Account Number</Label>
+                      <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("dashboard.budget.bankDetails.accountNumber") || "Account Number"}</Label>
                       <div className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10 group/row hover:border-primary/40 transition-colors">
                         <code className="text-sm font-mono text-white/90">{details.accountNumber}</code>
                         <Button
@@ -888,7 +888,7 @@ const BudgetContent = () => {
                   )}
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">IBAN</Label>
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("dashboard.budget.bankDetails.iban") || "IBAN"}</Label>
                     <div className="flex items-center justify-between bg-black/40 px-3 py-2 rounded-xl border border-white/10 group/row hover:border-primary/40 transition-colors">
                       <code className="text-sm font-mono text-white/90">{details.iban}</code>
                       <Button
@@ -903,12 +903,12 @@ const BudgetContent = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">SWIFT / BIC</Label>
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("dashboard.budget.bankDetails.swift") || "SWIFT / BIC"}</Label>
                     <div className="text-sm font-medium bg-white/5 py-2 px-3 rounded-xl border border-white/5">{details.swift}</div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Recipient</Label>
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("dashboard.budget.bankDetails.recipientLabel") || "Recipient"}</Label>
                     <div className="text-sm font-medium bg-white/5 py-2 px-3 rounded-xl border border-white/5 leading-tight">{details.recipient}</div>
                   </div>
                 </div>
@@ -916,13 +916,13 @@ const BudgetContent = () => {
                 <div className="space-y-1.5 pt-4 border-t border-white/10 relative z-10">
                   <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold flex items-center gap-1.5">
                     <Info className="h-3 w-3" />
-                    Recipient Entity (Legal Name)
+                    {t("dashboard.budget.bankDetails.recipientEntity") || "Recipient Entity (Legal Name)"}
                   </Label>
-                  <p className="text-sm font-bold text-primary bg-primary/5 py-2 px-3 rounded-xl inline-block">Bulgarian Additive Manufacturing Association</p>
+                  <p className="text-sm font-bold text-primary bg-primary/5 py-2 px-3 rounded-xl inline-block">{t("dashboard.budget.bankDetails.recipientNameEn") || "Bulgarian Additive Manufacturing Association"}</p>
                 </div>
 
                 <div className="space-y-1.5 relative z-10">
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Bank Address</Label>
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{t("dashboard.budget.bankDetails.bankAddress") || "Bank Address"}</Label>
                   <div className="text-sm bg-white/5 py-2 px-3 rounded-xl border border-white/5 italic opacity-80">{details.address}</div>
                 </div>
               </div>
@@ -931,7 +931,7 @@ const BudgetContent = () => {
             <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex gap-3 items-start">
               <Info className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
               <p className="text-sm text-amber-200/80 leading-relaxed">
-                Please include your <strong>Membership ID</strong> or <strong>Invoice Number</strong> in the payment description to ensure faster processing. For international transfers, please use the EUR account (Account 2).
+                {t("dashboard.budget.bankDetails.info") || "Please include your Membership ID or Invoice Number in the payment description to ensure faster processing. For international transfers, please use the EUR account (Account 2)."}\n
               </p>
             </div>
           </div>
