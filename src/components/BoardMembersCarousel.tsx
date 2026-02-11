@@ -16,63 +16,63 @@ const BOARD_MEMBERS: BoardMember[] = [
         nameEn: "KUZO DONCHEV",
         roleBg: "Председател",
         roleEn: "Chairman",
-        image: "/no background images members/КУЗО ДОНЧЕВ.png",
+        image: "/no background images members/kuzo_donchev.png",
     },
     {
         nameBg: "БОЯН ПЕХЛИВАНОВ",
         nameEn: "BOYAN PEHLIVANOV",
         roleBg: "Заместник-председател",
         roleEn: "Vice Chairman",
-        image: "/no background images members/БОЯН ПЕХЛИВАНОВ .png",
+        image: "/no background images members/boyan_pehlevanov.png",
     },
     {
         nameBg: "НИКОЛАЙ ЙОРДАНОВ",
         nameEn: "NIKOLAY YORDANOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/НИКОЛАЙ ЙОРДАНОВ.png",
+        image: "/no background images members/nikolay_yordanov.png",
     },
     {
         nameBg: "ГЕОРГИ ТОЛЕВ",
         nameEn: "GEORGI TOLEV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/ГЕОРГИ ТОЛЕВ.png",
+        image: "/no background images members/georgi_tolev.png",
     },
     {
         nameBg: "КРАСИМИР ГЕОРГИЕВ",
         nameEn: "KRASIMIR GEORGIEV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/КРАСИМИР ГЕОРГИЕВ.png",
+        image: "/no background images members/krasimir_georgiev.png",
     },
     {
         nameBg: "ЛЮБОМИР ГЕРАСИМОВ",
         nameEn: "LYUBOMIR GERASIMOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/ЛЮБОМИР ГЕРАСИМОВ .png",
+        image: "/no background images members/lyubomir_gerasimov.png",
     },
     {
         nameBg: "ВАСИЛ НИКОЛОВ",
         nameEn: "VASIL NIKOLOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/ВАСИЛ  НИКОЛОВ.png",
+        image: "/no background images members/vasil_nikolov.png",
     },
     {
         nameBg: "ДАНИЕЛ ХРИСТЕВ",
         nameEn: "DANIEL HRISTEV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/ДАНИЕЛ ХРИСТЕВ.png",
+        image: "/no background images members/daniel_hristev.png",
     },
     {
         nameBg: "АНДРЕЙ ДУНИЦОВ",
         nameEn: "ANDREY DUNITSOV",
         roleBg: "Член на УС",
         roleEn: "Board Member",
-        image: "/no background images members/АНДРЕЙ ДУНИЦОВ.png",
+        image: "/no background images members/andrey_dunitsov.png",
     },
     {
         nameBg: "ДИМО ДИМОВ",
@@ -124,6 +124,7 @@ const BoardMembersCarousel = () => {
                                             className="w-full h-full object-contain object-bottom transition-all duration-700 group-hover:scale-110 drop-shadow-2xl"
                                             loading="eager"
                                             decoding="sync"
+                                            fetchPriority="high"
                                             onError={(e) => {
                                                 console.error(`Failed to load image for ${name}: ${member.image}`);
                                                 const target = e.target as HTMLImageElement;
@@ -193,7 +194,7 @@ const BoardMembersCarousel = () => {
                             y: {
                                 repeat: Infinity,
                                 repeatType: "loop",
-                                duration: BOARD_MEMBERS.length * 2.5,
+                                duration: BOARD_MEMBERS.length * 1.5,
                                 ease: "linear",
                             },
                         }}
