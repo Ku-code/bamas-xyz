@@ -55,6 +55,14 @@ interface MembershipApplicationRequest {
   language: string;
 }
 
+// Sanitize text for PDF - remove characters not supported by WinAnsi encoding
+function sanitizeForPDF(text: string): string {
+  if (!text) return "";
+  // Replace Cyrillic and other non-WinAnsi characters with transliteration or remove them
+  // WinAnsi supports: ASCII (0x20-0x7E) and Latin-1 Supplement (0xA0-0xFF)
+  return text.replace(/[^\x20-\x7E\xA0-\xFF]/g, '?');
+}
+
 // Generate the PDF document
 async function generatePDF(formData: FormData): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -83,7 +91,7 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
   });
 
   yPosition -= 15;
-  page.drawText("БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО (БАЗАП / BAMAS)", {
+  page.drawText("BAMAS", {
     x: 50,
     y: yPosition,
     size: 10,
@@ -98,15 +106,6 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
     size: 16,
     font: fontBold,
     color: blackColor,
-  });
-
-  yPosition -= 15;
-  page.drawText("ЗАЯВЛЕНИЕ ЗА ЧЛЕНСТВО", {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: font,
-    color: grayColor,
   });
 
   // Helper function to add a section
@@ -143,7 +142,7 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
       yPosition = height - 50;
     }
 
-    page.drawText(`${label}:`, {
+    page.drawText(`${sanitizeForPDF(label)}:`, {
       x: 50,
       y: yPosition,
       size: 9,
@@ -151,7 +150,7 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
       color: grayColor,
     });
 
-    page.drawText(value || "N/A", {
+    page.drawText(sanitizeForPDF(value) || "N/A", {
       x: 220,
       y: yPosition,
       size: 9,
@@ -188,7 +187,7 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
       color: checked ? tealColor : grayColor,
     });
 
-    page.drawText(label, {
+    page.drawText(sanitizeForPDF(label), {
       x: 70,
       y: yPosition,
       size: 8,
@@ -198,59 +197,59 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
   };
 
   // Application Type
-  addSection("A. APPLICANT INFORMATION", "ИНФОРМАЦИЯ ЗА КАНДИДАТА");
+  addSection("A. APPLICANT INFORMATION");
 
   const applicationTypeLabels: Record<string, string> = {
-    individual: "Individual Membership / Индивидуално членство",
-    company: "Company / Legal Entity / Компания / Юридическо лице",
-    academic: "Academic / Research Institution / Академична институция",
-    public: "Public Organisation / Публична организация",
-    private: "Private Organisation / Частна организация",
-    foreign: "Foreign Partner / International Org. / Чуждестранен партньор",
+    individual: "Individual Membership",
+    company: "Company / Legal Entity",
+    academic: "Academic / Research Institution",
+    public: "Public Organisation",
+    private: "Private Organisation",
+    foreign: "Foreign Partner / International Org.",
   };
 
   addField("Type of Application", applicationTypeLabels[formData.applicationType] || formData.applicationType);
 
   // Personal or Organization details based on type
   if (formData.applicationType === "individual") {
-    addSection("B. PERSONAL DETAILS", "ЛИЧНИ ДАННИ");
-    addField("Full Name", formData.fullName, "Три имена");
-    addField("Date of Birth", formData.dateOfBirth, "Дата на раждане");
-    addField("Age", formData.age, "Възраст");
-    addField("Gender", formData.gender || "Not specified", "Пол");
-    addField("Nationality", formData.nationality, "Гражданство");
-    addField("Current Employment", formData.currentEmployment, "Текуща заетост");
+    addSection("B. PERSONAL DETAILS");
+    addField("Full Name", formData.fullName);
+    addField("Date of Birth", formData.dateOfBirth);
+    addField("Age", formData.age);
+    addField("Gender", formData.gender || "Not specified");
+    addField("Nationality", formData.nationality);
+    addField("Current Employment", formData.currentEmployment);
 
     const experienceLabels: Record<string, string> = {
-      none: "None / Нямам",
-      "1-3": "1-3 years / 1-3 години",
-      "3-5": "3-5 years / 3-5 години",
-      "5-10": "5-10 years / 5-10 години",
-      "10+": "10+ years / 10+ години",
+      none: "None",
+      "1-3": "1-3 years",
+      "3-5": "3-5 years",
+      "5-10": "5-10 years",
+      "10+": "10+ years",
     };
     addField("Experience in AM", experienceLabels[formData.experienceLevel] || "Not specified");
   } else {
-    addSection("C. ORGANISATION DETAILS", "ДАННИ ЗА ОРГАНИЗАЦИЯТА");
-    addField("Legal Name", formData.legalName, "Юридическо наименование");
-    addField("Legal Form", formData.legalForm, "Правна форма");
-    addField("Registration Number", formData.registrationNumber, "ЕИК / Регистрационен номер");
-    addField("Country of Registration", formData.countryOfRegistration, "Държава на регистрация");
-    addField("Registered Address", formData.registeredAddress, "Адрес на регистрация");
-    addField("Website", formData.website, "Уебсайт");
+    addSection("C. ORGANISATION DETAILS");
+    addField("Legal Name", formData.legalName);
+    addField("Legal Form", formData.legalForm);
+    addField("Registration Number", formData.registrationNumber);
+    addField("Country of Registration", formData.countryOfRegistration);
+    addField("Registered Address", formData.registeredAddress);
+    addField("Website", formData.website);
     addField("Main Activity (AM)", formData.mainActivity?.substring(0, 80) || "N/A");
   }
 
   // Contact Information
-  addSection("D. CONTACT INFORMATION", "ИНФОРМАЦИЯ ЗА КОНТАКТ");
-  addField("Address", formData.address, "Адрес за кореспонденция");
-  addField("City", formData.city, "Град");
-  addField("Country", formData.country, "Държава");
-  addField("Email", formData.email, "Имейл адрес");
-  addField("Phone", formData.phone, "Телефон за връзка");
-  addField("LinkedIn", formData.linkedIn || "Not provided", "LinkedIn профил");
+  addSection("D. CONTACT INFORMATION");
+  addField("Address", formData.address);
+  addField("City", formData.city);
+  addField("Country", formData.country);
+  addField("Email", formData.email);
+  addField("Phone", formData.phone);
+  addField("LinkedIn", formData.linkedIn || "Not provided");
 
   // Motivation
-  addSection("E. MOTIVATION AND ALIGNMENT", "МОТИВАЦИЯ И СЪОТВЕТСТВИЕ");
+  addSection("E. MOTIVATION AND ALIGNMENT");
 
   // Wrap motivation text
   const motivationLines = wrapText(formData.motivation || "Not provided", 70);
@@ -269,7 +268,7 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
       page = pdfDoc.addPage([595, 842]);
       yPosition = height - 50;
     }
-    page.drawText(line, {
+    page.drawText(sanitizeForPDF(line), {
       x: 50,
       y: yPosition,
       size: 9,
@@ -279,47 +278,47 @@ async function generatePDF(formData: FormData): Promise<Uint8Array> {
   }
 
   const contributionLabels: Record<string, string> = {
-    yes: "Yes / Да",
-    no: "No / Не",
-    partially: `Partially / Частично: ${formData.contributeExplanation}`,
+    yes: "Yes",
+    no: "No",
+    partially: `Partially: ${formData.contributeExplanation}`,
   };
   addField("Willing to contribute", contributionLabels[formData.willingToContribute] || "Not specified");
 
   const valuesLabels: Record<string, string> = {
-    yes: "Yes / Да",
-    no: "No / Не",
-    partially: `Partially / Частично: ${formData.valuesExplanation}`,
+    yes: "Yes",
+    no: "No",
+    partially: `Partially: ${formData.valuesExplanation}`,
   };
   addField("Values align with BAMAS", valuesLabels[formData.valuesAlign] || "Not specified");
 
   // Professional Background
-  addSection("F. PROFESSIONAL BACKGROUND", "ПРОФЕСИОНАЛЕН ОПИТ И СВЪРЗАНОСТ");
+  addSection("F. PROFESSIONAL BACKGROUND");
 
   const reputationLabels: Record<string, string> = {
-    no_prior: "No prior experience / Без предходен опит",
-    positive: "Positive / Позитивна",
-    negative: "Negative / Негативна",
-    mixed: "Mixed/Neutral / Смесена",
+    no_prior: "No prior experience",
+    positive: "Positive",
+    negative: "Negative",
+    mixed: "Mixed/Neutral",
   };
   addField("Industry Reputation", reputationLabels[formData.industryReputation] || "Not specified");
   addField("AM Company Relationships", formData.amCompanyRelationships?.substring(0, 60) || "None specified");
   addField("Political Affiliations", formData.politicalAffiliations?.substring(0, 60) || "None");
 
   // Compliance
-  addSection("G. COMPLIANCE AND DECLARATIONS", "СЪОТВЕТСТВИЕ И ДЕКЛАРАЦИИ");
+  addSection("G. COMPLIANCE AND DECLARATIONS");
   addCheckbox("I have read and understood the Articles of Association of BAMAS", formData.readArticles);
   addCheckbox("I confirm that the information provided is true, complete, and accurate", formData.confirmAccuracy);
   addCheckbox("I understand membership is subject to approval by the BAMAS Board", formData.understandApproval);
   addCheckbox("I agree to data processing in accordance with GDPR", formData.agreeGDPR);
 
   // Signature
-  addSection("H. SIGNATURE", "ПОДПИС");
-  addField("Place", formData.signaturePlace, "Място");
-  addField("Date", formData.signatureDate, "Дата");
-  addField("Full Name", formData.signatureName, "Имена на кандидата / Законния представител");
+  addSection("H. SIGNATURE");
+  addField("Place", formData.signaturePlace);
+  addField("Date", formData.signatureDate);
+  addField("Full Name", formData.signatureName);
 
   yPosition -= 25;
-  page.drawText("Digital Signature: ✓ Signed electronically", {
+  page.drawText("Digital Signature: Signed electronically", {
     x: 50,
     y: yPosition,
     size: 10,
