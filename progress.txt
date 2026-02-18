@@ -579,3 +579,91 @@ Final Verification:
 - TypeScript type check: `npx tsc --noEmit` PASSED (0 errors) ✓
 - HTML embed snippet verified: Works universally in WordPress, Wix, and custom HTML sites ✓
 - All RALPH_TASK.md items completed ✓
+
+[2026-02-02] Board Members Carousel & Product Page ✓
+============================================
+- Refined board members carousel for smooth infinite scrolling and uniform design.
+- Developed ProductPage component and integrated ImageCarousel.
+- Stabilized login authentication to prevent accidental logouts.
+
+[2026-02-03] Membership Form & Events Timeline ✓
+============================================
+- Integrated membership application form into a modal triggered by "Join us" buttons.
+- Updated Events Timeline with historical dates and locations for 2025-2026.
+- Configured dual-notification email system (BAMAS info + applicant copy) for form submissions.
+
+[2026-02-04] Dashboard Permissions ✓
+============================================
+- Managed dashboard permissions to grant Superadmin access for user management.
+
+[2026-02-05] Bulgarian Translation & Brand Updates ✓
+============================================
+- Full Bulgarian translation for navigation, contact, footer, FAQs, and policies.
+- Updated branding and logo assets.
+- Refined SloganMarquee and translated apartment details.
+- Added animated burger menu loader based on scroll progress.
+
+[2026-02-06] Mobile UI & Gallery Enhancements ✓
+============================================
+- Optimized mobile UI fit (cards, bottom nav) specifically for Bulgarian labels.
+- Enhanced immersive gallery with Masonry layout, lightbox, and keyboard/swipe navigation.
+- Fixed horizontal line overflow for "built by" credits on mobile.
+
+[2026-02-09] Lint Fixes ✓
+============================================
+- Resolved project-wide ESLint errors (any types, empty objects, require imports) for CI stability.
+
+[2026-02-10] Local Dev Fixes ✓
+============================================
+- Resolved local environment issues regarding package managers and client-side localStorage errors.
+
+[2026-02-11] PDF Cyrillic Encoding Fix ✓
+============================================
+- Fixed Cyrillic character encoding error (WinAnsi) in membership PDF generation via font adjustments.
+
+[2026-02-18] Typography Refinement & Font Weight Adjustment ✓
+============================================
+
+Objective:
+- Improve readability and visual hierarchy by replacing "Thin 100" font weights with "Regular 400" and "Light 300".
+- Ensure consistent aesthetic across English and Bulgarian languages.
+
+Changes:
+1. Font Infrastructure:
+   - Updated index.html Google Fonts import for Sofia Sans to include weights 300, 400, and 600.
+2. Global Styles (index.css):
+   - Changed default body font weight to font-light (300).
+   - Updated .font-subtitle utility to font-normal (400).
+   - Added .font-body-light (300) for detailed text.
+3. Component Updates:
+   - Landing Page (Index.tsx): Updated Hero, Membership, About, Partners, and Contact sections to use new weights (400 for subtitles, 300 for descriptions).
+   - Navbar (Navbar.tsx): Changed navigation link weights to font-semibold (600) for better definition.
+   - Footer (FooterSection.tsx): Improved legibility by setting titles to font-extrabold (800) and descriptions to font-normal (400).
+   - Official Documents (OfficialDocuments.tsx): Applied font-extrabold (800) to headers and font-normal (400) to descriptions.
+
+Status: Typography system updated and applied across major pages. ✓
+
+[2026-02-19] User Registration Fixes & Professional README Overhaul ✓
+=====================================================================
+
+Objective:
+- Fix critical user registration and approval blockers in the dashboard.
+- Update the README.md to a professional, industry-standard format aligned with the association's brand.
+
+Changes:
+1. Database & Auth (Supabase):
+   - Migration 024: Re-implemented `create_user_profile` as SECURITY DEFINER to bypass RLS during registration.
+   - Added triggers to ensure user profiles are always created on auth signup.
+   - Implemented stable fallback logic in `AuthContext.tsx` to prevent unintended logouts during DB timeouts.
+   - Guaranteed superadmin status for hardcoded emails regardless of DB state.
+2. README & Brand:
+   - Completely restructured `README.md` for a premium professional look.
+   - Integrated BAMAS map-style logo (center-aligned).
+   - Added professional bio description, Vision, Mission, and Objectives aligned with website copy.
+   - Removed casual icons in favor of a clean, structured documentation style.
+   - Optimized Tech Stack and Feature highlights for stakeholder readability.
+3. Dashboard Robustness:
+   - Refactored `NetworkContent.tsx` to improve member loading and correctly filter soft-deleted users.
+   - Fixed TypeScript linting errors in `AuthContext` and `NetworkContent`.
+
+Status: Core registration flow stabilized. Professional documentation completed. ✓

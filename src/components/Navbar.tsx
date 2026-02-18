@@ -27,7 +27,7 @@ const Navbar = () => {
   // Update scroll state with throttling for performance
   useEffect(() => {
     let ticking = false;
-    
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -131,7 +131,7 @@ const Navbar = () => {
   const logoPath = useMemo(() => {
     if (isDarkMode) {
       // Dark mode: use white logos from /bamas-uploads
-      return language === 'bg' 
+      return language === 'bg'
         ? '/bamas-uploads/BAMAS_Logo_bg.png'
         : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
     } else {
@@ -181,14 +181,14 @@ const Navbar = () => {
                 {link.isRoute ? (
                   <Link
                     to={link.href}
-                    className="text-sm font-medium transition-colors text-foreground hover:text-primary"
+                    className="text-sm font-semibold transition-colors text-foreground hover:text-primary"
                   >
                     {link.name}
                   </Link>
                 ) : (
                   <a
                     href={link.href}
-                    className={`text-sm font-medium transition-colors ${activeSection === link.href.substring(1)
+                    className={`text-sm font-semibold transition-colors ${activeSection === link.href.substring(1)
                       ? "text-destructive"
                       : "text-foreground hover:text-primary"
                       }`}
@@ -236,25 +236,25 @@ const Navbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/login">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="rounded-full border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-                >
-                  {t("nav.login")}
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button 
-                  size="sm" 
-                  className="rounded-full shadow-sm hover:shadow-md transition-all duration-200"
-                >
-                  {t("nav.register")}
-                </Button>
-              </Link>
-            </div>
+              <div className="flex items-center gap-2">
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
+                  >
+                    {t("nav.login")}
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button
+                    size="sm"
+                    className="rounded-full shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    {t("nav.register")}
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </nav>
@@ -294,18 +294,18 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-          <div className="flex items-center gap-2 border-l border-border/40 pl-2">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs rounded-full">
-                {t("nav.login")}
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button size="sm" className="h-8 px-3 text-xs rounded-full">
-                {t("nav.register")}
-              </Button>
-            </Link>
-          </div>
+            <div className="flex items-center gap-2 border-l border-border/40 pl-2">
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="h-8 px-3 text-xs rounded-full">
+                  {t("nav.login")}
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm" className="h-8 px-3 text-xs rounded-full">
+                  {t("nav.register")}
+                </Button>
+              </Link>
+            </div>
           )}
           <button
             className={`text-foreground p-2 ml-2 z-[60] relative transition-colors ${isMenuOpen ? 'text-destructive hover:text-destructive/80' : 'hover:text-primary'}`}
@@ -323,7 +323,7 @@ const Navbar = () => {
         {isMenuOpen && (
           <>
             {/* Backdrop overlay - click to close */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -333,144 +333,143 @@ const Navbar = () => {
               aria-hidden="true"
             />
             {/* Mobile menu */}
-            <motion.div 
+            <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="md:hidden fixed right-0 top-0 bottom-0 w-full max-w-sm bg-background shadow-2xl border-l border-border z-50 overflow-y-auto overscroll-contain"
-              style={{ 
+              style={{
                 height: '100vh',
                 paddingTop: isScrolled ? '64px' : '80px'
               }}
             >
-            {/* Close button inside menu - always visible at top */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-              <span className="text-xl font-bold text-foreground">{t("nav.menu") || "Menu"}</span>
-              <button
-                className="text-foreground hover:text-destructive active:text-destructive p-2 -mr-2 rounded-lg transition-all active:scale-95 touch-manipulation hover:bg-muted/50"
-                onClick={closeMenu}
-                aria-label="Close menu"
-              >
-                <X size={24} />
-              </button>
-            </div>
-            
-            <nav className="px-6 py-6">
-              <ul className="space-y-2">
-                {navLinks.map((link, index) => (
-                  <motion.li 
-                    key={link.name}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.3 }}
-                  >
-                    {link.isRoute ? (
-                      <Link
-                        to={link.href}
-                        className="block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg text-foreground hover:text-primary hover:bg-muted/50"
-                        onClick={closeMenu}
-                      >
-                        {link.name}
-                      </Link>
+              {/* Close button inside menu - always visible at top */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
+                <span className="text-xl font-bold text-foreground">{t("nav.menu") || "Menu"}</span>
+                <button
+                  className="text-foreground hover:text-destructive active:text-destructive p-2 -mr-2 rounded-lg transition-all active:scale-95 touch-manipulation hover:bg-muted/50"
+                  onClick={closeMenu}
+                  aria-label="Close menu"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <nav className="px-6 py-6">
+                <ul className="space-y-2">
+                  {navLinks.map((link, index) => (
+                    <motion.li
+                      key={link.name}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.3 }}
+                    >
+                      {link.isRoute ? (
+                        <Link
+                          to={link.href}
+                          className="block text-lg font-semibold transition-all duration-200 py-3 px-4 rounded-lg text-foreground hover:text-primary hover:bg-muted/50"
+                          onClick={closeMenu}
+                        >
+                          {link.name}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          className={`block text-lg font-semibold transition-all duration-200 py-3 px-4 rounded-lg ${activeSection === link.href.substring(1)
+                              ? "text-primary bg-primary/10 border-l-4 border-primary"
+                              : "text-foreground hover:text-primary hover:bg-muted/50"
+                            }`}
+                          onClick={closeMenu}
+                        >
+                          {link.name}
+                          {activeSection === link.href.substring(1) && (
+                            <span className="ml-2 text-primary">●</span>
+                          )}
+                        </a>
+                      )}
+                    </motion.li>
+                  ))}
+
+                  <li className="pt-4 mt-4 border-t border-border/50">
+                    {isAuthenticated ? (
+                      <div className="space-y-2">
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
+                        >
+                          <Link
+                            to="/dashboard"
+                            className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
+                            onClick={closeMenu}
+                          >
+                            <User className="h-5 w-5" />
+                            {t("nav.dashboard") || "Dashboard"}
+                          </Link>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
+                        >
+                          <Link
+                            to="/settings"
+                            className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
+                            onClick={closeMenu}
+                          >
+                            <Settings className="h-5 w-5" />
+                            {t("nav.settings") || "Settings"}
+                          </Link>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: (navLinks.length + 2) * 0.05, duration: 0.3 }}
+                        >
+                          <button
+                            onClick={() => { handleLogout(); closeMenu(); }}
+                            className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-destructive hover:bg-destructive/10 w-full text-left py-3 px-4 rounded-lg"
+                          >
+                            <LogOut className="h-5 w-5" />
+                            {t("nav.logout") || "Logout"}
+                          </button>
+                        </motion.div>
+                      </div>
                     ) : (
-                      <a
-                        href={link.href}
-                        className={`block text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg ${
-                          activeSection === link.href.substring(1)
-                            ? "text-primary bg-primary/10 border-l-4 border-primary"
-                            : "text-foreground hover:text-primary hover:bg-muted/50"
-                        }`}
-                        onClick={closeMenu}
-                      >
-                        {link.name}
-                        {activeSection === link.href.substring(1) && (
-                          <span className="ml-2 text-primary">●</span>
-                        )}
-                      </a>
+                      <div className="space-y-3 pt-2">
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
+                        >
+                          <Link
+                            to="/login"
+                            className="block text-center text-lg font-medium transition-all duration-200 text-foreground hover:text-primary border-2 border-border hover:border-primary py-3 px-6 rounded-lg"
+                            onClick={closeMenu}
+                          >
+                            {t("nav.login")}
+                          </Link>
+                        </motion.div>
+                        <motion.div
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
+                        >
+                          <Link
+                            to="/register"
+                            className="block text-center text-lg font-semibold transition-all duration-200 text-primary-foreground bg-primary hover:bg-primary/90 py-3 px-6 rounded-lg shadow-lg hover:shadow-xl"
+                            onClick={closeMenu}
+                          >
+                            {t("nav.register")}
+                          </Link>
+                        </motion.div>
+                      </div>
                     )}
-                  </motion.li>
-                ))}
-                
-                <li className="pt-4 mt-4 border-t border-border/50">
-                  {isAuthenticated ? (
-                    <div className="space-y-2">
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
-                      >
-                        <Link
-                          to="/dashboard"
-                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
-                          onClick={closeMenu}
-                        >
-                          <User className="h-5 w-5" />
-                          {t("nav.dashboard") || "Dashboard"}
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
-                      >
-                        <Link
-                          to="/settings"
-                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-foreground hover:text-primary hover:bg-muted/50 py-3 px-4 rounded-lg"
-                          onClick={closeMenu}
-                        >
-                          <Settings className="h-5 w-5" />
-                          {t("nav.settings") || "Settings"}
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: (navLinks.length + 2) * 0.05, duration: 0.3 }}
-                      >
-                        <button
-                          onClick={() => { handleLogout(); closeMenu(); }}
-                          className="flex items-center gap-3 text-lg font-medium transition-all duration-200 text-destructive hover:bg-destructive/10 w-full text-left py-3 px-4 rounded-lg"
-                        >
-                          <LogOut className="h-5 w-5" />
-                          {t("nav.logout") || "Logout"}
-                        </button>
-                      </motion.div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3 pt-2">
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: navLinks.length * 0.05, duration: 0.3 }}
-                      >
-                        <Link
-                          to="/login"
-                          className="block text-center text-lg font-medium transition-all duration-200 text-foreground hover:text-primary border-2 border-border hover:border-primary py-3 px-6 rounded-lg"
-                          onClick={closeMenu}
-                        >
-                          {t("nav.login")}
-                        </Link>
-                      </motion.div>
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: (navLinks.length + 1) * 0.05, duration: 0.3 }}
-                      >
-                        <Link
-                          to="/register"
-                          className="block text-center text-lg font-semibold transition-all duration-200 text-primary-foreground bg-primary hover:bg-primary/90 py-3 px-6 rounded-lg shadow-lg hover:shadow-xl"
-                          onClick={closeMenu}
-                        >
-                          {t("nav.register")}
-                        </Link>
-                      </motion.div>
-                    </div>
-                  )}
-                </li>
-              </ul>
-            </nav>
-          </motion.div>
+                  </li>
+                </ul>
+              </nav>
+            </motion.div>
           </>
         )}
       </AnimatePresence>

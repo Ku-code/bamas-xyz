@@ -97,7 +97,10 @@ const NetworkContent = () => {
 
   const loadMembers = async () => {
     try {
+      console.log("Loading members from database...");
       const dbUsers = await db.fetchAll('users');
+      console.log(`Fetched ${dbUsers.length} users from database`);
+
       // Convert database users to our User type
       const convertedUsers: User[] = dbUsers.map((dbUser: any) => ({
         id: dbUser.id,
@@ -115,9 +118,12 @@ const NetworkContent = () => {
         createdAt: dbUser.created_at,
         approvedAt: dbUser.approved_at || undefined,
         approvedBy: dbUser.approved_by || undefined,
-        // Filter out soft-deleted members (deleted_at is not null)
-        // We'll show them in a separate view if needed later
-      })).filter((u: User) => !(dbUsers.find((db: any) => db.id === u.id)?.deleted_at));
+      })).filter((u: User) => {
+        const rawUser = dbUsers.find((db: any) => db.id === u.id) as any;
+        return !rawUser?.deleted_at;
+      });
+
+      console.log(`Setting ${convertedUsers.length} members after filtering deleted ones`);
       setMembers(convertedUsers);
     } catch (error) {
       console.error("Error loading members:", error);

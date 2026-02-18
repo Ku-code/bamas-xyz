@@ -209,11 +209,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         console.warn('User not found in database:', userId);
         // If we have a valid auth user but no DB profile, don't kick them out.
-        // Create a temporary user object from auth data
+        // It might be a transient error or the profile creation is slightly delayed.
         const fallbackUser = authUser || (await supabase.auth.getUser()).data.user;
         if (fallbackUser) {
           console.log('Using fallback auth user data');
-          const isHardcodedAdmin = SUPERADMIN_EMAILS.includes(fallbackUser.email || '');
+          const isHardcodedAdmin = fallbackUser.email ? SUPERADMIN_EMAILS.includes(fallbackUser.email) : false;
           setUser({
             id: fallbackUser.id,
             email: fallbackUser.email || '',
@@ -231,24 +231,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Error loading user from database:', error);
 
       // CRITICAL FIX: Do not log out the user on transient DB errors!
-      // If we already have a user in state, keep it.
-      // If we have an authUser, use it as fallback.
+      // If we already have an authUser, use it as fallback.
+      const authUserQuery = await supabase.auth.getUser();
+      const currentAuthUser = authUser || authUserQuery.data.user;
 
-      if (user && user.id === userId) {
-        console.log('Keeping existing user state despite DB error');
-        // Do nothing, keep existing user
-      } else if (authUser) {
-        console.log('Constructing fallback user from auth session despite DB error');
-        const isHardcodedAdmin = SUPERADMIN_EMAILS.includes(authUser.email || '');
+      if (currentAuthUser) {
+        console.log('Constructing stable fallback user from auth session despite DB error');
+        const isHardcodedAdmin = currentAuthUser.email ? SUPERADMIN_EMAILS.includes(currentAuthUser.email) : false;
         setUser({
-          id: authUser.id,
-          email: authUser.email || '',
-          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
+          id: currentAuthUser.id,
+          email: currentAuthUser.email || '',
+          name: currentAuthUser.user_metadata?.name || currentAuthUser.email?.split('@')[0] || 'User',
           role: isHardcodedAdmin ? 'superadmin' : 'member',
           status: isHardcodedAdmin ? 'approved' : 'pending',
-          createdAt: authUser.created_at,
+          createdAt: currentAuthUser.created_at,
         });
-      } else {
+      } else if (!user) {
         // Only if we have NO state and NO session info do we reset
         setUser(null);
       }
@@ -433,7 +431,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               approved_at: null,
               approved_by: null,
               updated_at: new Date().toISOString(),
-            } as any)
+            })
             .eq('id', existingUser.id);
 
           if (updateError) {
@@ -603,7 +601,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               approved_at: null,
               approved_by: null,
               updated_at: new Date().toISOString(),
-            } as any)
+            })
             .eq('id', dbUser.id);
 
           if (updateError) {

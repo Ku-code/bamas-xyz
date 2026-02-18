@@ -20,6 +20,7 @@ import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PartnerLogosCarousel from "@/components/PartnerLogosCarousel";
 import BoardMembersCarousel from "@/components/BoardMembersCarousel";
+import NewsBanner from "@/components/NewsBanner";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -97,7 +98,8 @@ const Index = () => {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Navbar />
 
-      <section id="home" className="relative pt-20 md:pt-24 scroll-mt-20 md:scroll-mt-24">
+      <section id="home" className="relative pt-20 md:pt-24 scroll-mt-20 md:scroll-mt-24 overflow-hidden">
+        <NewsBanner />
         <DotGlobeHero
           rotationSpeed={0.004}
           className="bg-gradient-to-br from-background via-background/95 to-muted/10 relative overflow-hidden"
@@ -130,20 +132,18 @@ const Index = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 1, delay: 0.3 }}
-                  className={`font-black select-none ${language === 'bg'
+                  className={`font-extrabold select-none ${language === 'bg'
                     ? 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-normal leading-[1.15] text-center px-2 sm:px-4 md:px-6 max-w-full'
                     : 'text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl tracking-tight leading-tight'
                     }`}
-                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                 >
                   <span className={`block relative ${language === 'bg' ? 'text-center' : ''}`}>
-                    <span className={`bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black relative z-10 ${language === 'bg' ? 'inline-block break-words' : ''
+                    <span className={`bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-extrabold relative z-10 ${language === 'bg' ? 'inline-block break-words' : ''
                       }`}>
                       {t("hero.title")}
                     </span>
-                    <div className={`absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-black blur-2xl opacity-50 scale-105 ${language === 'bg' ? 'text-center' : ''
-                      }`}
-                      style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <div className={`absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/60 bg-clip-text text-transparent font-extrabold blur-2xl opacity-50 scale-105 ${language === 'bg' ? 'text-center' : ''
+                      }`}>
                       {t("hero.title")}
                     </div>
                     <motion.div
@@ -163,8 +163,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="max-w-3xl mx-auto space-y-4"
               >
-                <p className="text-base sm:text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium px-4"
-                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                <p className="text-base sm:text-xl md:text-2xl text-muted-foreground leading-relaxed px-4 font-normal">
                   {t("hero.subtitle")}
                 </p>
               </motion.div>
@@ -238,21 +237,21 @@ const Index = () => {
         />
 
         <div className="container mx-auto px-4 relative z-10">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("about.title")}
           </h2>
           <div className="max-w-3xl mx-auto animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100">
-            <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4 md:mb-6 px-4">
+            <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4 md:mb-6 px-4 font-normal">
               {t("about.description")}
             </p>
-            <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+            <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 font-normal">
               {t("about.subtitle")}
             </p>
           </div>
 
           {/* Board Members Section */}
           <div className="mt-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200">
-            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-8 text-center text-foreground px-4">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold mb-8 text-center text-foreground px-4">
               {language === "bg" ? "Управителен съвет и Представителство" : "Board of Directors"}
             </h3>
             <BoardMembersCarousel />
@@ -269,7 +268,7 @@ const Index = () => {
         <div className="container mx-auto px-4 relative z-10">
           {/* Section Header */}
           <div className="text-center mb-16 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
-            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
               {t("mission.section.title")}
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto shadow-lg shadow-primary/50"></div>
@@ -306,7 +305,7 @@ const Index = () => {
                       )}
                     </div>
                     <div className="space-y-3">
-                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 font-normal">
                         {t("mission.vision.short")}
                       </p>
                       {expandedCard === 'vision' && (
@@ -344,7 +343,7 @@ const Index = () => {
                         <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                           <RocketIcon className="h-6 w-6 text-primary" />
                         </div>
-                        <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                        <h3 className="text-2xl md:text-3xl font-extrabold text-foreground">
                           {t("mission.mission.title")}
                         </h3>
                       </div>
@@ -355,7 +354,7 @@ const Index = () => {
                       )}
                     </div>
                     <div className="space-y-3">
-                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+                      <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 font-normal">
                         {t("mission.mission.short")}
                       </p>
                       {expandedCard === 'mission' && (
@@ -380,7 +379,7 @@ const Index = () => {
             {/* Mission Pillars Grid */}
             <div className="max-w-6xl mx-auto">
               <div className="text-center mb-12 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-300">
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                <h3 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3">
                   {t("mission.mission.subtitle")}
                 </h3>
               </div>
@@ -448,7 +447,7 @@ const Index = () => {
 
       <section id="objectives" className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("objectives.title")}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
@@ -479,8 +478,8 @@ const Index = () => {
                   <div className="p-3 rounded-full bg-primary/10 mb-4 text-primary">
                     {objective.icon}
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-foreground">{objective.title}</h3>
-                  <p className="text-foreground/70">{objective.description}</p>
+                  <h3 className="text-xl font-extrabold mb-3 text-foreground">{objective.title}</h3>
+                  <p className="text-foreground/70 font-body-light">{objective.description}</p>
                 </div>
               </Card>
             ))}
@@ -490,10 +489,10 @@ const Index = () => {
 
       <section id="membership-pricing" className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
             {t("membership.pricing.title")}
           </h2>
-          <p className="text-lg text-center text-foreground/70 mb-12 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100">
+          <p className="text-lg text-center text-foreground/70 mb-12 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100 font-normal">
             {t("membership.pricing.subtitle")}
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
@@ -598,7 +597,7 @@ const Index = () => {
 
       <section id="membership" className="py-12 md:py-20 bg-background scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("membership.title")}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
@@ -640,9 +639,9 @@ const Index = () => {
                     <div className="text-destructive mr-4">
                       {benefit.icon}
                     </div>
-                    <h3 className="text-xl font-semibold text-foreground">{benefit.title}</h3>
+                    <h3 className="text-xl font-extrabold text-foreground">{benefit.title}</h3>
                   </div>
-                  <p className="text-foreground/70">{benefit.description}</p>
+                  <p className="text-foreground/70 font-body-light">{benefit.description}</p>
                 </div>
               </Card>
             ))}
@@ -677,7 +676,7 @@ const Index = () => {
       <section id="events" className="py-16 md:py-24 bg-muted/30 scroll-mt-20 md:scroll-mt-24 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10 animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">
               {t("events.title")}
             </h2>
             <div className="w-16 h-1 bg-primary mx-auto"></div>
@@ -699,7 +698,7 @@ const Index = () => {
                 <div className="ml-10 md:ml-0 md:w-[45%]">
                   <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.july2025.date")}</span>
-                    <h4 className="text-sm font-bold text-foreground/80">{t("events.july2025.title")}</h4>
+                    <h4 className="text-sm font-extrabold text-foreground/80">{t("events.july2025.title")}</h4>
                     <p className="text-xs text-muted-foreground mt-1">{t("events.july2025.location")}</p>
                   </div>
                 </div>
@@ -716,7 +715,7 @@ const Index = () => {
                 <div className="ml-10 md:ml-0 md:w-[45%]">
                   <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.nov2025.date")}</span>
-                    <h4 className="text-sm font-bold text-foreground/80">{t("events.nov2025.title")}</h4>
+                    <h4 className="text-sm font-extrabold text-foreground/80">{t("events.nov2025.title")}</h4>
                     <p className="text-xs text-muted-foreground mt-1">{t("events.nov2025.location")}</p>
                   </div>
                 </div>
@@ -733,7 +732,7 @@ const Index = () => {
                 <div className="ml-10 md:ml-0 md:w-[45%]">
                   <div className="bg-background/50 border border-border/50 p-4 rounded-lg hover:border-primary/20 transition-colors">
                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">{t("events.jan2026.date")}</span>
-                    <h4 className="text-sm font-bold text-foreground/80">{t("events.jan2026.title")}</h4>
+                    <h4 className="text-sm font-extrabold text-foreground/80">{t("events.jan2026.title")}</h4>
                     <p className="text-xs text-muted-foreground mt-1">{t("events.jan2026.location")}</p>
                   </div>
                 </div>
@@ -757,7 +756,7 @@ const Index = () => {
                 <div className="ml-10 md:ml-0 md:w-[45%]">
                   <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg shadow-sm">
                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">{t("events.online_discussion.date")}</span>
-                    <h4 className="text-sm font-bold text-foreground">{t("events.online_discussion.title")}</h4>
+                    <h4 className="text-sm font-extrabold text-foreground">{t("events.online_discussion.title")}</h4>
                     <p className="text-xs text-muted-foreground mt-1">{t("events.online_discussion.description")}</p>
                   </div>
                 </div>
@@ -774,7 +773,7 @@ const Index = () => {
                 <div className="ml-10 md:ml-0 md:w-[45%]">
                   <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg shadow-sm">
                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">{t("events.board_meeting_june.date")}</span>
-                    <h4 className="text-sm font-bold text-foreground">{t("events.board_meeting_june.title")}</h4>
+                    <h4 className="text-sm font-extrabold text-foreground">{t("events.board_meeting_june.title")}</h4>
                     <p className="text-xs text-muted-foreground mt-1">{t("events.board_meeting_june.description")}</p>
                   </div>
                 </div>
@@ -808,15 +807,15 @@ const Index = () => {
 
       <section id="partner" className="py-12 md:py-20 bg-background scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("partner.title")}
           </h2>
           <div className="grid md:grid-cols-2 gap-12 mt-8">
             <div className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4 md:mb-6 px-4">
+              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-4 md:mb-6 px-4 font-body-light">
                 {t("partner.description1")}
               </p>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4">
+              <p className="text-base md:text-lg text-foreground/80 leading-relaxed px-4 font-body-light">
                 {t("partner.description2")}
               </p>
             </div>
@@ -839,10 +838,10 @@ const Index = () => {
       {/* Current Partners Section */}
       <section className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6 text-center text-primary animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-4 md:mb-6 text-center text-primary animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {language === "bg" ? "Компаниите, които формират индустрията за адитивно производство в България" : "The Companies Shaping Bulgaria's Additive Manufacturing Industry"}
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground text-center mb-8 md:mb-12 px-4 max-w-3xl mx-auto animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100">
+          <p className="text-base md:text-lg text-muted-foreground text-center mb-8 md:mb-12 px-4 max-w-3xl mx-auto animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100 font-light">
             {language === "bg" ? "Заедно изграждаме бъдещето на 3D технологиите и иновациите" : "Building the future of 3D technologies and innovation, together"}
           </p>
           <div className="animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out">
@@ -853,14 +852,14 @@ const Index = () => {
 
       <section id="contact" className="py-12 md:py-20 bg-muted/30 scroll-mt-20 md:scroll-mt-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold mb-8 md:mb-12 text-center text-foreground animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out px-4">
             {t("contact.title")}
           </h2>
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8">
               <div className="bg-card p-6 sm:p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-100 flex flex-col h-full">
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">{t("contact.form.title")}</h3>
-                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
+                <h3 className="text-lg sm:text-xl font-extrabold text-foreground mb-3 sm:mb-4">{t("contact.form.title")}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow font-body-light">
                   {t("contact.form.description")}
                 </p>
                 <Button
@@ -874,8 +873,8 @@ const Index = () => {
               </div>
 
               <div className="bg-card p-6 sm:p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-200 flex flex-col h-full">
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">{t("contact.discord.title")}</h3>
-                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
+                <h3 className="text-lg sm:text-xl font-extrabold text-foreground mb-3 sm:mb-4">{t("contact.discord.title")}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow font-body-light">
                   {t("contact.discord.description")}
                 </p>
                 <Button
@@ -889,8 +888,8 @@ const Index = () => {
               </div>
 
               <div className="bg-card p-6 sm:p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-300 sm:col-span-2 lg:col-span-1 flex flex-col h-full">
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">{t("contact.viber.title")}</h3>
-                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow">
+                <h3 className="text-lg sm:text-xl font-extrabold text-foreground mb-3 sm:mb-4">{t("contact.viber.title")}</h3>
+                <p className="text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed mb-4 sm:mb-6 flex-grow font-body-light">
                   {t("contact.viber.description")}
                 </p>
                 <Button
@@ -906,10 +905,10 @@ const Index = () => {
 
             {/* Google Maps Section */}
             <div className="bg-card p-8 rounded-lg shadow-md animate-on-scroll opacity-0 translate-y-4 transition-all duration-700 ease-out delay-400">
-              <h3 className="text-xl font-semibold text-foreground mb-4 text-center">
+              <h3 className="text-xl font-extrabold text-foreground mb-4 text-center">
                 {t("contact.location.title")}
               </h3>
-              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-6 text-center px-4">
+              <p className="text-base md:text-lg text-foreground/80 leading-relaxed mb-6 text-center px-4 font-body-light">
                 {t("contact.location.description")}
               </p>
               <div className="w-full rounded-lg overflow-hidden border border-border/50 shadow-sm">

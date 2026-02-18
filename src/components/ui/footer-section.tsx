@@ -61,7 +61,7 @@ interface FooterSectionProps {
   onLanguageChange?: (lang: "en" | "bg") => void
 }
 
-function FooterSection({ 
+function FooterSection({
   translations,
   onNewsletterSubmit,
   socialLinks,
@@ -146,11 +146,11 @@ function FooterSection({
       }
     }
   };
-  
+
   const logoPath = getLogoPath();
-  
+
   // Fallback paths if primary doesn't exist (for dark mode)
-  const fallbackLogoPath = currentLanguage === "bg" 
+  const fallbackLogoPath = currentLanguage === "bg"
     ? "/bamas-uploads/BAMAS_Logo_bg.png"
     : "/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
 
@@ -161,8 +161,8 @@ function FooterSection({
           <div className="relative">
             {/* BAMAS Logo - positioned above newsletter title */}
             <div className="mb-6 flex justify-start">
-              <a 
-                href="#home" 
+              <a
+                href="#home"
                 className="inline-block transition-all hover:opacity-80 hover:scale-105 cursor-pointer"
                 aria-label={currentLanguage === "bg" ? "Отиди към началото" : "Go to home"}
               >
@@ -190,10 +190,10 @@ function FooterSection({
                 />
               </a>
             </div>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight">
+            <h2 className="mb-4 text-3xl font-extrabold tracking-tight">
               {translations?.newsletter?.title || "Join BAMAS"}
             </h2>
-            <p className="mb-6 text-muted-foreground">
+            <p className="mb-6 text-muted-foreground font-normal">
               {translations?.newsletter?.description || "Join our newsletter for the latest updates and exclusive offers."}
             </p>
             <form className="relative" onSubmit={handleSubmit}>
@@ -216,10 +216,10 @@ function FooterSection({
             <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
           </div>
           <div>
-            <h3 className="mb-4 text-lg font-semibold">
+            <h3 className="mb-4 text-lg font-bold">
               {translations?.quickLinks?.title || "Quick Links"}
             </h3>
-            <nav className="space-y-2 text-sm">
+            <nav className="space-y-2 text-sm font-normal">
               <a href="#home" className="block transition-colors hover:text-primary">
                 {translations?.quickLinks?.home || "Home"}
               </a>
@@ -241,10 +241,10 @@ function FooterSection({
             </nav>
           </div>
           <div>
-            <h3 className="mb-4 text-lg font-semibold">
+            <h3 className="mb-4 text-lg font-bold">
               {translations?.contact?.title || "Contact Us"}
             </h3>
-            <address className="space-y-2 text-sm not-italic">
+            <address className="space-y-2 text-sm not-italic font-normal">
               <p>{translations?.contact?.address || "Sofia, Bulgaria"}</p>
               <p>{translations?.contact?.city || ""}</p>
               <p>{translations?.contact?.phone || ""}</p>
@@ -252,7 +252,7 @@ function FooterSection({
             </address>
           </div>
           <div className="relative">
-            <h3 className="mb-4 text-lg font-semibold">
+            <h3 className="mb-4 text-lg font-bold">
               {translations?.followUs?.title || "Follow Us"}
             </h3>
             <div className="mb-6 flex space-x-4">
@@ -260,9 +260,9 @@ function FooterSection({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
+                      <Button
+                        variant="outline"
+                        size="icon"
                         className="rounded-full"
                         asChild
                       >
@@ -282,9 +282,9 @@ function FooterSection({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
+                      <Button
+                        variant="outline"
+                        size="icon"
                         className="rounded-full"
                         asChild
                       >
@@ -304,9 +304,9 @@ function FooterSection({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
+                      <Button
+                        variant="outline"
+                        size="icon"
                         className="rounded-full"
                         asChild
                       >
@@ -326,9 +326,9 @@ function FooterSection({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
+                      <Button
+                        variant="outline"
+                        size="icon"
                         className="rounded-full"
                         asChild
                       >
@@ -394,14 +394,14 @@ function FooterSection({
       {/* Large stylized text at bottom - full width */}
       <div className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] mt-12 pt-12 border-t border-border/10 overflow-hidden">
         <div className="w-full text-center px-2 sm:px-4 md:px-6 lg:px-8">
-          <h1 
+          <h1
             className="w-full font-black tracking-tighter leading-none select-none pointer-events-none block"
             style={{
               fontSize: 'clamp(3.5rem, 30vw, 22rem)',
               color: 'transparent',
               WebkitTextStroke: isDarkMode ? '1.5px' : '2px',
-              WebkitTextStrokeColor: isDarkMode 
-                ? 'hsl(159, 88%, 33%)' 
+              WebkitTextStrokeColor: isDarkMode
+                ? 'hsl(159, 88%, 33%)'
                 : '#E62F29',
               opacity: isDarkMode ? 0.4 : 0.5,
               letterSpacing: currentLanguage === "bg" ? '-0.15em' : '-0.12em',

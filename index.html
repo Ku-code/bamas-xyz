@@ -1,122 +1,145 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="favicon" />
-    <link rel="apple-touch-icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="apple-touch-icon" />
-    <link rel="shortcut icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="shortcut-icon" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#0C9D6A" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    
-    <!-- Force dark mode immediately - prevents white flash on load -->
-    <style>
-      html { color-scheme: dark; background-color: #0f172a; }
-      html.dark { color-scheme: dark; }
-      html.light { color-scheme: light; background-color: #fff; }
-      body { background-color: inherit; }
-    </style>
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPJCMNG6NH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RPJCMNG6NH');
-    </script>
-    
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "v0iipjyh6t");
-    </script>
-    
-    <!-- Performance hints -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <!-- Supabase API preconnect for faster auth/database requests -->
-    <link rel="preconnect" href="https://api.supabase.co" />
-    <link rel="dns-prefetch" href="https://api.supabase.co" />
-    <!-- Google OAuth preconnect -->
-    <link rel="preconnect" href="https://accounts.google.com" />
-    <link rel="dns-prefetch" href="https://accounts.google.com" />
-    <!-- Google Tag Manager preconnect -->
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <!-- CDN preconnect for third-party scripts -->
-    <link rel="dns-prefetch" href="https://cdn.gpteng.co" />
-    <link rel="preload" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" as="image" />
-    <link rel="preload" href="/bamas-uploads/BAMAS_Logo_bg.png" as="image" />
-    <!-- Preload default language translation (bg) -->
-    <link rel="modulepreload" href="/src/translations/bg.json" />
-    <title>БАЗАП - Българска Асоциация за Адитивно Производство</title>
-    <meta name="description" content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
-    <meta property="og:title" content="БАЗАП - Българска Асоциация за Адитивно Производство" />
-    <meta property="og:description" content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
-    <meta property="og:image" content="/bamas-uploads/BamasMain.png" />
-    <meta property="og:url" content="https://bamas.bg" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="БАЗАП - Българска Асоциация за Адитивно Производство" />
-    <meta name="twitter:description" content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
-    <meta name="twitter:image" content="/bamas-uploads/BamasMain.png" />
-  </head>
 
-  <body style="margin: 0; padding: 0; min-height: 100vh;">
-    <script>
-      // CRITICAL: Force dark mode immediately on page load to prevent flash
-      // This script runs synchronously before any rendering
-      (function() {
-        const storageKey = 'bamas-theme';
-        const root = document.documentElement;
-        
-        // Always ensure dark class is present first
-        root.classList.add('dark');
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="favicon" />
+  <link rel="apple-touch-icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="apple-touch-icon" />
+  <link rel="shortcut icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="shortcut-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0C9D6A" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Force dark mode immediately - prevents white flash on load -->
+  <style>
+    html {
+      color-scheme: dark;
+      background-color: #0f172a;
+    }
+
+    html.dark {
+      color-scheme: dark;
+    }
+
+    html.light {
+      color-scheme: light;
+      background-color: #fff;
+    }
+
+    body {
+      background-color: inherit;
+    }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RPJCMNG6NH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-RPJCMNG6NH');
+  </script>
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "v0iipjyh6t");
+  </script>
+
+  <!-- Performance hints -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <!-- Sofia Sans: ExtraBold 800 (titles) + Light/Regular (body), Latin + Cyrillic -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,300;0,400;0,600;0,800;1,300;1,400;1,600;1,800&display=swap"
+    rel="stylesheet" />
+  <!-- Supabase API preconnect for faster auth/database requests -->
+  <link rel="preconnect" href="https://api.supabase.co" />
+  <link rel="dns-prefetch" href="https://api.supabase.co" />
+  <!-- Google OAuth preconnect -->
+  <link rel="preconnect" href="https://accounts.google.com" />
+  <link rel="dns-prefetch" href="https://accounts.google.com" />
+  <!-- Google Tag Manager preconnect -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <!-- CDN preconnect for third-party scripts -->
+  <link rel="dns-prefetch" href="https://cdn.gpteng.co" />
+  <link rel="preload" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" as="image" />
+  <link rel="preload" href="/bamas-uploads/BAMAS_Logo_bg.png" as="image" />
+  <!-- Preload default language translation (bg) -->
+  <link rel="modulepreload" href="/src/translations/bg.json" />
+  <title>БАЗАП - Българска Асоциация за Адитивно Производство</title>
+  <meta name="description"
+    content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
+  <meta property="og:title" content="БАЗАП - Българска Асоциация за Адитивно Производство" />
+  <meta property="og:description"
+    content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
+  <meta property="og:image" content="/bamas-uploads/BamasMain.png" />
+  <meta property="og:url" content="https://bamas.bg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="БАЗАП - Българска Асоциация за Адитивно Производство" />
+  <meta name="twitter:description"
+    content="БАЗАП е посветен на развитието на технологиите за адитивно производство и насърчаването на сътрудничеството в индустрията в България." />
+  <meta name="twitter:image" content="/bamas-uploads/BamasMain.png" />
+</head>
+
+<body style="margin: 0; padding: 0; min-height: 100vh;">
+  <script>
+    // CRITICAL: Force dark mode immediately on page load to prevent flash
+    // This script runs synchronously before any rendering
+    (function () {
+      const storageKey = 'bamas-theme';
+      const root = document.documentElement;
+
+      // Always ensure dark class is present first
+      root.classList.add('dark');
+      root.classList.remove('light');
+
+      // Check localStorage for user preference
+      const stored = localStorage.getItem(storageKey);
+
+      // Only apply light mode if user explicitly set it to 'light'
+      // Otherwise, always default to dark (including 'system' preference)
+      if (stored === 'light') {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      } else {
+        // For 'dark', 'system', or no stored value: always use dark
         root.classList.remove('light');
-        
-        // Check localStorage for user preference
-        const stored = localStorage.getItem(storageKey);
-        
-        // Only apply light mode if user explicitly set it to 'light'
-        // Otherwise, always default to dark (including 'system' preference)
-        if (stored === 'light') {
-          root.classList.remove('dark');
-          root.classList.add('light');
-        } else {
-          // For 'dark', 'system', or no stored value: always use dark
-          root.classList.remove('light');
-          root.classList.add('dark');
-          
-          // If no stored value or invalid, set it to dark
-          if (!stored || (stored !== 'dark' && stored !== 'light' && stored !== 'system')) {
-            localStorage.setItem(storageKey, 'dark');
-          }
-        }
-      })();
-    </script>
-    <div id="root" style="min-height: 100vh;"></div>
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module" defer></script>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Function to update favicon based on language
-      function updateFavicon(language) {
-        const logoPath = language === 'bg' 
-          ? '/bamas-uploads/BAMAS_Logo_bg.png'
-          : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
-        
-        document.getElementById('favicon').href = logoPath;
-        document.getElementById('apple-touch-icon').href = logoPath;
-        document.getElementById('shortcut-icon').href = logoPath;
-      }
+        root.classList.add('dark');
 
-      // Listen for language changes
-      window.addEventListener('languageChange', (event) => {
-        updateFavicon(event.detail.language);
-      });
-    </script>
-  </body>
+        // If no stored value or invalid, set it to dark
+        if (!stored || (stored !== 'dark' && stored !== 'light' && stored !== 'system')) {
+          localStorage.setItem(storageKey, 'dark');
+        }
+      }
+    })();
+  </script>
+  <div id="root" style="min-height: 100vh;"></div>
+  <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+  <script src="https://cdn.gpteng.co/gptengineer.js" type="module" defer></script>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Function to update favicon based on language
+    function updateFavicon(language) {
+      const logoPath = language === 'bg'
+        ? '/bamas-uploads/BAMAS_Logo_bg.png'
+        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+
+      document.getElementById('favicon').href = logoPath;
+      document.getElementById('apple-touch-icon').href = logoPath;
+      document.getElementById('shortcut-icon').href = logoPath;
+    }
+
+    // Listen for language changes
+    window.addEventListener('languageChange', (event) => {
+      updateFavicon(event.detail.language);
+    });
+  </script>
+</body>
+
 </html>

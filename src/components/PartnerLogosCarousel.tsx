@@ -79,6 +79,11 @@ const PARTNERS: Partner[] = [
     name: "Resonator",
     url: "https://www.rsntr.com/",
   },
+  {
+    logo: "/partnerlogos/3Druck Logo.png",
+    name: "3Druck.com",
+    url: "https://3druck.com/",
+  },
 ];
 
 // Duplicate partners for seamless infinite loop
@@ -110,7 +115,7 @@ const PartnerLogosCarousel = () => {
       if (!container) return;
 
       const { scrollLeft, scrollWidth, clientWidth } = container;
-      
+
       // If we've scrolled past the first set, reset to beginning seamlessly
       if (scrollLeft >= singleSetWidth) {
         container.scrollLeft = scrollLeft - singleSetWidth;
@@ -146,10 +151,10 @@ const PartnerLogosCarousel = () => {
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
     setIsAutoScrolling(false); // Pause auto-scroll when user manually scrolls
-    
+
     const container = scrollContainerRef.current;
     const scrollAmount = container.clientWidth * 0.8;
-    
+
     container.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -180,7 +185,7 @@ const PartnerLogosCarousel = () => {
             }}
           />
           {partner.subtext && (
-            <p className="text-xs font-semibold text-gray-700 mt-2 text-center">
+            <p className="text-xs font-extrabold text-gray-700 mt-2 text-center uppercase tracking-wider">
               {partner.subtext}
             </p>
           )}
@@ -238,7 +243,7 @@ const PartnerLogosCarousel = () => {
           onMouseEnter={() => setIsAutoScrolling(false)}
           onMouseLeave={() => setIsAutoScrolling(true)}
         >
-          {INFINITE_PARTNERS.map((partner, index) => 
+          {INFINITE_PARTNERS.map((partner, index) =>
             renderLogo(partner, `${partner.name}-${index}`)
           )}
         </div>

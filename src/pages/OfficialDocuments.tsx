@@ -184,10 +184,10 @@ const OfficialDocuments = () => {
               />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
             {t("documents.title") || "Official Documents"}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8 font-normal">
             {t("documents.subtitle") || "Articles of Association and Official Registry Information"}
           </p>
 
@@ -220,10 +220,10 @@ const OfficialDocuments = () => {
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold mb-2">
+                      <h3 className="text-lg font-extrabold mb-2">
                         {language === 'bg' ? doc.title : doc.titleEn}
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
+                      <p className="text-sm text-muted-foreground mb-4 font-normal">
                         {language === 'bg' ? doc.description : doc.descriptionEn}
                       </p>
                       <div className="flex gap-2">

@@ -1,121 +1,95 @@
-# Bulgarian Additive Manufacturing Association Project
+<p align="center">
+  <img src="public/bamas-map-logo.png" width="200" alt="BAMAS Logo">
+</p>
 
-## Project Overview
+# Bulgarian Additive Manufacturing Association (BAMAS)
 
-This is the official website and dashboard for the Bulgarian Additive Manufacturing Association (BAMAS). The project provides a comprehensive platform for managing association activities, members, documents, resources, polls, and more.
+### Shaping the Future of Industry 4.0 in Bulgaria
 
-## Technologies
+The Bulgarian Additive Manufacturing Association (BAMAS) is a neutral, non-commercial platform established to drive the evolution of the 3D printing ecosystem in Bulgaria. We unite manufacturers, academic institutions, and technological innovators to foster a collaborative environment for industrial excellence.
 
-This project is built with:
+---
 
-- **Vite** - Fast build tool and development server
-- **TypeScript** - Type-safe JavaScript
-- **React** - UI library
-- **shadcn-ui** - Component library
-- **Tailwind CSS** - Utility-first CSS framework
-- **Supabase** - Backend as a Service (database, authentication, storage)
-- **React Router** - Client-side routing
+## Vision & Mission
+
+### Our Vision
+To establish Bulgaria as a leading European hub for high-tech additive innovations and digital industrial excellence. We envision a future where a robust national network of Digital Innovation Hubs (DIH) and Centers of Excellence drives the development of proprietary materials, advanced mechatronics, and decentralized manufacturing models.
+
+### Our Mission
+To serve as the strategic catalyst for the Additive Manufacturing (AM) ecosystem in Bulgaria. We are dedicated to consolidating expert capacity across industry and academia to accelerate the integration of 3D printing, digital twinning, and industrial automation, ensuring global competitiveness within the circular economy.
+
+---
+
+## Core Objectives
+
+*   **Strategic Collaboration**: Facilitating dialogue and knowledge sharing between industry stakeholders and research institutions.
+*   **Technological Advancement**: Driving the integration of Industry 4.0 standards and fostering regulatory support for AM technologies.
+*   **Startup & Innovation Support**: Providing visibility, mentorship, and guidance for emerging initiatives in the additive manufacturing sector.
+*   **Global Integration**: Building international partnerships to implement global best practices and enhance Bulgaria's position on the worldwide stage.
+
+---
+
+## Technology Stack
+
+The **BAMAS Digital Forge** is built using a modern, scalable tech stack:
+
+*   **Frontend**: React 18, Vite, TypeScript
+*   **Styling**: Vanilla CSS, Tailwind CSS, shadcn/ui
+*   **Backend & DB**: Supabase (PostgreSQL, Realtime, Auth, Storage)
+*   **Animations**: Framer Motion
+*   **Internationalization**: i18next (English & Bulgarian support)
+*   **Infrastructure**: Edge Functions (Deno), Netlify
+
+---
+
+## Features
+
+### Unified Dashboard
+A comprehensive management platform for association members, including:
+*   **Member Directory**: Secure network of approved industry professionals.
+*   **Document Management**: Centralized repository with digital signature capabilities for critical files.
+*   **Additive Map**: Interactive visualization of the AM ecosystem in Bulgaria.
+*   **EU Funding Radar**: Real-time tracking of funding opportunities (Horizon Europe, Digital Europe).
+*   **Collaborative Whiteboard**: Real-time canvas for strategic planning and technical discussion.
+*   **Governance Tools**: Integrated meeting agendas, voting polls, and activity history.
+
+---
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js (v18 or higher recommended)
-- npm or yarn package manager
-- Supabase account and project
+- Node.js (v18+)
+- pnpm or npm
 
 ### Installation
+1. Clone the repository: `git clone <repo_url>`
+2. Install dependencies: `npm install`
+3. Configure environment variables in `.env`:
+   ```env
+   VITE_SUPABASE_URL=your_project_url
+   VITE_SUPABASE_ANON_KEY=your_anon_key
+   ```
+4. Start development: `npm run dev`
 
-1. Clone the repository:
-```sh
-git clone <YOUR_GIT_URL>
-cd bama-digital-forge
-```
-
-2. Install dependencies:
-```sh
-npm install
-```
-
-3. Set up environment variables:
-Create a `.env` file in the root directory with:
-```env
-VITE_SUPABASE_URL=your-supabase-project-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-VITE_GOOGLE_CLIENT_ID=your-google-client-id (optional)
-VITE_CLARITY_PROJECT_ID=your-clarity-project-id (optional)
-```
-
-4. Run database migrations:
-- Navigate to Supabase Dashboard → SQL Editor
-- Run the migration files from `supabase/migrations/` in order
-
-5. Set up Supabase Storage:
-- Create storage buckets: `documents`, `resources`, `avatars`
-- Configure appropriate RLS policies
-
-6. Start the development server:
-```sh
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`
+---
 
 ## Project Structure
 
-```
+```text
 src/
-├── components/        # React components
-│   ├── dashboard/    # Dashboard-specific components
-│   └── ui/           # Reusable UI components
-├── contexts/         # React contexts (Auth, Language)
-├── hooks/            # Custom React hooks
-├── lib/              # Utility functions and helpers
-├── pages/            # Page components
-└── translations/     # i18n translation files
+├── components/   # Modular UI elements and dashboard sections
+├── contexts/     # State management (Auth, Language, Theme)
+├── hooks/        # Specialized logic and data fetching
+├── lib/          # Database clients and utility helpers
+├── pages/        # Core application views
+└── translations/ # Localization assets (EN/BG)
 ```
 
-## Features
+---
 
-- **Authentication**: Email/password and Google OAuth
-- **Dashboard**: Comprehensive admin dashboard with multiple sections
-- **Member Management**: Approve/reject member requests
-- **Documents**: Upload, manage, and organize documents
-- **Resources**: Share organization resources (logos, branding, etc.)
-- **Polls**: Create and manage voting polls
-- **Agenda**: Meeting agendas and comments
-- **Network**: Member directory and networking
-- **Multi-language**: English and Bulgarian support
-- **Dark Mode**: Theme switching support
+## License & Copyright
 
-## Building for Production
+© 2024-2026 Bulgarian Additive Manufacturing Association. All rights reserved.  
+Part of the (Add)liance - European Centre for Additive Manufacturing.
 
-```sh
-npm run build
-```
-
-The built files will be in the `dist/` directory.
-
-## Deployment
-
-The project is configured for deployment on GitHub Pages. The deployment workflow is handled via GitHub Actions (`.github/workflows/deploy.yml`).
-
-### Manual Deployment
-
-1. Build the project: `npm run build`
-2. Deploy the `dist/` folder to your hosting provider
-
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
-
-## License
-
-Copyright © Bulgarian Additive Manufacturing Association (BAMAS)
-
-## Support
-
-For issues or questions, please contact: info@bamas.xyz
+**Contact**: [info@bamas.xyz](mailto:info@bamas.xyz) | [www.bamas.xyz](https://bamas.xyz)
