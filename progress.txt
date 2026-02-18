@@ -674,3 +674,11 @@ Status: Core registration flow stabilized. Professional documentation completed.
   - Refactored supabase.ts with proper Database types for RPC functions.
   - Ensured superadmin emails are always granted appropriate access to prevent lockouts.
   - Restored file integrity and resolved numerous lint errors in the authentication layer.
+
+[2026-02-18] WAATERS UK Partnership Integration ✓
+================================================
+- Integrated WAATERS logo as the primary partner in the landing page carousel.
+- Added 'UK Official Partner' subtext label to the WAATERS logo for brand recognition.
+- Updated PartnerLogosCarousel component to support subtext labels for all partnership types.
+- Added new announcement to the home page news marquee: "Waaters.org is now BAMAS official partner in UK."
+- Linked both the news item and the partner logo directly to https://waaters.org/.
