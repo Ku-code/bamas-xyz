@@ -33,6 +33,18 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['users']['Insert']>;
       };
     };
+    Functions: {
+      create_user_profile: {
+        Args: {
+          user_id: string;
+          user_name: string;
+          user_email: string;
+          user_provider?: string;
+          user_image?: string | null;
+        };
+        Returns: string;
+      };
+    };
   };
 };
 

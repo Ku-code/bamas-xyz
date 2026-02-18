@@ -1,17 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured, getSupabaseUrl } from '@/lib/supabase';
-import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import { db } from '@/lib/database';
-import { useToast } from '@/hooks/use-toast';
 
 // CRITICAL: Fail-safe list of emails that are ALWAYS treated as superadmins
-// This prevents lockouts if the database is out of sync or RLS is misconfigured.
 const SUPERADMIN_EMAILS = [
   'kuzodonchev@3dopendesign.com',
   'kuzodonchev@gmail.com',
   'info@bamas.xyz'
 ];
-
 
 export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
@@ -43,7 +40,6 @@ export interface User {
   createdAt?: string;
   approvedAt?: string;
   approvedBy?: string;
-  // Billing fields
   billing?: BillingInfo;
   company_name?: string;
 }
@@ -77,7 +73,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Helper function to convert Supabase user to our User type
 const convertSupabaseUserToUser = (dbUser: any): User => {
   return {
     id: dbUser.id,
@@ -100,222 +95,115 @@ const convertSupabaseUserToUser = (dbUser: any): User => {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  // Start with isLoading=false to avoid blocking initial render
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load user from Supabase on mount and listen for auth changes
   useEffect(() => {
-    // Only initialize Supabase if it's configured
     if (!isSupabaseConfigured()) {
-      console.warn('⚠️ Supabase is not configured. Authentication features will not work.');
+      console.warn('⚠️ Supabase is not configured.');
+      setIsLoading(false);
       return;
     }
 
-    // Defer session check to avoid blocking initial render
-    const deferSessionCheck = (callback: () => void) => {
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(callback, { timeout: 2000 });
-      } else {
-        setTimeout(callback, 0);
+    const initAuth = async () => {
+      try {
+        const { data: { user: authUser }, error } = await supabase.auth.getUser();
+        if (authUser) {
+          await loadUserFromDatabase(authUser.id, authUser);
+        } else {
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error('Failed to initialize auth:', err);
+        setIsLoading(false);
       }
     };
 
-    deferSessionCheck(() => {
-      // Add timeout to prevent infinite loading
-      const sessionTimeout = setTimeout(() => {
-        console.warn('⚠️ Supabase session check timed out. Continuing without session.');
-        setIsLoading(false);
-      }, 10000);
+    initAuth();
 
-      // Use getUser() to validate session server-side and refresh token if needed.
-      // getSession() can return stale cached data; getUser() forces a check and prevents
-      // "sudden logout" when the JWT is expired but refresh token is still valid.
-      supabase.auth.getUser()
-        .then(({ data: { user: authUser }, error }) => {
-          clearTimeout(sessionTimeout);
-          if (error) {
-            console.error('Error getting user (session):', error);
-            setIsLoading(false);
-            return;
-          }
-          if (authUser) {
-            loadUserFromDatabase(authUser.id, authUser);
-          } else {
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          clearTimeout(sessionTimeout);
-          console.error('Failed to get user (session):', error);
-          setIsLoading(false);
-        });
-    });
-
-    // Listen for auth changes. Only clear user on explicit SIGNED_OUT to prevent
-    // "Hero section kicks" during TOKEN_REFRESHED or other transient null sessions.
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event change:', event);
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsLoading(false);
-        return;
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        if (session?.user) {
+          await loadUserFromDatabase(session.user.id, session.user);
+        }
       }
-      if (session) {
-        await loadUserFromDatabase(session.user.id, session.user);
-      }
-      // Do NOT setUser(null) when session is null but event is not SIGNED_OUT
-      // (e.g. during TOKEN_REFRESHED or INITIAL_SESSION) to avoid false logouts.
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const loadUserFromDatabase = async (userId: string, authUser?: SupabaseUser) => {
     try {
-      // Add timeout for database fetch
+      console.log('Fetching user profile for:', userId);
       const fetchPromise = db.fetchById('users', userId);
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Database fetch timeout')), 8000)
+        setTimeout(() => reject(new Error('Database fetch timeout')), 10000)
       );
+
       let dbUser = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
-      if (!dbUser) {
-        // User doesn't exist in database yet - try to create it using the function
-        // Use provided authUser or fetch it if missing
-        const currentAuthUser = authUser || (await supabase.auth.getUser()).data.user;
+      if (!dbUser && authUser) {
+        console.log('User profile not found, attempting to create...');
+        const userMetadata = authUser.user_metadata || {};
+        const { error: functionError } = await supabase.rpc('create_user_profile', {
+          user_id: userId,
+          user_name: userMetadata.name || authUser.email?.split('@')[0] || 'User',
+          user_email: authUser.email || '',
+          user_provider: authUser.app_metadata?.provider || 'email',
+          user_image: userMetadata.avatar_url || userMetadata.picture || null,
+        } as any);
 
-        if (currentAuthUser) {
-          const userMetadata = currentAuthUser.user_metadata || {};
-          const { error: functionError } = await (supabase.rpc as any)('create_user_profile', {
-            user_id: userId,
-            user_name: userMetadata.name || currentAuthUser.email?.split('@')[0] || 'User',
-            user_email: currentAuthUser.email || '',
-            user_provider: currentAuthUser.app_metadata?.provider || 'email',
-            user_image: userMetadata.avatar_url || userMetadata.picture || null,
-          });
-
-          if (!functionError) {
-            // Retry fetching the user
-            dbUser = await db.fetchById('users', userId);
-          }
+        if (!functionError) {
+          dbUser = await db.fetchById('users', userId);
         }
       }
 
       if (dbUser) {
         setUser(convertSupabaseUserToUser(dbUser));
-      } else {
-        console.warn('User not found in database:', userId);
-        // If we have a valid auth user but no DB profile, don't kick them out.
-        // It might be a transient error or the profile creation is slightly delayed.
-        const fallbackUser = authUser || (await supabase.auth.getUser()).data.user;
-        if (fallbackUser) {
-          console.log('Using fallback auth user data');
-          const isHardcodedAdmin = fallbackUser.email ? SUPERADMIN_EMAILS.includes(fallbackUser.email) : false;
-          setUser({
-            id: fallbackUser.id,
-            email: fallbackUser.email || '',
-            name: fallbackUser.user_metadata?.name || fallbackUser.email?.split('@')[0] || 'User',
-            role: isHardcodedAdmin ? 'superadmin' : 'member',
-            status: isHardcodedAdmin ? 'approved' : 'pending',
-            createdAt: fallbackUser.created_at,
-          });
-        } else {
-          // Only set to null if we absolutely cannot establish identity
-          setUser(null);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading user from database:', error);
-
-      // CRITICAL FIX: Do not log out the user on transient DB errors!
-      // If we already have an authUser, use it as fallback.
-      const authUserQuery = await supabase.auth.getUser();
-      const currentAuthUser = authUser || authUserQuery.data.user;
-
-      if (currentAuthUser) {
-        console.log('Constructing stable fallback user from auth session despite DB error');
-        const isHardcodedAdmin = currentAuthUser.email ? SUPERADMIN_EMAILS.includes(currentAuthUser.email) : false;
+      } else if (authUser) {
+        // Fallback
+        const isHardcodedAdmin = authUser.email ? SUPERADMIN_EMAILS.includes(authUser.email) : false;
         setUser({
-          id: currentAuthUser.id,
-          email: currentAuthUser.email || '',
-          name: currentAuthUser.user_metadata?.name || currentAuthUser.email?.split('@')[0] || 'User',
+          id: authUser.id,
+          email: authUser.email || '',
+          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
           role: isHardcodedAdmin ? 'superadmin' : 'member',
           status: isHardcodedAdmin ? 'approved' : 'pending',
-          createdAt: currentAuthUser.created_at,
+          createdAt: authUser.created_at,
         });
-      } else if (!user) {
-        // Only if we have NO state and NO session info do we reset
-        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error in loadUserFromDatabase:', error);
+      if (!user) {
+        const { data: { user: currentAuth } } = await supabase.auth.getUser();
+        if (currentAuth) {
+          const isHardcodedAdmin = currentAuth.email ? SUPERADMIN_EMAILS.includes(currentAuth.email) : false;
+          setUser({
+            id: currentAuth.id,
+            email: currentAuth.email || '',
+            name: currentAuth.user_metadata?.name || currentAuth.email?.split('@')[0] || 'User',
+            role: isHardcodedAdmin ? 'superadmin' : 'member',
+            status: isHardcodedAdmin ? 'approved' : 'pending',
+            createdAt: currentAuth.created_at,
+          });
+        }
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const checkIfFirstUser = async (): Promise<boolean> => {
-    try {
-      const users = await db.fetchAll('users');
-      return users.length === 0;
-    } catch (error) {
-      console.error('Error checking if first user:', error);
-      return false;
-    }
-  };
-
   const login = async (userData: User) => {
-    try {
-      // Check if user exists in database
-      let dbUser;
-      try {
-        dbUser = await db.fetchById('users', userData.id);
-      } catch (error) {
-        // User doesn't exist, will create below
-        dbUser = null;
-      }
-
-      if (dbUser) {
-        // Existing user - update with latest data and load
-        const updated = await db.update('users', userData.id, {
-          name: userData.name,
-          email: userData.email,
-          image: userData.image,
-          provider: userData.provider,
-        });
-        setUser(convertSupabaseUserToUser(updated));
-      } else {
-        // New user - use database function to create profile (bypasses RLS)
-        const { error: functionError } = await (supabase.rpc as any)('create_user_profile', {
-          user_id: userData.id,
-          user_name: userData.name,
-          user_email: userData.email,
-          user_provider: userData.provider || null,
-          user_image: userData.image || null,
-        });
-
-        if (functionError) {
-          console.error('Error creating user profile:', functionError);
-          throw functionError;
-        }
-
-        // Reload user from database
-        const newUser = await db.fetchById('users', userData.id);
-        if (newUser) {
-          setUser(convertSupabaseUserToUser(newUser));
-        }
-      }
-    } catch (error) {
-      console.error('Error in login:', error);
-      throw error;
-    }
+    // This function is mostly used for manual state setting, but we prefer loadUserFromDatabase
+    setUser(userData);
   };
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await supabase.auth.signOut();
       setUser(null);
     } catch (error) {
       console.error('Error logging out:', error);
@@ -325,19 +213,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateUser = async (userData: Partial<User>) => {
     if (!user) throw new Error('No user logged in');
-
     try {
-      const updates: any = {};
-      if (userData.name !== undefined) updates.name = userData.name;
-      if (userData.email !== undefined) updates.email = userData.email;
-      if (userData.image !== undefined) updates.image = userData.image || null;
-      if (userData.bio !== undefined) updates.bio = userData.bio || null;
-      if (userData.hashtags !== undefined) updates.hashtags = userData.hashtags || null;
-      if (userData.location !== undefined) updates.location = userData.location || null;
-      if (userData.website !== undefined) updates.website = userData.website || null;
-      if (userData.phone !== undefined) updates.phone = userData.phone || null;
-
-      const updated = await db.update('users', user.id, updates);
+      const updated = await db.update('users', user.id, userData as any);
       setUser(convertSupabaseUserToUser(updated));
     } catch (error) {
       console.error('Error updating user:', error);
@@ -346,276 +223,92 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const signInWithEmail = async (email: string, password: string) => {
-    try {
-      // Trim email to avoid whitespace issues
-      const trimmedEmail = email.trim().toLowerCase();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: trimmedEmail,
-        password,
-      });
-
-      if (error) {
-        console.error('Supabase login error:', error);
-
-        // Create user-friendly error message
-        let errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-
-        if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
-          errorMessage = 'Please confirm your email address before logging in. Check your inbox for the confirmation link from Supabase.';
-        } else if (error.message.includes('Invalid login credentials') ||
-          error.message.includes('invalid_credentials') ||
-          error.message.includes('Invalid login')) {
-          errorMessage = 'Invalid email or password. Please check your credentials. If you forgot your password, please reset it.';
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        const authError = new Error(errorMessage);
-        (authError as any).code = error.code;
-        throw authError;
-      }
-
-      if (data.user) {
-        // Ensure user profile exists in database
-        await loadUserFromDatabase(data.user.id, data.user);
-      } else {
-        throw new Error('Login failed: No user data returned');
-      }
-    } catch (error: any) {
-      console.error('Error signing in with email:', error);
-      throw error;
+    if (error) {
+      let message = error.message;
+      if (message.includes('Invalid login credentials')) message = 'Invalid email or password.';
+      throw new Error(message);
     }
-  };
 
-  const resetPassword = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error('Error resetting password:', error);
-      throw error;
+    if (data.user) {
+      await loadUserFromDatabase(data.user.id, data.user);
     }
   };
 
   const signUpWithEmail = async (email: string, password: string, name: string) => {
     try {
-      // First, check if a user with this email already exists and was rejected
-      const { data: existingUsers, error: checkError } = await supabase
-        .from('users')
-        .select('id, status, email')
-        .eq('email', email.trim().toLowerCase())
-        .limit(1) as any;
+      const trimmedEmail = email.trim().toLowerCase();
 
-      if (checkError && checkError.code !== 'PGRST116') {
-        // PGRST116 = not found, which is fine
-        console.error('Error checking for existing user:', checkError);
-      }
+      // Check existing
+      const { data: existingUser } = await (supabase.from('users') as any)
+        .select('*')
+        .eq('email', trimmedEmail)
+        .maybeSingle();
 
-      // If user exists and was rejected, reset them to pending
-      if (existingUsers && existingUsers.length > 0) {
-        const existingUser = existingUsers[0];
-
+      if (existingUser) {
         if (existingUser.status === 'rejected') {
-          console.log('User was previously rejected. Resetting to pending status...');
-
-          // Update their status back to pending and update their name
-          const { error: updateError } = await supabase
-            .from('users')
-            .update({
-              status: 'pending',
-              name: name,
-              approved_at: null,
-              approved_by: null,
-              updated_at: new Date().toISOString(),
-            })
+          // Reactivate
+          await (supabase.from('users') as any)
+            .update({ status: 'pending', name, updated_at: new Date().toISOString() })
             .eq('id', existingUser.id);
 
-          if (updateError) {
-            console.error('Error updating rejected user:', updateError);
-            throw new Error('Failed to reactivate your account. Please contact support.');
-          }
-
-          // Now sign them in with their existing account
           const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: email.trim().toLowerCase(),
+            email: trimmedEmail,
             password,
           });
 
-          if (signInError) {
-            // If password doesn't work, they need to reset it
-            if (signInError.message.includes('Invalid') || signInError.message.includes('credentials')) {
-              throw new Error('Your account has been reactivated, but the password is incorrect. Please use "Forgot Password" to reset your password.');
-            }
-            throw signInError;
-          }
-
-          if (signInData.user) {
-            await loadUserFromDatabase(signInData.user.id, signInData.user);
-          }
-
+          if (signInError) throw new Error('Correct credentials needed for reactivation.');
+          if (signInData.user) await loadUserFromDatabase(signInData.user.id, signInData.user);
           return;
-        } else if (existingUser.status === 'pending' || existingUser.status === 'approved') {
-          // User already exists and is not rejected - they should login instead
-          throw new Error('An account with this email already exists. Please login instead.');
+        } else {
+          throw new Error('Account already exists. Please login.');
         }
       }
 
-      // Normal signup flow for new users
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: trimmedEmail,
         password,
-        options: {
-          data: {
-            name,
-          },
-        },
+        options: { data: { name } }
       });
 
       if (error) throw error;
-
       if (data.user) {
-        // Use database function to create user profile (bypasses RLS)
-        const { data: userId, error: functionError } = await (supabase.rpc as any)('create_user_profile', {
+        await supabase.rpc('create_user_profile', {
           user_id: data.user.id,
           user_name: name,
-          user_email: email,
+          user_email: trimmedEmail,
           user_provider: 'email',
           user_image: null,
-        });
-
-        if (functionError) {
-          console.error('Error creating user profile:', functionError);
-          throw functionError;
-        }
-
-        // Send welcome email via Edge Function (non-blocking)
-        try {
-          const supabaseUrl = getSupabaseUrl();
-          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-          if (supabaseUrl && supabaseUrl !== 'https://placeholder.supabase.co' && supabaseAnonKey) {
-            const edgeFunctionUrl = `${supabaseUrl}/functions/v1/send-welcome-email`;
-
-            // Call Edge Function asynchronously (don't wait for response)
-            fetch(edgeFunctionUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseAnonKey}`,
-              },
-              body: JSON.stringify({
-                email: email,
-                name: name,
-                user_id: data.user.id,
-              }),
-            }).catch((error) => {
-              // Don't fail registration if email fails
-              console.warn('Failed to send welcome email (non-critical):', error);
-            });
-          }
-        } catch (emailError) {
-          // Don't fail registration if email fails
-          console.warn('Welcome email error (non-critical):', emailError);
-        }
-
-        // Wait a bit for the session to be established
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Try to load user from database
+        } as any);
         await loadUserFromDatabase(data.user.id, data.user);
       }
-    } catch (error: any) {
-      console.error('Error signing up with email:', error);
-      throw error;
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      throw err;
     }
   };
 
   const signInWithGoogle = async (idToken: string) => {
-    try {
-      if (!isSupabaseConfigured()) {
-        throw new Error('Supabase is not configured. Please check your environment variables.');
-      }
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
 
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: idToken,
-      });
-
-      if (error) {
-        console.error('Google OAuth error:', error);
-
-        // Provide user-friendly error messages
-        let errorMessage = 'Failed to sign in with Google. Please try again.';
-
-        if (error.message.includes('provider_disabled') || error.message.includes('Provider not enabled')) {
-          errorMessage = 'Google authentication is not enabled. Please contact the administrator or use email/password login.';
-        } else if (error.message.includes('invalid_token') || error.message.includes('Invalid token')) {
-          errorMessage = 'Invalid Google authentication token. Please try again.';
-        } else if (error.message.includes('network') || error.message.includes('fetch')) {
-          errorMessage = 'Network error. Please check your internet connection and try again.';
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        const authError = new Error(errorMessage);
-        (authError as any).code = error.code;
-        throw authError;
-      }
-
-      if (data.user) {
-        // Check if user exists in database, if not create
-        let dbUser;
-        try {
-          dbUser = await db.fetchById('users', data.user.id);
-        } catch (error) {
-          dbUser = null;
-        }
-
-        if (!dbUser) {
-          // Use database function to create user profile (bypasses RLS)
-          const userMetadata = data.user.user_metadata || {};
-          const { error: functionError } = await (supabase.rpc as any)('create_user_profile', {
-            user_id: data.user.id,
-            user_name: userMetadata.name || userMetadata.full_name || data.user.email?.split('@')[0] || 'User',
-            user_email: data.user.email || '',
-            user_provider: 'google',
-            user_image: userMetadata.avatar_url || userMetadata.picture || null,
-          });
-
-          if (functionError) {
-            console.error('Error creating user profile:', functionError);
-            throw functionError;
-          }
-        } else if (dbUser.status === 'rejected') {
-          // If user was previously rejected, reset them to pending
-          console.log('Google OAuth: User was previously rejected. Resetting to pending status...');
-
-          const { error: updateError } = await supabase
-            .from('users')
-            .update({
-              status: 'pending',
-              approved_at: null,
-              approved_by: null,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', dbUser.id);
-
-          if (updateError) {
-            console.error('Error updating rejected Google user:', updateError);
-            throw new Error('Failed to reactivate your account. Please contact support.');
-          }
-        }
-
-        await loadUserFromDatabase(data.user.id, data.user);
-      }
-    } catch (error: any) {
-      console.error('Error signing in with Google:', error);
-      throw error;
+    if (error) throw error;
+    if (data.user) {
+      await loadUserFromDatabase(data.user.id, data.user);
     }
+  };
+
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
   };
 
   if (isLoading) {

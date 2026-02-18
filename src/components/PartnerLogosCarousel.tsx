@@ -13,6 +13,12 @@ interface Partner {
 // Partner logos with their website URLs
 const PARTNERS: Partner[] = [
   {
+    logo: "/partnerlogos/WAATERS-Logo.svg",
+    name: "WAATERS",
+    url: "https://waaters.org/",
+    subtext: "UK Official Partner",
+  },
+  {
     logo: "/partnerlogos/addliancelogo.png",
     name: "Addliance",
     url: "https://addliance.eu/",
@@ -191,17 +197,22 @@ const PartnerLogosCarousel = () => {
           )}
         </div>
       ) : (
-        <div className="h-52 w-96 flex items-center justify-center bg-card/50 rounded-lg p-6">
+        <div className="h-52 w-96 flex flex-col items-center justify-center bg-card/50 rounded-lg p-6 shadow-sm border border-white/5">
           <img
             src={partner.logo}
             alt={`${partner.name} Logo`}
-            className="h-auto w-auto object-contain max-h-44 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
+            className="h-auto w-auto object-contain max-h-36 max-w-full opacity-90 group-hover:opacity-100 transition-opacity"
             loading="lazy"
             decoding="async"
             onError={(e) => {
               console.error(`Failed to load logo: ${partner.logo}`);
             }}
           />
+          {partner.subtext && (
+            <p className="text-xs font-black text-primary mt-4 text-center uppercase tracking-widest">
+              {partner.subtext}
+            </p>
+          )}
         </div>
       )}
     </a>
