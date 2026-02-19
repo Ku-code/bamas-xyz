@@ -1,18 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase, isSupabaseConfigured, getSupabaseUrl } from '@/lib/supabase';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { db } from '@/lib/database';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-// CRITICAL: Fail-safe list of emails that are ALWAYS treated as superadmins
-const SUPERADMIN_EMAILS = [
-  'kuzodonchev@3dopendesign.com',
-  'kuzodonchev@gmail.com',
-  'info@bamas.xyz'
-];
-
+// ────────────────────────────────────────────────────────────
+// Types
+// ────────────────────────────────────────────────────────────
 export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
-
 export type BillingStatus = 'paid' | 'pending' | 'overdue' | 'exempt';
 
 export interface BillingInfo {
@@ -44,12 +39,15 @@ export interface User {
   company_name?: string;
 }
 
+export type { SupabaseUser };
+
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   isSuperAdmin: boolean;
   isBoardMember: boolean;
+  isLoading: boolean;
   login: (userData: User) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
@@ -59,6 +57,124 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<void>;
 }
 
+// ────────────────────────────────────────────────────────────
+// Constants
+// ────────────────────────────────────────────────────────────
+const SUPERADMIN_EMAILS = [
+  'kuzodonchev@3dopendesign.com',
+  'kuzodonchev@gmail.com',
+  'info@bamas.xyz'
+];
+
+const DB_TIMEOUT_MS = 5000;
+
+// ────────────────────────────────────────────────────────────
+// Pure helper functions (no React, no circular deps)
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Maps a database row to our application User interface.
+ * Hardcoded superadmin emails are always granted superadmin role.
+ */
+function mapDbUserToUser(dbUser: Record<string, unknown>): User {
+  const email = (dbUser.email as string)?.toLowerCase() ?? '';
+  const isHardcoded = SUPERADMIN_EMAILS.includes(email);
+  return {
+    id: dbUser.id as string,
+    name: dbUser.name as string,
+    email: email,
+    image: (dbUser.image as string) || undefined,
+    provider: (dbUser.provider as 'google' | 'email') || undefined,
+    bio: (dbUser.bio as string) || undefined,
+    hashtags: (dbUser.hashtags as string[]) || undefined,
+    location: (dbUser.location as string) || undefined,
+    website: (dbUser.website as string) || undefined,
+    phone: (dbUser.phone as string) || undefined,
+    role: isHardcoded ? 'superadmin' : ((dbUser.role as UserRole) || 'member'),
+    status: isHardcoded ? 'approved' : ((dbUser.status as MemberStatus) || 'pending'),
+    createdAt: dbUser.created_at as string,
+    approvedAt: (dbUser.approved_at as string) || undefined,
+    approvedBy: (dbUser.approved_by as string) || undefined,
+    company_name: (dbUser.company_name as string) || undefined,
+  };
+}
+
+/**
+ * Creates a minimal User object from Supabase Auth metadata.
+ * Used as a fallback when the database is unreachable.
+ */
+function getFallbackUser(authUser: SupabaseUser): User {
+  const email = authUser.email?.toLowerCase() || '';
+  const isHardcoded = SUPERADMIN_EMAILS.includes(email);
+  const meta = authUser.user_metadata || {};
+  console.warn('Auth: Using fallback user for', email);
+  return {
+    id: authUser.id,
+    email: email,
+    name: (meta.name as string) || (meta.full_name as string) || email.split('@')[0] || 'User',
+    role: isHardcoded ? 'superadmin' : 'member',
+    status: isHardcoded ? 'approved' : 'pending',
+    createdAt: authUser.created_at,
+    provider: (authUser.app_metadata?.provider as 'google' | 'email') || 'email',
+    image: (meta.avatar_url as string) || (meta.picture as string) || undefined,
+  };
+}
+
+/**
+ * Attempts to load a user profile from the database with a timeout.
+ * Falls back to creating a profile via RPC if one doesn't exist.
+ * Returns a mapped User or a fallback if everything fails.
+ */
+async function loadUserProfile(userId: string, authUser?: SupabaseUser | null): Promise<User | null> {
+  try {
+    // 1. Try fetching from database with a timeout
+    let dbUser: Record<string, unknown> | null = null;
+    try {
+      const fetchPromise = db.fetchById<Record<string, unknown>>('users', userId);
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('DB timeout')), DB_TIMEOUT_MS)
+      );
+      dbUser = await Promise.race([fetchPromise, timeoutPromise]);
+    } catch {
+      console.warn('Auth: DB fetch slow/failed, attempting fallback');
+    }
+
+    // 2. If no profile exists, create one via the SECURITY DEFINER RPC
+    if (!dbUser && authUser) {
+      console.log('Auth: Creating profile via RPC');
+      const meta = authUser.user_metadata || {};
+      try {
+        await (supabase.rpc as CallableFunction)('create_user_profile', {
+          user_id: userId,
+          user_name: (meta.name as string) || authUser.email?.split('@')[0] || 'User',
+          user_email: authUser.email || '',
+          user_provider: (authUser.app_metadata?.provider as string) || 'email',
+          user_image: (meta.avatar_url as string) || (meta.picture as string) || null,
+        });
+        // Re-fetch after creation
+        dbUser = await db.fetchById<Record<string, unknown>>('users', userId);
+      } catch (rpcErr) {
+        console.error('Auth: RPC create_user_profile failed', rpcErr);
+      }
+    }
+
+    // 3. Return the best available user object
+    if (dbUser) {
+      return mapDbUserToUser(dbUser);
+    }
+    if (authUser) {
+      return getFallbackUser(authUser);
+    }
+    return null;
+  } catch (err) {
+    console.error('Auth: Critical error loading profile', err);
+    return authUser ? getFallbackUser(authUser) : null;
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+// Context
+// ────────────────────────────────────────────────────────────
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
@@ -69,29 +185,12 @@ export const useAuth = () => {
   return context;
 };
 
+// ────────────────────────────────────────────────────────────
+// Provider
+// ────────────────────────────────────────────────────────────
 interface AuthProviderProps {
   children: ReactNode;
 }
-
-const convertSupabaseUserToUser = (dbUser: any): User => {
-  return {
-    id: dbUser.id,
-    name: dbUser.name,
-    email: dbUser.email,
-    image: dbUser.image || undefined,
-    provider: dbUser.provider || undefined,
-    bio: dbUser.bio || undefined,
-    hashtags: dbUser.hashtags || undefined,
-    location: dbUser.location || undefined,
-    website: dbUser.website || undefined,
-    phone: dbUser.phone || undefined,
-    role: dbUser.role || (SUPERADMIN_EMAILS.includes(dbUser.email) ? 'superadmin' : 'member'),
-    status: dbUser.status || (SUPERADMIN_EMAILS.includes(dbUser.email) ? 'approved' : 'pending'),
-    createdAt: dbUser.created_at,
-    approvedAt: dbUser.approved_at || undefined,
-    approvedBy: dbUser.approved_by || undefined,
-  };
-};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -99,105 +198,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
-      console.warn('⚠️ Supabase is not configured.');
       setIsLoading(false);
       return;
     }
 
+    let isMounted = true;
+
     const initAuth = async () => {
       try {
-        const { data: { user: authUser }, error } = await supabase.auth.getUser();
-        if (authUser) {
-          await loadUserFromDatabase(authUser.id, authUser);
-        } else {
-          setIsLoading(false);
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (authUser && isMounted) {
+          const profile = await loadUserProfile(authUser.id, authUser);
+          if (isMounted) setUser(profile);
         }
       } catch (err) {
-        console.error('Failed to initialize auth:', err);
-        setIsLoading(false);
+        console.error('Auth: Init failure', err);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
     };
 
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event change:', event);
+      if (!isMounted) return;
+      console.log('Auth: Event', event);
+
       if (event === 'SIGNED_OUT') {
         setUser(null);
-        setIsLoading(false);
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         if (session?.user) {
-          await loadUserFromDatabase(session.user.id, session.user);
+          const profile = await loadUserProfile(session.user.id, session.user);
+          if (isMounted) setUser(profile);
         }
       }
+      if (isMounted) setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const loadUserFromDatabase = async (userId: string, authUser?: SupabaseUser) => {
-    try {
-      console.log('Fetching user profile for:', userId);
-      const fetchPromise = db.fetchById('users', userId);
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Database fetch timeout')), 10000)
-      );
-
-      let dbUser = await Promise.race([fetchPromise, timeoutPromise]) as any;
-
-      if (!dbUser && authUser) {
-        console.log('User profile not found, attempting to create...');
-        const userMetadata = authUser.user_metadata || {};
-        const { error: functionError } = await supabase.rpc('create_user_profile', {
-          user_id: userId,
-          user_name: userMetadata.name || authUser.email?.split('@')[0] || 'User',
-          user_email: authUser.email || '',
-          user_provider: authUser.app_metadata?.provider || 'email',
-          user_image: userMetadata.avatar_url || userMetadata.picture || null,
-        } as any);
-
-        if (!functionError) {
-          dbUser = await db.fetchById('users', userId);
-        }
-      }
-
-      if (dbUser) {
-        setUser(convertSupabaseUserToUser(dbUser));
-      } else if (authUser) {
-        // Fallback
-        const isHardcodedAdmin = authUser.email ? SUPERADMIN_EMAILS.includes(authUser.email) : false;
-        setUser({
-          id: authUser.id,
-          email: authUser.email || '',
-          name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User',
-          role: isHardcodedAdmin ? 'superadmin' : 'member',
-          status: isHardcodedAdmin ? 'approved' : 'pending',
-          createdAt: authUser.created_at,
-        });
-      }
-    } catch (error) {
-      console.error('Error in loadUserFromDatabase:', error);
-      if (!user) {
-        const { data: { user: currentAuth } } = await supabase.auth.getUser();
-        if (currentAuth) {
-          const isHardcodedAdmin = currentAuth.email ? SUPERADMIN_EMAILS.includes(currentAuth.email) : false;
-          setUser({
-            id: currentAuth.id,
-            email: currentAuth.email || '',
-            name: currentAuth.user_metadata?.name || currentAuth.email?.split('@')[0] || 'User',
-            role: isHardcodedAdmin ? 'superadmin' : 'member',
-            status: isHardcodedAdmin ? 'approved' : 'pending',
-            createdAt: currentAuth.created_at,
-          });
-        }
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ── Auth Methods ──────────────────────────────────────────
 
   const login = async (userData: User) => {
-    // This function is mostly used for manual state setting, but we prefer loadUserFromDatabase
     setUser(userData);
   };
 
@@ -206,18 +252,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await supabase.auth.signOut();
       setUser(null);
     } catch (error) {
-      console.error('Error logging out:', error);
+      console.error('Auth: Logout error', error);
       throw error;
     }
   };
 
   const updateUser = async (userData: Partial<User>) => {
-    if (!user) throw new Error('No user logged in');
+    if (!user) throw new Error('No active session');
     try {
-      const updated = await db.update('users', user.id, userData as any);
-      setUser(convertSupabaseUserToUser(updated));
+      const { data, error } = await (supabase
+        .from('users') as ReturnType<typeof supabase.from>)
+        .update(userData as Record<string, unknown>)
+        .eq('id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      if (data) setUser(mapDbUserToUser(data as Record<string, unknown>));
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error('Auth: Update error', error);
       throw error;
     }
   };
@@ -229,66 +282,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
 
     if (error) {
-      let message = error.message;
-      if (message.includes('Invalid login credentials')) message = 'Invalid email or password.';
-      throw new Error(message);
+      const msg = error.message.includes('Invalid login credentials')
+        ? 'Invalid email or password.'
+        : error.message;
+      throw new Error(msg);
     }
 
     if (data.user) {
-      await loadUserFromDatabase(data.user.id, data.user);
+      const profile = await loadUserProfile(data.user.id, data.user);
+      setUser(profile);
     }
   };
 
   const signUpWithEmail = async (email: string, password: string, name: string) => {
-    try {
-      const trimmedEmail = email.trim().toLowerCase();
+    const trimmedEmail = email.trim().toLowerCase();
 
-      // Check existing
-      const { data: existingUser } = await (supabase.from('users') as any)
-        .select('*')
-        .eq('email', trimmedEmail)
-        .maybeSingle();
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: trimmedEmail,
+      password,
+      options: { data: { name } },
+    });
 
-      if (existingUser) {
-        if (existingUser.status === 'rejected') {
-          // Reactivate
-          await (supabase.from('users') as any)
-            .update({ status: 'pending', name, updated_at: new Date().toISOString() })
-            .eq('id', existingUser.id);
-
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: trimmedEmail,
-            password,
-          });
-
-          if (signInError) throw new Error('Correct credentials needed for reactivation.');
-          if (signInData.user) await loadUserFromDatabase(signInData.user.id, signInData.user);
-          return;
-        } else {
-          throw new Error('Account already exists. Please login.');
-        }
+    if (signUpError) {
+      if (signUpError.message.includes('already registered')) {
+        throw new Error('An account with this email already exists. Please login instead.');
       }
+      throw signUpError;
+    }
 
-      const { data, error } = await supabase.auth.signUp({
-        email: trimmedEmail,
-        password,
-        options: { data: { name } }
-      });
-
-      if (error) throw error;
-      if (data.user) {
-        await supabase.rpc('create_user_profile', {
+    if (data.user) {
+      // The DB trigger (Migration 024) handles profile creation automatically.
+      // We also call the RPC for immediate consistency.
+      try {
+        await (supabase.rpc as CallableFunction)('create_user_profile', {
           user_id: data.user.id,
           user_name: name,
           user_email: trimmedEmail,
           user_provider: 'email',
           user_image: null,
-        } as any);
-        await loadUserFromDatabase(data.user.id, data.user);
+        });
+      } catch (rpcErr) {
+        console.warn('Auth: Signup RPC failed (trigger should cover it)', rpcErr);
       }
-    } catch (err: any) {
-      console.error('Signup error:', err);
-      throw err;
+
+      const profile = await loadUserProfile(data.user.id, data.user);
+      setUser(profile);
     }
   };
 
@@ -297,10 +335,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       provider: 'google',
       token: idToken,
     });
-
     if (error) throw error;
     if (data.user) {
-      await loadUserFromDatabase(data.user.id, data.user);
+      const profile = await loadUserProfile(data.user.id, data.user);
+      setUser(profile);
     }
   };
 
@@ -311,13 +349,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (error) throw error;
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // ── Derived State ─────────────────────────────────────────
 
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
   const isSuperAdmin = user?.role === 'superadmin';
@@ -331,6 +363,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAdmin,
         isSuperAdmin,
         isBoardMember,
+        isLoading,
         login,
         logout,
         updateUser,

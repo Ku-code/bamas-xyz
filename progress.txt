@@ -682,3 +682,11 @@ Status: Core registration flow stabilized. Professional documentation completed.
 - Updated PartnerLogosCarousel component to support subtext labels for all partnership types.
 - Added new announcement to the home page news marquee: "Waaters.org is now BAMAS official partner in UK."
 - Linked both the news item and the partner logo directly to https://waaters.org/.
+
+[2026-02-19] Project Context & Documentation ✓
+=============================================
+- Created CONTEXT.MD as a central knowledge base for the project.
+- Documented core architecture (React Context + Supabase).
+- Defined critical development rules (Auth isolation, RPC usage).
+- Outlined current data schema and key routing structure.
+- Established a protocol to update this document every 24h or upon significant structural changes.

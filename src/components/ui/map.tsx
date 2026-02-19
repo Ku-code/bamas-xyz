@@ -92,7 +92,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
 
       // Initialize map with Maptiler style if API key is available, otherwise use fallback
       const initialStyle = MAPTILER_API_KEY ? getMaptilerStyle(isDarkMode) : fallbackStyle;
-      
+
       map.current = new maplibregl.Map({
         container: mapContainer.current,
         style: typeof initialStyle === 'string' ? initialStyle : initialStyle,
@@ -104,7 +104,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
 
       // Only handle errors during initial load, not during style changes
       let isInitialLoad = true;
-      
+
       map.current.on('load', () => {
         isInitialLoad = false; // Mark initial load as complete
         setIsLoaded(true);
@@ -113,7 +113,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
           map.current?.resize();
         }, 100);
       });
-      
+
       map.current.on('style.load', () => {
         // Style loaded successfully
         setIsLoaded(true);
@@ -147,7 +147,9 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
       const handleResize = () => {
         try {
           map.current?.resize();
-        } catch (_) {}
+        } catch {
+          // Intentionally silenced — resize during teardown is non-critical
+        }
       };
       window.addEventListener('resize', handleResize);
 
@@ -187,25 +189,25 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
     }
 
     setIsStyleChanging(true);
-    
+
     try {
       const newStyle = getMaptilerStyle(isDarkMode);
-      
+
       // Store current center and zoom to restore after style change
       const currentCenter = map.current.getCenter();
       const currentZoom = map.current.getZoom();
-      
+
       // Remove all markers before style change
       clearAllMarkers();
-      
+
       // Set the new style
       map.current.setStyle(newStyle);
-      
+
       // Wait for style to fully load before restoring state
       const onStyleLoad = () => {
         styleChangeTimeoutRef.current = setTimeout(() => {
           if (!map.current) return;
-          
+
           try {
             // Restore map position
             map.current.setCenter(currentCenter);
@@ -214,12 +216,12 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
           } catch (e) {
             // Ignore positioning errors
           }
-          
+
           setIsStyleChanging(false);
           setIsLoaded(true);
         }, 150);
       };
-      
+
       // Listen for style load completion
       map.current.once('style.load', onStyleLoad);
       map.current.once('styledata', () => {
@@ -228,7 +230,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
           onStyleLoad();
         }
       });
-      
+
     } catch (error) {
       console.error('Error changing map style:', error);
       setIsStyleChanging(false);
@@ -241,7 +243,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
     const el = document.createElement('div');
     el.className = 'company-marker';
     el.dataset.companyId = company.id;
-    
+
     // Fixed size - anchored element, no floating animation
     Object.assign(el.style, {
       width: '48px',
@@ -416,7 +418,7 @@ export const Map = ({ companies, onCompanyClick, selectedCompanyId, className = 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ minHeight: '500px' }}>
       <div ref={mapContainer} className="w-full h-full rounded-lg" style={{ minHeight: '500px' }} />
-      
+
       {/* Dark/Light Mode Toggle Button - Like Footer */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
         <Sun className="h-4 w-4" />
