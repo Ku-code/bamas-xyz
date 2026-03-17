@@ -40,6 +40,7 @@ import { JobSeekerCard } from "./JobSeekerCard";
 import { JobPostingForm } from "./JobPostingForm";
 import { JobSeekerForm } from "./JobSeekerForm";
 import { JobFilters as FiltersPanel } from "./JobFilters";
+import { JobSearchAutocomplete } from "./JobSearchAutocomplete";
 import { formatDistanceToNow } from "date-fns";
 
 type ViewMode = "grid" | "list";
@@ -69,6 +70,7 @@ const JobBoardContent = () => {
   // Filters
   const [jobFilters, setJobFilters] = useState<JobFilters>({});
   const [profileFilters, setProfileFilters] = useState<ProfileFilters>({});
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
 
   // Dialogs
   const [showJobForm, setShowJobForm] = useState(false);
@@ -85,10 +87,13 @@ const JobBoardContent = () => {
       switch (activeTab) {
         case "all":
           try {
+            const filtersWithSkills = selectedFilters.length > 0 
+              ? { ...jobFilters, skills: selectedFilters } 
+              : jobFilters;
             const [allJobs, recent] = await Promise.all([
               searchQuery 
-                ? searchJobs(searchQuery, jobFilters)
-                : loadJobPostings(jobFilters),
+                ? searchJobs(searchQuery, filtersWithSkills)
+                : loadJobPostings(filtersWithSkills),
               loadRecentJobs(10),
             ]);
             setJobs(allJobs || []);
@@ -223,7 +228,7 @@ const JobBoardContent = () => {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, searchQuery, jobFilters, profileFilters, user, toast, t]);
+  }, [activeTab, searchQuery, jobFilters, profileFilters, selectedFilters, user, toast, t]);
 
   useEffect(() => {
     // Only load data if user is available
@@ -236,6 +241,20 @@ const JobBoardContent = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const handleSearchSubmit = () => {
+    loadData();
+  };
+
+  const handleFilterAdd = (filter: string) => {
+    if (!selectedFilters.includes(filter)) {
+      setSelectedFilters(prev => [...prev, filter]);
+    }
+  };
+
+  const handleFilterRemove = (filter: string) => {
+    setSelectedFilters(prev => prev.filter(f => f !== filter));
   };
 
   const handleCreateJob = () => {
@@ -343,16 +362,15 @@ const JobBoardContent = () => {
       )}
 
       {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="pl-10 rounded-full"
-          disabled={tablesMissing}
-        />
-      </div>
+      <JobSearchAutocomplete
+        value={searchQuery}
+        onChange={handleSearch}
+        selectedFilters={selectedFilters}
+        onFilterAdd={handleFilterAdd}
+        onFilterRemove={handleFilterRemove}
+        onSearch={handleSearchSubmit}
+        placeholder={t("jobboard.search.placeholder") || "Search jobs, companies, skills..."}
+      />
 
       {/* Recent Jobs Sidebar & Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

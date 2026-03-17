@@ -86,6 +86,16 @@ const PARTNERS: Partner[] = [
     url: "https://www.rsntr.com/",
   },
   {
+    logo: "/partnerlogos/experify logo.svg",
+    name: "Experify",
+    url: "https://experify3d.com/",
+  },
+  {
+    logo: "/partnerlogos/buildplatez.svg",
+    name: "Buildplatez",
+    url: "https://buildplatez.com/",
+  },
+  {
     logo: "/partnerlogos/3Druck Logo.png",
     name: "3Druck.com",
     url: "https://3druck.com/",
