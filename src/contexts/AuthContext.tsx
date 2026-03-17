@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { db } from '@/lib/database';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
@@ -195,6 +195,11 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Debounce timer for auth state changes
+  const authDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Track pending profile loads to prevent race conditions
+  const pendingProfileLoadRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -222,21 +227,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
-      console.log('Auth: Event', event);
 
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        if (session?.user) {
-          const profile = await loadUserProfile(session.user.id, session.user);
-          if (isMounted) setUser(profile);
-        }
+      // Debounce auth events to prevent rapid state changes causing race conditions
+      if (authDebounceRef.current) {
+        clearTimeout(authDebounceRef.current);
       }
-      if (isMounted) setIsLoading(false);
+
+      authDebounceRef.current = setTimeout(async () => {
+        if (!isMounted) return;
+
+        console.log('Auth: Processing event', event);
+
+        // Only handle SIGNED_IN and USER_UPDATED - skip TOKEN_REFRESHED to prevent unnecessary profile reloads
+        if (event === 'SIGNED_OUT') {
+          setUser(null);
+        } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+          // Only process SIGNED_IN and USER_UPDATED - these are meaningful user state changes
+          if (session?.user && !pendingProfileLoadRef.current) {
+            pendingProfileLoadRef.current = true;
+            try {
+              const profile = await loadUserProfile(session.user.id, session.user);
+              if (isMounted) setUser(profile);
+            } finally {
+              pendingProfileLoadRef.current = false;
+            }
+          }
+        } else if (event === 'TOKEN_REFRESHED') {
+          // Token refreshed - don't reload profile, just keep current user
+          // This prevents unnecessary DB calls and potential race conditions
+          console.log('Auth: Token refreshed, preserving current user');
+        }
+        
+        if (isMounted) setIsLoading(false);
+      }, 300); // 300ms debounce delay
+
+      // For SIGNED_OUT, process immediately without debounce
+      if (event === 'SIGNED_OUT') {
+        if (authDebounceRef.current) {
+          clearTimeout(authDebounceRef.current);
+        }
+        setUser(null);
+        setIsLoading(false);
+      }
     });
 
     return () => {
       isMounted = false;
+      if (authDebounceRef.current) {
+        clearTimeout(authDebounceRef.current);
+      }
       subscription.unsubscribe();
     };
   }, []);

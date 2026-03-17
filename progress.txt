@@ -683,6 +683,30 @@ Status: Core registration flow stabilized. Professional documentation completed.
 - Added new announcement to the home page news marquee: "Waaters.org is now BAMAS official partner in UK."
 - Linked both the news item and the partner logo directly to https://waaters.org/.
 
+[2026-03-17] Auth Stability & Partner Updates ✓
+==============================================
+1. PARTNER CAROUSEL ENHANCEMENTS:
+   - Added Experify (https://experify3d.com/) to partner logos
+   - Added Buildplatez (https://buildplatez.com/) to partner logos
+   - All partner logos now visible in carousel with proper links
+
+2. AUTH STABILITY FIXES:
+   - Added 300ms debounce to auth state change handler to prevent race conditions
+   - Only process SIGNED_IN and USER_UPDATED events (skip TOKEN_REFRESHED)
+   - Added pendingProfileLoadRef to prevent concurrent profile loads
+   - Increased session heartbeat from 10 min to 5 min for more robust token refresh
+   - Added retry logic with exponential backoff (3 retries: 1s, 2s, 4s) to session refresh
+   - Preserves current user during profile re-fetch to prevent ghost logouts
+
+3. JOB BOARD SEARCH:
+   - Created JobSearchAutocomplete component with terminology integration
+   - Added tokenized filter chips for skills
+   - Bilingual EN/BG fuzzy search support
+
+4. BUILD TOOLS:
+   - Added npm run typecheck script (tsc --noEmit)
+   - Created CHANGELOG.md from git history
+
 [2026-02-19] Project Context & Documentation ✓
 =============================================
 - Created CONTEXT.MD as a central knowledge base for the project.
