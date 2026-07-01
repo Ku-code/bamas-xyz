@@ -14,8 +14,20 @@ dist-ssr
 
 # Environment variables
 .env
+.env.*
+!.env.example
 .env.local
 .env.production
+
+# Sensitive / secret data — never commit (keep values in .env or a secrets manager)
+bank_details.txt
+*secret*
+*credentials*
+check_user.sql
+
+# Supabase local state (project ref, versions, etc.)
+supabase/.temp/
+supabase/.branches/
 
 # Editor directories and files
 .vscode/*

@@ -54,8 +54,6 @@ const Login = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
-    console.log("Google Login Success:", credentialResponse);
-    
     if (credentialResponse.credential) {
       try {
         setIsLoading(true);

@@ -73,6 +73,63 @@ A comprehensive management platform for association members, including:
 
 ---
 
+## Design System
+
+The BAMAS visual identity pairs a deep industrial teal with a confident additive-green accent, signalling precision engineering and sustainable, forward-looking manufacturing.
+
+### Typography
+
+The entire interface uses a single typeface — **[Sofia Sans](https://fonts.google.com/specimen/Sofia+Sans)** — loaded with both **Latin and Cyrillic** subsets so English and Bulgarian render identically.
+
+| Role | Family | Weight | Usage |
+| --- | --- | --- | --- |
+| Headings (`h1`–`h6`) | Sofia Sans | **800** ExtraBold | Page titles, section headers |
+| Subtitles / labels | Sofia Sans | 600 SemiBold / 400 Regular | Emphasis, UI labels |
+| Body | Sofia Sans | **300** Light (default) | Paragraphs, long-form text |
+
+```css
+font-family: 'Sofia Sans', sans-serif;   /* weights: 300, 400, 600, 800 (+ italics) */
+```
+
+### Brand Colors
+
+Defined as Tailwind tokens under the `bama` namespace (`tailwind.config.ts`).
+
+| Token | Hex | Role |
+| --- | --- | --- |
+| `bama.neon-green` | `#0C9D6A` | **Primary / accent** — CTAs, links, `theme-color` |
+| `bama.blue` / `bama.dark` | `#052e40` | **Secondary** — deep teal, headings, dark surfaces |
+| `bama.electric-blue` | `#3b82f6` | Highlights, data viz, interactive states |
+| `bama.accent-red` | `#E62F29` | Alerts, destructive actions |
+| `bama.gray` | `#64748b` | Muted text, borders |
+| `bama.light` | `#f8fafc` | Light backgrounds, surfaces |
+
+### Theme Tokens (light / dark)
+
+Semantic colors are HSL CSS variables in `src/index.css`, consumed via `hsl(var(--token))`. The app **defaults to dark mode** (`<html class="dark">`).
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--background` | `#FFFFFF` | `#0F172A` (slate-900) |
+| `--foreground` | `#052E40` | `#E2E8F0` |
+| `--primary` | `#0C9D6A` | `#0C9D6A` |
+| `--secondary` | `#052E40` | `#1E293B` |
+| `--destructive` | `#EF4444` | `#7F1D1D` |
+| `--radius` | `0.5rem` | `0.5rem` |
+
+Animations (`fade-in`, `slide-right`, `gradient-x`) and the radius scale live in `tailwind.config.ts`, powered by `tailwindcss-animate` + Framer Motion.
+
+---
+
+## SEO & GEO
+
+Discoverability is documented separately:
+
+- **[SEO.md](./SEO.md)** — traditional search-engine optimization (meta tags, structured data, sitemap, keywords for Bulgarian additive manufacturing & 3D printing).
+- **[GEO.md](./GEO.md)** — Generative Engine Optimization: how BAMAS is surfaced and cited by AI assistants (ChatGPT, Claude, Gemini, Perplexity).
+
+---
+
 ## Project Structure
 
 ```text
