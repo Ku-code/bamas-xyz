@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { db } from '@/lib/database';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
+import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 // ────────────────────────────────────────────────────────────
 // Types
@@ -37,6 +36,9 @@ export interface User {
   approvedBy?: string;
   billing?: BillingInfo;
   company_name?: string;
+  /** True when the DB profile could not be loaded (timeout/error) and this is a
+   *  degraded fallback. Status/role may be unknown — don't gate on them. */
+  profileIncomplete?: boolean;
 }
 
 export type { SupabaseUser };
@@ -100,47 +102,79 @@ function mapDbUserToUser(dbUser: Record<string, unknown>): User {
 }
 
 /**
- * Creates a minimal User object from Supabase Auth metadata.
- * Used as a fallback when the database is unreachable.
+ * Creates a minimal User object from Supabase Auth metadata, used when the
+ * database profile can't be loaded.
+ *
+ * @param degraded When true the DB errored/timed out (status unknown) — we mark
+ *   the profile incomplete and leave status undefined so the UI shows a retry
+ *   state instead of falsely claiming the user is "pending approval". When false
+ *   the profile is genuinely missing (first login), so pending is correct.
  */
-function getFallbackUser(authUser: SupabaseUser): User {
+function getFallbackUser(authUser: SupabaseUser, degraded: boolean): User {
   const email = authUser.email?.toLowerCase() || '';
   const isHardcoded = SUPERADMIN_EMAILS.includes(email);
   const meta = authUser.user_metadata || {};
-  console.warn('Auth: Using fallback user for', email);
+  console.warn('Auth: Using fallback user for', email, degraded ? '(degraded)' : '(new profile)');
   return {
     id: authUser.id,
     email: email,
     name: (meta.name as string) || (meta.full_name as string) || email.split('@')[0] || 'User',
     role: isHardcoded ? 'superadmin' : 'member',
-    status: isHardcoded ? 'approved' : 'pending',
+    status: isHardcoded ? 'approved' : degraded ? undefined : 'pending',
+    profileIncomplete: degraded && !isHardcoded,
     createdAt: authUser.created_at,
     provider: (authUser.app_metadata?.provider as 'google' | 'email') || 'email',
     image: (meta.avatar_url as string) || (meta.picture as string) || undefined,
   };
 }
 
+type ProfileFetch =
+  | { kind: 'found'; row: Record<string, unknown> }
+  | { kind: 'missing' }
+  | { kind: 'error' };
+
 /**
- * Attempts to load a user profile from the database with a timeout.
- * Falls back to creating a profile via RPC if one doesn't exist.
- * Returns a mapped User or a fallback if everything fails.
+ * Fetches the user row, distinguishing "not found" from "error/timeout" so the
+ * caller doesn't run the profile-creation RPC (which overwrites name/image)
+ * just because a fetch was slow.
+ */
+async function fetchUserRow(userId: string): Promise<ProfileFetch> {
+  try {
+    const fetchPromise = supabase.from('users').select('*').eq('id', userId).maybeSingle();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('DB timeout')), DB_TIMEOUT_MS)
+    );
+    const { data, error } = (await Promise.race([fetchPromise, timeoutPromise])) as Awaited<typeof fetchPromise>;
+    if (error) {
+      console.warn('Auth: user row fetch error', error.message);
+      return { kind: 'error' };
+    }
+    return data ? { kind: 'found', row: data as Record<string, unknown> } : { kind: 'missing' };
+  } catch {
+    console.warn('Auth: user row fetch slow/timed out');
+    return { kind: 'error' };
+  }
+}
+
+/**
+ * Loads a user profile from the database. Retries once on transient error,
+ * creates the profile via RPC only when it's genuinely missing, and returns a
+ * degraded fallback (never a false "pending") if the DB stays unreachable.
  */
 async function loadUserProfile(userId: string, authUser?: SupabaseUser | null): Promise<User | null> {
   try {
-    // 1. Try fetching from database with a timeout
-    let dbUser: Record<string, unknown> | null = null;
-    try {
-      const fetchPromise = db.fetchById<Record<string, unknown>>('users', userId);
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('DB timeout')), DB_TIMEOUT_MS)
-      );
-      dbUser = await Promise.race([fetchPromise, timeoutPromise]);
-    } catch {
-      console.warn('Auth: DB fetch slow/failed, attempting fallback');
+    // 1. Fetch, retrying once on a transient error/timeout.
+    let result = await fetchUserRow(userId);
+    if (result.kind === 'error') {
+      result = await fetchUserRow(userId);
     }
 
-    // 2. If no profile exists, create one via the SECURITY DEFINER RPC
-    if (!dbUser && authUser) {
+    if (result.kind === 'found') {
+      return mapDbUserToUser(result.row);
+    }
+
+    // 2. Profile genuinely missing (first login) -> create it via the RPC.
+    if (result.kind === 'missing' && authUser) {
       console.log('Auth: Creating profile via RPC');
       const meta = authUser.user_metadata || {};
       try {
@@ -151,24 +185,21 @@ async function loadUserProfile(userId: string, authUser?: SupabaseUser | null): 
           user_provider: (authUser.app_metadata?.provider as string) || 'email',
           user_image: (meta.avatar_url as string) || (meta.picture as string) || null,
         });
-        // Re-fetch after creation
-        dbUser = await db.fetchById<Record<string, unknown>>('users', userId);
+        const after = await fetchUserRow(userId);
+        if (after.kind === 'found') return mapDbUserToUser(after.row);
       } catch (rpcErr) {
         console.error('Auth: RPC create_user_profile failed', rpcErr);
       }
     }
 
-    // 3. Return the best available user object
-    if (dbUser) {
-      return mapDbUserToUser(dbUser);
-    }
+    // 3. Couldn't resolve from DB -> degraded fallback (status unknown on error).
     if (authUser) {
-      return getFallbackUser(authUser);
+      return getFallbackUser(authUser, result.kind === 'error');
     }
     return null;
   } catch (err) {
     console.error('Auth: Critical error loading profile', err);
-    return authUser ? getFallbackUser(authUser) : null;
+    return authUser ? getFallbackUser(authUser, true) : null;
   }
 }
 
@@ -209,66 +240,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     let isMounted = true;
 
-    const initAuth = async () => {
+    // Resolve the current session into a User profile and clear the loading
+    // flag ONLY after the profile is actually set. supabase-js fires an
+    // INITIAL_SESSION event on subscribe carrying the session restored from
+    // storage, so we don't need a separate getUser() init (which caused a race
+    // where isLoading flipped to false before the profile loaded, bouncing
+    // authenticated users to /login on refresh).
+    const resolveSession = async (session: Session | null) => {
+      if (pendingProfileLoadRef.current) return;
+      pendingProfileLoadRef.current = true;
       try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser && isMounted) {
-          const profile = await loadUserProfile(authUser.id, authUser);
+        if (session?.user) {
+          const profile = await loadUserProfile(session.user.id, session.user);
           if (isMounted) setUser(profile);
+        } else if (isMounted) {
+          setUser(null);
         }
-      } catch (err) {
-        console.error('Auth: Init failure', err);
       } finally {
+        pendingProfileLoadRef.current = false;
         if (isMounted) setIsLoading(false);
       }
     };
 
-    initAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
+      console.log('Auth: Processing event', event);
 
-      // Debounce auth events to prevent rapid state changes causing race conditions
-      if (authDebounceRef.current) {
-        clearTimeout(authDebounceRef.current);
-      }
-
-      authDebounceRef.current = setTimeout(async () => {
-        if (!isMounted) return;
-
-        console.log('Auth: Processing event', event);
-
-        // Only handle SIGNED_IN and USER_UPDATED - skip TOKEN_REFRESHED to prevent unnecessary profile reloads
-        if (event === 'SIGNED_OUT') {
-          setUser(null);
-        } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-          // Only process SIGNED_IN and USER_UPDATED - these are meaningful user state changes
-          if (session?.user && !pendingProfileLoadRef.current) {
-            pendingProfileLoadRef.current = true;
-            try {
-              const profile = await loadUserProfile(session.user.id, session.user);
-              if (isMounted) setUser(profile);
-            } finally {
-              pendingProfileLoadRef.current = false;
-            }
-          }
-        } else if (event === 'TOKEN_REFRESHED') {
-          // Token refreshed - don't reload profile, just keep current user
-          // This prevents unnecessary DB calls and potential race conditions
-          console.log('Auth: Token refreshed, preserving current user');
-        }
-        
-        if (isMounted) setIsLoading(false);
-      }, 300); // 300ms debounce delay
-
-      // For SIGNED_OUT, process immediately without debounce
+      // SIGNED_OUT: clear immediately, no debounce.
       if (event === 'SIGNED_OUT') {
-        if (authDebounceRef.current) {
-          clearTimeout(authDebounceRef.current);
-        }
+        if (authDebounceRef.current) clearTimeout(authDebounceRef.current);
         setUser(null);
         setIsLoading(false);
+        return;
       }
+
+      // TOKEN_REFRESHED: keep the current user; nothing to reload. Do NOT touch
+      // isLoading here — INITIAL_SESSION is responsible for the initial resolve.
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Auth: Token refreshed, preserving current user');
+        return;
+      }
+
+      // INITIAL_SESSION / SIGNED_IN / USER_UPDATED: (re)load the profile.
+      // Debounced to coalesce the burst of events fired at startup/sign-in.
+      if (authDebounceRef.current) clearTimeout(authDebounceRef.current);
+      authDebounceRef.current = setTimeout(() => {
+        if (isMounted) void resolveSession(session);
+      }, 200);
     });
 
     return () => {
