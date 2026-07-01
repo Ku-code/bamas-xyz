@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
 import PendingApproval from "@/components/dashboard/PendingApproval";
 import AccountStatus from "@/components/dashboard/AccountStatus";
+import { PanelErrorBoundary } from "@/components/dashboard/PanelErrorBoundary";
 import {
   Clock,
   CheckSquare,
@@ -228,9 +229,11 @@ const Dashboard = () => {
     };
 
     return (
-      <Suspense fallback={<ContentLoadingFallback />}>
-        {renderLazyContent()}
-      </Suspense>
+      <PanelErrorBoundary resetKey={activeItem}>
+        <Suspense fallback={<ContentLoadingFallback />}>
+          {renderLazyContent()}
+        </Suspense>
+      </PanelErrorBoundary>
     );
   };
 

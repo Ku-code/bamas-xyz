@@ -81,7 +81,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (isLoading) {
       return ""; // Return empty string while loading
     }
-    return translations[key] || key;
+    const value = translations[key];
+    if (value === undefined) {
+      // Return "" (not the key) so callers' `t("x") || "fallback"` idiom works
+      // and raw dotted key paths never render on screen.
+      if (import.meta.env.DEV) {
+        console.warn(`[i18n] Missing "${language}" translation for key: ${key}`);
+      }
+      return "";
+    }
+    return value;
   };
 
   return (
