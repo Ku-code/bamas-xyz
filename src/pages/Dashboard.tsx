@@ -22,6 +22,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSessionHeartbeat } from "@/hooks/useSessionHeartbeat";
 import PendingApproval from "@/components/dashboard/PendingApproval";
 import AccountStatus from "@/components/dashboard/AccountStatus";
+import { PanelErrorBoundary } from "@/components/dashboard/PanelErrorBoundary";
 import {
   Clock,
   CheckSquare,
@@ -131,6 +132,23 @@ const Dashboard = () => {
       return null;
     }
 
+    // If the DB profile couldn't be loaded (timeout/error), don't misreport the
+    // user as "pending" — show a transient retry state instead.
+    if (user.profileIncomplete) {
+      return (
+        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground max-w-sm">
+            {t("dashboard.profile.loadError") ||
+              "We couldn't load your profile. Check your connection and try again."}
+          </p>
+          <Button onClick={() => window.location.reload()} variant="outline" className="rounded-full">
+            {t("common.retry") || "Retry"}
+          </Button>
+        </div>
+      );
+    }
+
     // Check if user is pending approval
     const isPending = user.status === 'pending';
     const isRejected = user.status === 'rejected';
@@ -211,9 +229,11 @@ const Dashboard = () => {
     };
 
     return (
-      <Suspense fallback={<ContentLoadingFallback />}>
-        {renderLazyContent()}
-      </Suspense>
+      <PanelErrorBoundary resetKey={activeItem}>
+        <Suspense fallback={<ContentLoadingFallback />}>
+          {renderLazyContent()}
+        </Suspense>
+      </PanelErrorBoundary>
     );
   };
 

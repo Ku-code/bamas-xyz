@@ -64,12 +64,26 @@ A comprehensive management platform for association members, including:
 ### Installation
 1. Clone the repository: `git clone <repo_url>`
 2. Install dependencies: `npm install`
-3. Configure environment variables in `.env`:
-   ```env
-   VITE_SUPABASE_URL=your_project_url
-   VITE_SUPABASE_ANON_KEY=your_anon_key
-   ```
+3. Copy `.env.example` to `.env` and fill in the values (see below).
 4. Start development: `npm run dev`
+
+### Environment variables
+
+Copy `.env.example` → `.env`. All client vars are `VITE_`-prefixed.
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | ✅ | Supabase project URL (auth + database) |
+| `VITE_SUPABASE_ANON_KEY` | ✅ | Supabase anon key |
+| `VITE_GOOGLE_CLIENT_ID` | ⬜ | Google OAuth client ID — **required for "Sign in with Google"**. If unset, the Google button is hidden and only email/password works. |
+| `VITE_DOCUSEAL_API_KEY` | ⬜ | DocuSeal API key (digital signatures) |
+| `VITE_MAPTILER_API_KEY` | ⬜ | MapTiler key (enhanced map styles) |
+
+> **Deploying (Vercel/Netlify):** these vars must be set in the host's
+> environment settings, not just your local `.env`. A common "login/Google is
+> broken in production" cause is a missing `VITE_GOOGLE_CLIENT_ID` or Supabase
+> var in the deploy environment. Re-deploy after adding them (Vite inlines env
+> vars at build time).
 
 ---
 
