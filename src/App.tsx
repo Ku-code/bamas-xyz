@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './components/ThemeProvider';
@@ -30,6 +29,7 @@ const MembershipSuccess = lazy(() => import("./pages/MembershipSuccess"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const News = lazy(() => import("./pages/News"));
 const Glossary = lazy(() => import("./pages/Glossary"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
 // Lightweight loading fallback component
 const LoadingFallback = () => (
@@ -117,23 +117,15 @@ const AppContent: React.FC = () => {
     );
   }
 
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-
-  // Check if Supabase is configured
+  // Google sign-in goes through Supabase's OAuth redirect, so it needs no
+  // frontend client ID — only Supabase itself has to be configured.
   const isSupabaseConfigured = !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
 
-  // Debug logging in production to help diagnose env var issues
-  if (import.meta.env.MODE === 'production') {
-    if (!isSupabaseConfigured) {
-      console.warn('⚠️ Supabase is not configured. Some features may not work.');
-    }
-    if (!googleClientId || googleClientId.trim() === '') {
-      console.warn('⚠️ Google OAuth Client ID is not configured. Google login will not be available.');
-    }
+  if (import.meta.env.MODE === 'production' && !isSupabaseConfigured) {
+    console.warn('⚠️ Supabase is not configured. Login and all forms will not work.');
   }
 
   return (
-    <GoogleOAuthProvider clientId={googleClientId}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
@@ -149,6 +141,7 @@ const AppContent: React.FC = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-use" element={<TermsOfUse />} />
                 <Route path="/cookie-policy" element={<CookiePolicy />} />
@@ -182,7 +175,6 @@ const AppContent: React.FC = () => {
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
-    </GoogleOAuthProvider>
   );
 };
 

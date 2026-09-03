@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,7 @@ const Login = () => {
     noindex: true,
   });
   const { toast } = useToast();
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
@@ -59,49 +59,6 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
-    if (credentialResponse.credential) {
-      try {
-        setIsLoading(true);
-        await signInWithGoogle(credentialResponse.credential);
-    toast({
-      title: t("auth.login.success.title") || "Login Successful",
-      description: t("auth.google.success") || "Successfully logged in with Google!",
-    });
-        const returnTo = searchParams.get('returnTo') || '/dashboard';
-        navigate(returnTo);
-      } catch (error: any) {
-        const errorInfo = formatErrorForToast(
-          error,
-          t("auth.google.error.title") || "Google Login Failed",
-          t("auth.google.error.description") || "Failed to login with Google"
-        );
-        toast({
-          title: errorInfo.title,
-          description: errorInfo.description,
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleGoogleError = () => {
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    let errorMessage = t("auth.google.error.description") || "Failed to login with Google. Please try again or use email/password login.";
-    
-    if (!googleClientId) {
-      errorMessage = "Google authentication is not configured. Please use email/password login or contact the administrator.";
-    }
-    
-    toast({
-      title: t("auth.google.error.title") || "Google Login Failed",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -128,40 +85,22 @@ const Login = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {import.meta.env.VITE_GOOGLE_CLIENT_ID && import.meta.env.VITE_GOOGLE_CLIENT_ID.trim() !== '' ? (
-                <>
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleError}
-                    useOneTap
-                    theme="filled_black"
-                    size="large"
-                    text="signin_with"
-                    shape="rectangular"
-                    locale={language === "bg" ? "bg" : "en"}
-                  />
-                  
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <Separator />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">
-                        {t("auth.or") || "Or continue with"}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="p-4 bg-muted rounded-lg text-center text-sm text-muted-foreground">
-                  {t("auth.google.notConfigured") || "Google authentication is not configured. Please use email/password login."}
-                  {import.meta.env.MODE === 'production' && (
-                    <div className="mt-2 text-xs">
-                      Debug: VITE_GOOGLE_CLIENT_ID = {import.meta.env.VITE_GOOGLE_CLIENT_ID ? 'Set' : 'Not set'}
-                    </div>
-                  )}
+              <GoogleAuthButton
+                returnTo={searchParams.get('returnTo') || '/dashboard'}
+                mode="signin"
+                disabled={isLoading}
+              />
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator />
                 </div>
-              )}
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    {t("auth.or") || "Or continue with"}
+                  </span>
+                </div>
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">

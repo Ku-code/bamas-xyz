@@ -56,7 +56,11 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
   signInWithGoogle: (idToken: string) => Promise<void>;
+  /** Starts Supabase's Google OAuth redirect. Navigates away on success. */
+  signInWithGoogleRedirect: (returnTo?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  /** Re-reads the profile row for the current session (used by retry UI). */
+  refreshProfile: () => Promise<void>;
 }
 
 // ────────────────────────────────────────────────────────────
@@ -69,6 +73,9 @@ const SUPERADMIN_EMAILS = [
 ];
 
 const DB_TIMEOUT_MS = 5000;
+
+/** Where to send the user after the Google round-trip. Survives the redirect. */
+export const OAUTH_RETURN_KEY = 'bamas-oauth-return-to';
 
 // ────────────────────────────────────────────────────────────
 // Pure helper functions (no React, no circular deps)
@@ -399,6 +406,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signInWithGoogleRedirect = async (returnTo?: string) => {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        'Authentication is not configured on this deployment. Please contact info@bamas.xyz.'
+      );
+    }
+
+    // Only accept same-site paths — never redirect to an attacker-supplied origin.
+    const target = returnTo && /^\/(?!\/)/.test(returnTo) ? returnTo : '/dashboard';
+    try {
+      sessionStorage.setItem(OAUTH_RETURN_KEY, target);
+    } catch {
+      // Private-mode browsers block sessionStorage; the callback falls back to /dashboard.
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        // Always let the user pick an account instead of silently reusing one.
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+
+    if (error) {
+      if (/not enabled|unsupported provider/i.test(error.message)) {
+        throw new Error(
+          'Google sign-in is not enabled for this project yet. Use email and password for now.'
+        );
+      }
+      throw error;
+    }
+  };
+
+  const refreshProfile = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      setUser(null);
+      return;
+    }
+    const profile = await loadUserProfile(session.user.id, session.user);
+    setUser(profile);
+  };
+
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -427,7 +478,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,
+        signInWithGoogleRedirect,
         resetPassword,
+        refreshProfile,
       }}
     >
       {children}
