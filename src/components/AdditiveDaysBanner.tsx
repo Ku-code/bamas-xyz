@@ -17,10 +17,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const EVENT_URL = "https://additivedays.com/";
 
-const BLUE = "#0069FF";
-const BLUE_HOVER = "#0055D4";
+const BLUE = "#F4D328";
+const BLUE_HOVER = "#E3C21B";
 const BLACK = "#050505";
-const LINK_BLUE = "#2E7FFF";
+const LINK_BLUE = "#F4D328";
 
 /** Design canvas the original banner was authored at. */
 const W = 1920;
@@ -34,11 +34,10 @@ const t = (px: number) => `${((px / W) * 100).toFixed(3)}cqw`;
 
 const OSWALD = "'Oswald', 'Sofia Sans', sans-serif";
 
-/** The source clip is black-on-#F2F2F2; inverting it and screening over the
- *  blue panel yields the white lockup the original banner uses. */
+/** Preserve the original animated lockup, black on the yellow face. */
 const MARK_FILTER: React.CSSProperties = {
-    filter: "invert(1) contrast(1.45)",
-    mixBlendMode: "screen",
+    filter: "contrast(1.45)",
+    mixBlendMode: "multiply",
 };
 
 /**
@@ -94,7 +93,7 @@ const LogoMark = ({ reducedMotion, className }: { reducedMotion: boolean; classN
 const Dot = ({ size }: { size: string }) => (
     <span
         aria-hidden="true"
-        className="inline-block flex-shrink-0 bg-white"
+        className="inline-block flex-shrink-0 bg-black"
         style={{ width: size, height: size }}
     />
 );
@@ -152,7 +151,7 @@ const AdditiveDaysBanner = () => {
 
                     {/* Meta row */}
                     <div
-                        className="absolute flex items-center whitespace-nowrap uppercase text-white/95"
+                        className="absolute flex items-center whitespace-nowrap uppercase text-black/95"
                         style={{
                             left: x(48),
                             top: y(125),
@@ -171,13 +170,13 @@ const AdditiveDaysBanner = () => {
 
                     {/* Divider */}
                     <div
-                        className="absolute bg-white/35"
+                        className="absolute bg-black/35"
                         style={{ left: x(580), top: y(35.5), width: "1px", height: y(88) }}
                     />
 
                     {/* Date */}
                     <div
-                        className="absolute whitespace-nowrap text-white"
+                        className="absolute whitespace-nowrap text-black"
                         style={{
                             left: x(611),
                             top: y(56),
@@ -192,7 +191,7 @@ const AdditiveDaysBanner = () => {
                     </div>
 
                     {/* Venue */}
-                    <div className="absolute text-white" style={{ left: x(869), top: y(50) }}>
+                    <div className="absolute text-black" style={{ left: x(869), top: y(50) }}>
                         <div
                             className="whitespace-nowrap"
                             style={{
@@ -223,11 +222,11 @@ const AdditiveDaysBanner = () => {
                             fontWeight: 600,
                             fontSize: t(22),
                             letterSpacing: t(-0.66),
-                            color: "#FAFAFA",
+                            color: "#F4D328",
                             lineHeight: 1.2,
                         }}
                     >
-                        V edition · early bird list is open
+                        V edition · 2027
                     </div>
                     <div
                         className="absolute flex items-center whitespace-nowrap"
@@ -256,7 +255,7 @@ const AdditiveDaysBanner = () => {
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BLUE)}
                     >
                         <span
-                            className="whitespace-nowrap uppercase text-white"
+                            className="whitespace-nowrap uppercase text-black"
                             style={{
                                 fontFamily: OSWALD,
                                 fontWeight: 700,
@@ -264,11 +263,11 @@ const AdditiveDaysBanner = () => {
                                 letterSpacing: t(-0.68),
                             }}
                         >
-                            Join early bird
+                            Follow updates
                         </span>
                         <span
                             aria-hidden="true"
-                            className="text-white transition-transform duration-300 group-hover:translate-x-1"
+                            className="text-black transition-transform duration-300 group-hover:translate-x-1"
                             style={{ fontSize: t(30), lineHeight: 1 }}
                         >
                             →
@@ -283,7 +282,7 @@ const AdditiveDaysBanner = () => {
                             <LogoMark reducedMotion={reducedMotion} className="h-full w-full object-cover" />
                         </div>
 
-                        <div className="mt-2 flex items-baseline gap-2 text-white">
+                        <div className="mt-2 flex items-baseline gap-2 text-black">
                             <span
                                 style={{
                                     fontFamily: OSWALD,
@@ -307,7 +306,7 @@ const AdditiveDaysBanner = () => {
                             </span>
                         </div>
 
-                        <div className="text-[11px] leading-snug text-white/85">
+                        <div className="text-[11px] leading-snug text-black/85">
                             {language === "bg" ? "Датите и мястото предстоят" : "Dates & venue to be announced"}
                         </div>
                     </div>
@@ -320,13 +319,13 @@ const AdditiveDaysBanner = () => {
                             className="text-[10px] uppercase leading-tight"
                             style={{ fontFamily: OSWALD, fontWeight: 600, color: "#FAFAFA" }}
                         >
-                            V edition · early bird list is open
+                            V edition · 2027
                         </span>
                         <span
                             className="flex-shrink-0 whitespace-nowrap text-[11px] uppercase text-white"
                             style={{ fontFamily: OSWALD, fontWeight: 700 }}
                         >
-                            Join early bird →
+                            Follow updates →
                         </span>
                     </div>
                 </div>

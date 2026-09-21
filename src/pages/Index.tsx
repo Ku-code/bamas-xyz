@@ -23,6 +23,7 @@ import BoardMembersCarousel from "@/components/BoardMembersCarousel";
 import NewsBanner from "@/components/NewsBanner";
 import EventsTimeline from "@/components/EventsTimeline";
 import HomepageBanners from "@/components/HomepageBanners";
+import DesktopHomepageBanners from "@/components/DesktopHomepageBanners";
 import MonthlyMeetingBanner from "@/components/MonthlyMeetingBanner";
 import MachTechProgramme from "@/components/MachTechProgramme";
 import { motion } from "framer-motion";
@@ -124,7 +125,7 @@ const Index = () => {
 
       <main>
       <section id="home" className="relative pt-20 md:pt-24 scroll-mt-20 md:scroll-mt-24 overflow-hidden">
-        <HomepageBanners />
+        {isMobile ? <HomepageBanners /> : <DesktopHomepageBanners />}
         <NewsBanner />
         <MonthlyMeetingBanner />
         <DotGlobeHero
