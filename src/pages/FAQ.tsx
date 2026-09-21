@@ -44,7 +44,7 @@ const FAQ_BG: FaqItem[] = [
     },
     {
         q: "Къде се провеждат събитията на БАЗАП?",
-        a: "БАЗАП участва и организира събития в цялата страна — включително Additive Days в София Тех Парк (10 септември 2026) и MACH-TECH & INNOTECH Expo в Интер Експо Център, София (6–9 октомври 2026).",
+        a: "БАЗАП участва и организира събития в цялата страна — включително MACH-TECH & INNOTECH Expo в Интер Експо Център, София (6–9 октомври 2026), както и петото издание на Additive Days през 2027 г. (датите и мястото предстоят).",
     },
     {
         q: "Как да се свържа с БАЗАП?",
@@ -79,7 +79,7 @@ const FAQ_EN: FaqItem[] = [
     },
     {
         q: "Where do BAMAS events take place?",
-        a: "BAMAS participates in and organizes events across Bulgaria — including Additive Days at Sofia Tech Park (10 September 2026) and MACH-TECH & INNOTECH Expo at Inter Expo Center, Sofia (6–9 October 2026).",
+        a: "BAMAS participates in and organizes events across Bulgaria — including MACH-TECH & INNOTECH Expo at Inter Expo Center, Sofia (6–9 October 2026), and the fifth edition of Additive Days in 2027 (dates and venue TBA).",
     },
     {
         q: "How do I contact BAMAS?",

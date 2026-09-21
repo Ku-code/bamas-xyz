@@ -24,10 +24,11 @@ import NewsBanner from "@/components/NewsBanner";
 import EventsTimeline from "@/components/EventsTimeline";
 import AdditiveDaysBanner from "@/components/AdditiveDaysBanner";
 import BannerCube from "@/components/BannerCube";
-import RSFBanner from "@/components/RSFBanner";
 import MachTechBanner from "@/components/MachTechBanner";
 import IndustryInfoBanner from "@/components/IndustryInfoBanner";
 import ImageBanner from "@/components/ImageBanner";
+import MonthlyMeetingBanner from "@/components/MonthlyMeetingBanner";
+import MachTechProgramme from "@/components/MachTechProgramme";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap as ZapIcon, Target, Rocket as RocketIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -133,17 +134,7 @@ const Index = () => {
         <BannerCube
           intervalMs={2000}
           faces={[
-            <AdditiveDaysBanner key="additive-days" />,
-            <RSFBanner key="rsf" />,
             <MachTechBanner key="machtech" />,
-            <IndustryInfoBanner key="industryinfo" />,
-            <ImageBanner
-              key="machtech-expo"
-              src="/banners/machtech-expo-2026.gif"
-              href={"https://machtech.bg/posetiteli/bileti/?utm_source=bamas.xyz&utm_medium=banner_1920%D1%85160&utm_campaign=Tickets_2026&utm_id=MachTech%26InnoTech_2026"}
-              alt="MACHTECH & INNOTECH EXPO 2026, international exhibition for machinery and technologies in metalworking industry, Inter Expo Center — opens machtech.bg in a new tab"
-              background="#FFFFFF"
-            />,
             <ImageBanner
               key="interdrone-expo"
               src="/banners/interdrone-expo-2026.gif"
@@ -151,6 +142,7 @@ const Index = () => {
               alt="INTER DRONE EXPO, 6–9 October 2026, Inter Expo Center — opens interdroneexpo.bg in a new tab"
               background="#C4CCB5"
             />,
+            <IndustryInfoBanner key="industryinfo" />,
             <ImageBanner
               key="europm-2026"
               src="/banners/europm-2026.webp"
@@ -158,9 +150,11 @@ const Index = () => {
               alt="EURO PM2026 Congress & Exhibition, 11–14 October 2026, Budapest, Hungary — opens europm2026.com in a new tab"
               background="#0B1F2A"
             />,
+            <AdditiveDaysBanner key="additive-days" />,
           ]}
         />
         <NewsBanner />
+        <MonthlyMeetingBanner />
         <DotGlobeHero
           rotationSpeed={0.004}
           className="bg-gradient-to-br from-background via-background/95 to-muted/10 relative overflow-hidden min-h-[82svh] md:min-h-[85svh]"
@@ -283,6 +277,8 @@ const Index = () => {
           </div>
         </DotGlobeHero>
       </section>
+
+      <MachTechProgramme />
 
       <section id="about" className="py-12 md:py-20 bg-muted/30 relative overflow-hidden scroll-mt-20 md:scroll-mt-24">
         {/* Background image with reduced opacity - centered behind text */}

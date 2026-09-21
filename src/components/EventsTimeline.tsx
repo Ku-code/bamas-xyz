@@ -88,16 +88,16 @@ const EVENTS: BamasEvent[] = [
     },
     {
         key: "additive-days",
-        start: "2026-09-10",
-        date: { bg: "10 септември 2026", en: "10 September 2026" },
-        title: { bg: "Additive Days 2026", en: "Additive Days 2026" },
-        place: { bg: "София Тех Парк, София", en: "Sofia Tech Park, Sofia" },
+        start: "2027",
+        date: { bg: "2027 · датата предстои", en: "2027 · date TBA" },
+        title: { bg: "Additive Days — V издание", en: "Additive Days — V Edition" },
+        place: { bg: "Мястото предстои", en: "Venue TBA" },
         desc: {
-            bg: "Конференция · Експо · Уъркшопи — със специална зона на БАЗАП.",
-            en: "Conference · Expo · Workshops — with a BAMAS special zone.",
+            bg: "Петото издание предстои през 2027 г.; ранният списък за интерес е отворен.",
+            en: "The fifth edition is coming in 2027; the early-interest list is open.",
         },
         url: "https://additivedays.com/",
-        schemaLocation: { name: "Sofia Tech Park", locality: "Sofia", country: "BG" },
+        badge: { bg: "Ранен списък", en: "Early bird" },
         organizer: "B2N",
     },
     {
@@ -170,7 +170,7 @@ const EVENTS: BamasEvent[] = [
         },
         flagship: true,
     },
-];
+].sort((a, b) => a.start.localeCompare(b.start));
 
 const TODAY_SPLIT = () => {
     const today = new Date().toISOString().slice(0, 10);

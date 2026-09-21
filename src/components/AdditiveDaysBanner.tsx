@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
- * Additive Days IV Edition partner banner.
+ * Additive Days V Edition (2027) partner banner.
  *
  * Ported from the Additive Days design-system banner (1920×160, 12:1). The
  * desktop layout reproduces it 1:1 — positions are percentages of the design
@@ -113,8 +113,8 @@ const AdditiveDaysBanner = () => {
 
     const label =
         language === "bg"
-            ? "Additive Days IV издание, 10.09.2026, София Тех Парк — отворете additivedays.com в нов раздел"
-            : "Additive Days IV Edition, 10.09.2026, Sofia Tech Park — open additivedays.com in a new tab";
+            ? "Additive Days V издание, 2027 — датите и мястото предстоят"
+            : "Additive Days V Edition, 2027 — dates and venue to be announced";
 
     return (
         <div className="w-full h-full">
@@ -162,7 +162,7 @@ const AdditiveDaysBanner = () => {
                             fontWeight: 500,
                         }}
                     >
-                        <span style={{ fontWeight: 600 }}>IV edition</span>
+                        <span style={{ fontWeight: 600 }}>V edition</span>
                         <Dot size={t(6.35)} />
                         <span>additivedays.com</span>
                         <Dot size={t(6.35)} />
@@ -188,7 +188,7 @@ const AdditiveDaysBanner = () => {
                             lineHeight: 0.85,
                         }}
                     >
-                        10.09.2026
+                        2027
                     </div>
 
                     {/* Venue */}
@@ -203,13 +203,13 @@ const AdditiveDaysBanner = () => {
                                 lineHeight: 1.15,
                             }}
                         >
-                            Sofia Tech Park
+                            {language === "bg" ? "Очаквайте" : "Coming soon"}
                         </div>
                         <div
                             className="whitespace-nowrap"
-                            style={{ fontSize: t(18), letterSpacing: t(-0.18), lineHeight: 1.3 }}
+                            style={{ fontSize: t(14), letterSpacing: t(-0.14), lineHeight: 1.3 }}
                         >
-                            John Atanasoff Forum, Sofia
+                            {language === "bg" ? "Датите и мястото предстоят" : "Dates & venue to be announced"}
                         </div>
                     </div>
 
@@ -227,7 +227,7 @@ const AdditiveDaysBanner = () => {
                             lineHeight: 1.2,
                         }}
                     >
-                        Free entry · registration is mandatory
+                        V edition · early bird list is open
                     </div>
                     <div
                         className="absolute flex items-center whitespace-nowrap"
@@ -264,7 +264,7 @@ const AdditiveDaysBanner = () => {
                                 letterSpacing: t(-0.68),
                             }}
                         >
-                            Register now!
+                            Join early bird
                         </span>
                         <span
                             aria-hidden="true"
@@ -293,7 +293,7 @@ const AdditiveDaysBanner = () => {
                                     lineHeight: 1,
                                 }}
                             >
-                                10.09.2026
+                                2027
                             </span>
                             <span
                                 style={{
@@ -303,12 +303,12 @@ const AdditiveDaysBanner = () => {
                                     lineHeight: 1,
                                 }}
                             >
-                                Sofia Tech Park
+                                {language === "bg" ? "Очаквайте" : "Coming soon"}
                             </span>
                         </div>
 
                         <div className="text-[11px] leading-snug text-white/85">
-                            John Atanasoff Forum, Sofia
+                            {language === "bg" ? "Датите и мястото предстоят" : "Dates & venue to be announced"}
                         </div>
                     </div>
 
@@ -320,13 +320,13 @@ const AdditiveDaysBanner = () => {
                             className="text-[10px] uppercase leading-tight"
                             style={{ fontFamily: OSWALD, fontWeight: 600, color: "#FAFAFA" }}
                         >
-                            Free entry · registration is mandatory
+                            V edition · early bird list is open
                         </span>
                         <span
                             className="flex-shrink-0 whitespace-nowrap text-[11px] uppercase text-white"
                             style={{ fontFamily: OSWALD, fontWeight: 700 }}
                         >
-                            Register now! →
+                            Join early bird →
                         </span>
                     </div>
                 </div>
