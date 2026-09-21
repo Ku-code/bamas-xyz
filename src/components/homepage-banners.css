@@ -1,0 +1,35 @@
+.homepage-banners { position: relative; z-index: 41; width: 100%; }
+.homepage-banner { width: 100%; }
+.homepage-banner-inner { max-width: 1200px; min-height: 340px; margin: 0 auto; padding: 36px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 48px; align-items: center; }
+.homepage-banner-copy { min-width: 0; min-height: 280px; display: flex; flex-direction: column; align-items: flex-start; }
+.homepage-banner-date { font-size: 16px; font-weight: 600; line-height: 1.4; margin: 0 0 12px; }
+.homepage-banner-copy h2 { font-size: clamp(32px, 3.6vw, 48px); line-height: 1.08; font-weight: 800; letter-spacing: -.025em; max-width: 18ch; margin: 0; text-wrap: balance; overflow-wrap: anywhere; }
+.homepage-banner-description { max-width: 55ch; font-size: 17px; line-height: 1.5; margin: 16px 0 24px; }
+.homepage-banner-cta { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 48px; padding: 10px 20px; border: 2px solid currentColor; border-radius: 6px; font-size: 15px; line-height: 1.4; font-weight: 700; }
+.homepage-banner-cta:hover { text-decoration: underline; text-underline-offset: 4px; }
+.homepage-banner-cta { margin-top: auto; }
+.homepage-banner-copy h2 { color: inherit; }
+.homepage-banner-cta:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+.homepage-banner-art { display: flex; flex-direction: column; align-items: center; gap: 14px; font-size: 18px; font-weight: 700; }
+.homepage-banner-emblem { width: 200px; height: 200px; border: 2px solid currentColor; border-radius: 24%; display: grid; place-items: center; }
+.homepage-banner-emblem svg { width: 120px; height: 120px; }
+.homepage-banner-controls { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 4px 16px; background: hsl(var(--background)); color: hsl(var(--foreground)); border-bottom: 1px solid hsl(var(--foreground) / .15); }
+.homepage-banner-controls button { min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 5px; }
+.homepage-banner-controls button:hover { background: hsl(var(--foreground) / .08); }
+.homepage-banner-controls button:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
+.homepage-banner-dots { display: flex; }
+.homepage-banner-dots span { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 50%; }
+.homepage-banner-dots [aria-current="true"] span { width: 24px; border-radius: 4px; background: currentColor; }
+@media (max-width: 767px) {
+  .homepage-banner-inner { min-height: 380px; padding: 28px 24px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .homepage-banner-art { display: none; }
+  .homepage-banner-copy { min-height: 324px; }
+  .homepage-banner-copy h2 { font-size: clamp(32px, 6vw, 42px); max-width: 20ch; }
+  .homepage-banner-description { font-size: 16px; }
+  .homepage-banner-controls { gap: 0; padding-inline: 4px; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .homepage-banner-inner { padding: 32px; grid-template-columns: minmax(0, 1fr) 170px; gap: 28px; }
+  .homepage-banner-emblem { width: 150px; height: 150px; }
+  .homepage-banner-emblem svg { width: 92px; height: 92px; }
+}

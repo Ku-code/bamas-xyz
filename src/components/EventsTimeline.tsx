@@ -93,11 +93,10 @@ const EVENTS: BamasEvent[] = [
         title: { bg: "Additive Days — V издание", en: "Additive Days — V Edition" },
         place: { bg: "Мястото предстои", en: "Venue TBA" },
         desc: {
-            bg: "Петото издание предстои през 2027 г.; ранният списък за интерес е отворен.",
-            en: "The fifth edition is coming in 2027; the early-interest list is open.",
+            bg: "Петото издание предстои през 2027 г. Очаквайте потвърдени дати и място.",
+            en: "The fifth edition is coming in 2027. Confirmed dates and venue will follow.",
         },
         url: "https://additivedays.com/",
-        badge: { bg: "Ранен списък", en: "Early bird" },
         organizer: "B2N",
     },
     {
