@@ -192,7 +192,7 @@ const Navbar = () => {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden lg:flex items-center space-x-6">
           <ul className="flex space-x-6">
             {navLinks.map((link) => (
               <li key={link.href}>
@@ -278,7 +278,7 @@ const Navbar = () => {
         </nav>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-2">
+        <div className="lg:hidden flex items-center gap-2">
           <LanguageSwitcher />
           {isAuthenticated ? (
             <DropdownMenu>
@@ -346,7 +346,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
               onClick={closeMenu}
               aria-hidden="true"
             />
@@ -356,7 +356,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="md:hidden fixed right-0 top-0 bottom-0 w-full max-w-sm bg-background shadow-2xl border-l border-border z-50 overflow-y-auto overscroll-contain"
+              className="lg:hidden fixed right-0 top-0 bottom-0 w-full max-w-sm bg-background shadow-2xl border-l border-border z-50 overflow-y-auto overscroll-contain"
               style={{
                 height: '100vh',
                 paddingTop: isScrolled ? '64px' : '80px'
