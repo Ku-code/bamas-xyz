@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Newspaper } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface NewsItem {
     url: string;
@@ -41,13 +42,60 @@ const formatDate = (iso: string | undefined, lang: string) => {
     }
 };
 
-const MarqueeRow = ({ items, language, duration, paused }: { items: NewsItem[]; language: string; duration: number; paused: boolean }) => (
-    <div className="relative flex-grow overflow-hidden whitespace-nowrap group h-full flex items-center min-h-[1.75rem]">
+const MarqueeRow = ({ items, language, duration, paused }: { items: NewsItem[]; language: string; duration: number; paused: boolean }) => {
+    const mobile = useIsMobile();
+    const rail = useRef<HTMLDivElement>(null);
+    const resumeAt = useRef(0);
+    const touching = useRef(false);
+
+    useEffect(() => {
+        if (!mobile || !rail.current) return;
+        const el = rail.current;
+        const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let frame = 0;
+        let previous = 0;
+        let position = el.scrollLeft;
+        const tick = (now: number) => {
+            const elapsed = previous ? Math.min(now - previous, 50) : 0;
+            previous = now;
+            if (!document.hidden && !motion.matches && !touching.current && now >= resumeAt.current) {
+                const loopWidth = el.scrollWidth / 2;
+                // This is a continuous news ticker, not a timed slide transition.
+                // Mobile takes 1.45x as long per loop; desktop CSS is untouched.
+                position = (position + loopWidth * elapsed / (duration * 1.45 * 1000)) % Math.max(1, loopWidth);
+                el.scrollLeft = position;
+            } else {
+                position = el.scrollLeft;
+            }
+            frame = requestAnimationFrame(tick);
+        };
+        const restart = () => { previous = 0; resumeAt.current = performance.now() + 1500; };
+        document.addEventListener("visibilitychange", restart);
+        motion.addEventListener("change", restart);
+        frame = requestAnimationFrame(tick);
+        return () => {
+            cancelAnimationFrame(frame);
+            document.removeEventListener("visibilitychange", restart);
+            motion.removeEventListener("change", restart);
+        };
+    }, [mobile, duration, items, language]);
+
+    return (
+    <div ref={rail} className={`relative flex-grow whitespace-nowrap group h-full flex items-center min-h-[1.75rem] ${mobile ? "overflow-x-auto [scrollbar-width:none]" : "overflow-hidden"}`}
+        onPointerDown={() => { touching.current = true; }}
+        onPointerUp={() => { touching.current = false; resumeAt.current = performance.now() + 1500; }}
+        onPointerCancel={() => { touching.current = false; resumeAt.current = performance.now() + 1500; }}
+        onTouchEnd={() => { touching.current = false; resumeAt.current = performance.now() + 1500; }}
+        onWheel={() => { resumeAt.current = performance.now() + 1500; }}
+        onFocusCapture={() => { touching.current = true; }}
+        onBlurCapture={() => { touching.current = false; resumeAt.current = performance.now() + 1500; }}>
         <div
             className="flex items-center w-max marquee-track"
             style={{
                 animationDuration: `${duration}s`,
                 animationPlayState: paused ? "paused" : "running",
+                animationName: mobile ? "none" : undefined,
+                flexShrink: mobile ? 0 : undefined,
             }}
         >
             {[1, 2].map((setIndex) => (
@@ -87,7 +135,8 @@ const MarqueeRow = ({ items, language, duration, paused }: { items: NewsItem[]; 
             ))}
         </div>
     </div>
-);
+    );
+};
 
 const NewsBanner = () => {
     const [news, setNews] = useState<NewsItem[]>([]);
