@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -119,7 +119,7 @@ const Register = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <GoogleAuthButton mode="signup" disabled={isLoading} />
+              <SocialAuthButtons mode="signup" disabled={isLoading} />
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">

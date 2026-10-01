@@ -87,7 +87,31 @@ const EVENTS: BamasEvent[] = [
         },
     },
     {
-        key: "additive-days",
+        key: "additive-days-2026",
+        start: "2026-09-10",
+        date: { bg: "10 септември 2026", en: "10 September 2026" },
+        title: { bg: "Additive Days 2026", en: "Additive Days 2026" },
+        place: { bg: "София Тех Парк, София", en: "Sofia Tech Park, Sofia" },
+        desc: {
+            bg: "Конференция · Експо · Уъркшопи — със специална зона на БАЗАП.",
+            en: "Conference · Expo · Workshops — with a BAMAS special zone.",
+        },
+        url: "https://additivedays.com/",
+        organizer: "B2N",
+    },
+    {
+        key: "board-september",
+        start: "2026-09-25",
+        date: { bg: "Септември 2026", en: "September 2026" },
+        title: { bg: "Общо събрание", en: "Board Assembly" },
+        place: { bg: "Онлайн", en: "Online" },
+        desc: {
+            bg: "Преглед на стратегическите цели с всички членове — онлайн формат.",
+            en: "Review of strategic goals with all members — held online.",
+        },
+    },
+    {
+        key: "additive-days-2027",
         start: "2027",
         date: { bg: "2027 · датата предстои", en: "2027 · date TBA" },
         title: { bg: "Additive Days — V издание", en: "Additive Days — V Edition" },

@@ -8,6 +8,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 export type UserRole = 'superadmin' | 'admin' | 'member' | 'board_member' | 'wg_lead';
 export type MemberStatus = 'pending' | 'approved' | 'rejected' | 'suspended';
 export type BillingStatus = 'paid' | 'pending' | 'overdue' | 'exempt';
+export type OAuthProvider = 'google' | 'linkedin_oidc' | 'github';
 
 export interface BillingInfo {
   status: BillingStatus;
@@ -23,7 +24,7 @@ export interface User {
   name: string;
   email: string;
   image?: string;
-  provider?: 'google' | 'email';
+  provider?: OAuthProvider | 'email';
   bio?: string;
   hashtags?: string[];
   location?: string;
@@ -56,8 +57,8 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, name: string) => Promise<void>;
   signInWithGoogle: (idToken: string) => Promise<void>;
-  /** Starts Supabase's Google OAuth redirect. Navigates away on success. */
-  signInWithGoogleRedirect: (returnTo?: string) => Promise<void>;
+  /** Starts a Supabase social OAuth redirect. Navigates away on success. */
+  signInWithOAuth: (provider: OAuthProvider, returnTo?: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   /** Re-reads the profile row for the current session (used by retry UI). */
   refreshProfile: () => Promise<void>;
@@ -93,7 +94,7 @@ function mapDbUserToUser(dbUser: Record<string, unknown>): User {
     name: dbUser.name as string,
     email: email,
     image: (dbUser.image as string) || undefined,
-    provider: (dbUser.provider as 'google' | 'email') || undefined,
+    provider: (dbUser.provider as User['provider']) || undefined,
     bio: (dbUser.bio as string) || undefined,
     hashtags: (dbUser.hashtags as string[]) || undefined,
     location: (dbUser.location as string) || undefined,
@@ -130,7 +131,7 @@ function getFallbackUser(authUser: SupabaseUser, degraded: boolean): User {
     status: isHardcoded ? 'approved' : degraded ? undefined : 'pending',
     profileIncomplete: degraded && !isHardcoded,
     createdAt: authUser.created_at,
-    provider: (authUser.app_metadata?.provider as 'google' | 'email') || 'email',
+    provider: (authUser.app_metadata?.provider as User['provider']) || 'email',
     image: (meta.avatar_url as string) || (meta.picture as string) || undefined,
   };
 }
@@ -406,7 +407,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signInWithGoogleRedirect = async (returnTo?: string) => {
+  const signInWithOAuth = async (provider: OAuthProvider, returnTo?: string) => {
     if (!isSupabaseConfigured()) {
       throw new Error(
         'Authentication is not configured on this deployment. Please contact info@bamas.xyz.'
@@ -422,18 +423,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        // Always let the user pick an account instead of silently reusing one.
-        queryParams: { prompt: 'select_account' },
+        // Google otherwise silently reuses the last account. LinkedIn and
+        // GitHub do not support this Google-specific parameter.
+        ...(provider === 'google' ? { queryParams: { prompt: 'select_account' } } : {}),
       },
     });
 
     if (error) {
       if (/not enabled|unsupported provider/i.test(error.message)) {
         throw new Error(
-          'Google sign-in is not enabled for this project yet. Use email and password for now.'
+          'This social sign-in provider is not enabled yet. Use email and password for now.'
         );
       }
       throw error;
@@ -478,7 +480,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         signInWithEmail,
         signUpWithEmail,
         signInWithGoogle,
-        signInWithGoogleRedirect,
+        signInWithOAuth,
         resetPassword,
         refreshProfile,
       }}

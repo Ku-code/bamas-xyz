@@ -10,7 +10,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 const CALLBACK_TIMEOUT_MS = 20000;
 
 /**
- * Landing page for the Google OAuth redirect.
+ * Landing page for Google, LinkedIn, and GitHub OAuth redirects.
  *
  * The Supabase client is configured with `detectSessionInUrl`, so it consumes
  * the token from the URL on load and emits SIGNED_IN; all this page does is
@@ -28,8 +28,8 @@ const AuthCallback = () => {
     noindex: true,
   });
 
-  // Google reports denial/misconfiguration in the query string (PKCE) or the
-  // hash fragment (implicit), so check both.
+  // Providers report denial/misconfiguration in the query string (PKCE) or
+  // the hash fragment (implicit), so check both.
   const providerError = useMemo(() => {
     const query = new URLSearchParams(window.location.search);
     const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -76,8 +76,8 @@ const AuthCallback = () => {
           <p className="text-muted-foreground">
             {isTimeout
               ? language === "bg"
-                ? "Google не върна сесия навреме. Моля, опитайте отново."
-                : "Google didn't return a session in time. Please try again."
+                ? "Доставчикът не върна сесия навреме. Моля, опитайте отново."
+                : "The provider didn't return a session in time. Please try again."
               : failure}
           </p>
           <div className="flex gap-2 justify-center">

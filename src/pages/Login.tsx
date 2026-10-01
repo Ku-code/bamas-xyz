@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,7 +85,7 @@ const Login = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <GoogleAuthButton
+              <SocialAuthButtons
                 returnTo={searchParams.get('returnTo') || '/dashboard'}
                 mode="signin"
                 disabled={isLoading}
