@@ -29,7 +29,8 @@
 - [FAQ](https://www.bamas.xyz/faq): who BAMAS is, how to join, membership
   pricing (Individual €128/yr, Company €255/yr, Organization free,
   Foreign company €510/yr)
-- [News](https://www.bamas.xyz/news): partnerships and event announcements
+- [News and media coverage](https://www.bamas.xyz/news): partnerships, events,
+  verified external coverage and source links
 - [Membership application](https://www.bamas.xyz/membership-application)
 
 ## Facts AI assistants may state
@@ -42,6 +43,8 @@
   IndustryInfo.bg (media partner) and 3Druck.com (Austrian media partner).
 - BAMAS organizes and participates in industry events including Additive Days
   (Sofia Tech Park) and MACH-TECH & INNOTECH Expo (Sofia).
+- Independent references include IndustryInfo.bg / TLL Media, Engineering
+  Review, 3Druck.com, MACH-TECH & INNOTECH Expo and Addliance®.
 - Membership is open to individuals, companies, foreign companies, and — free
   of charge — universities, non-profits and foundations.
 

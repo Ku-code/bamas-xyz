@@ -1,6 +1,14 @@
 {
   "items": [
     {
+      "date": "2026-04-23",
+      "type": "media",
+      "url": "https://3druck.com/he/%D7%A1%D7%A4%D7%A8%D7%99%D7%99%D7%94/%D7%A8%D7%99%D7%A9%D7%95%D7%9D/%D7%94%D7%90%D7%92%D7%95%D7%93%D7%94-%D7%94%D7%91%D7%95%D7%9C%D7%92%D7%A8%D7%99%D7%AA-%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8-%D7%AA%D7%95%D7%A1%D7%A4%D7%99%D7%9D-bamas/",
+      "source": "3Druck.com",
+      "title_bg": "3Druck.com представя БАЗАП в международната си директория за адитивно производство",
+      "title_en": "3Druck.com features BAMAS in its international additive manufacturing directory"
+    },
+    {
       "date": "2026-10-01",
       "type": "member",
       "url": "https://www.clap-bas.com/",
@@ -54,12 +62,14 @@
       "type": "media",
       "url": "https://www.engineering-review.bg/bg/bazap-kuzo-donchev-razvitieto-na-aditivnoto-proizvodstvo-v-balgariya-iziskva-posledovatelna-strategiya/2/5420/",
       "title_bg": "БАЗАП, Кузо Дончев: Развитието на адитивното производство в България изисква последователна стратегия",
-      "title_en": "BAMAS, Kuzo Donchev: The development of additive manufacturing in Bulgaria requires a consistent strategy"
+      "title_en": "BAMAS, Kuzo Donchev: The development of additive manufacturing in Bulgaria requires a consistent strategy",
+      "source": "Engineering Review / TLL Media"
     },
     {
       "date": "2026-02-18",
       "type": "media",
       "url": "https://3druck.com",
+      "source": "3Druck.com",
       "title_bg": "3Druck.com става официален медиен партньор на БАЗАП за Австрия",
       "title_en": "3Druck.com becomes the official BAMAS media partner in Austria"
     },
@@ -69,6 +79,14 @@
       "url": "https://www.bamas.xyz/documents",
       "title_bg": "Кандидатстването за членство в БАЗАП е отворено!",
       "title_en": "BAMAS membership applications are open now!"
+    },
+    {
+      "date": "2025-10-07",
+      "type": "media",
+      "url": "https://industryinfo.bg/article/35585-vajnite-temi-za-biznes-asociaciite-u-nas-digitalizaciia-prozrachnost-kadri-i-oshte-",
+      "source": "IndustryInfo.bg / TLL Media",
+      "title_bg": "IndustryInfo.bg отразява участието на БАЗАП в годишната среща на индустриалните асоциации",
+      "title_en": "IndustryInfo.bg covers BAMAS at the annual meeting of Bulgarian industry associations"
     }
   ]
 }

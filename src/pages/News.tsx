@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,6 +11,7 @@ interface NewsEntry {
     url: string;
     title_bg: string;
     title_en: string;
+    source?: string;
 }
 
 const TYPE_STYLES: Record<string, { label_bg: string; label_en: string; cls: string }> = {
@@ -36,6 +37,7 @@ const News = () => {
         description: language === "bg"
             ? "Партньорства, събития и съобщения от БАЗАП и българската екосистема за адитивно производство и 3D печат."
             : "Partnerships, events and announcements from BAMAS and the Bulgarian additive manufacturing ecosystem.",
+        schemaType: "CollectionPage",
     });
 
     useEffect(() => {
@@ -59,6 +61,20 @@ const News = () => {
         return acc;
     }, {});
     const orderedKeys = Object.keys(groups).sort().reverse();
+
+    const jsonLd = useMemo(() => ({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: language === "bg" ? "Новини и медийни публикации за БАЗАП" : "BAMAS news and media coverage",
+        itemListOrder: "https://schema.org/ItemListOrderDescending",
+        numberOfItems: items.length,
+        itemListElement: items.map((item, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: item.url,
+            name: language === "bg" ? item.title_bg : item.title_en,
+        })),
+    }), [items, language]);
 
     const monthLabel = (ym: string) =>
         new Date(ym + "-01T00:00:00").toLocaleDateString(language === "bg" ? "bg-BG" : "en-GB", {
@@ -109,6 +125,7 @@ const News = () => {
                                                 </span>
                                                 <time dateTime={it.date} className="mt-1 block text-xs text-muted-foreground">
                                                     {fmt(it.date)}
+                                                    {it.source ? ` · ${it.source}` : ""}
                                                 </time>
                                             </span>
                                             <ExternalLink className="mt-1 h-4 w-4 flex-shrink-0 text-primary/50 transition-all group-hover:text-primary" aria-hidden="true" />
@@ -119,6 +136,9 @@ const News = () => {
                         </ol>
                     </section>
                 ))}
+                {items.length > 0 && (
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+                )}
             </main>
             <FooterSection currentLanguage={language as "en" | "bg"} />
         </div>

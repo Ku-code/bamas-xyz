@@ -9,6 +9,8 @@ interface DocumentMeta {
   canonical?: string;
   /** Set true on routes that must not be indexed (auth, dashboard, 404). */
   noindex?: boolean;
+  /** Schema.org page type. Public routes default to WebPage. */
+  schemaType?: "WebPage" | "AboutPage" | "CollectionPage" | "ContactPage";
 }
 
 const SITE_ORIGIN = "https://www.bamas.xyz";
@@ -21,7 +23,7 @@ const SITE_ORIGIN = "https://www.bamas.xyz";
  * sync with the active route, and restores the homepage defaults on unmount
  * so navigating back never leaves stale metadata behind.
  */
-export function useDocumentMeta({ title, description, canonical, noindex }: DocumentMeta) {
+export function useDocumentMeta({ title, description, canonical, noindex, schemaType = "WebPage" }: DocumentMeta) {
   useEffect(() => {
     const prevTitle = document.title;
     document.title = title;
@@ -56,6 +58,52 @@ export function useDocumentMeta({ title, description, canonical, noindex }: Docu
     const prevCanonical = link.href;
     link.href = canonical ?? `${SITE_ORIGIN}${window.location.pathname}`;
 
+    const pageUrl = link.href;
+
+    // Keep social previews aligned with the route metadata rather than the
+    // homepage defaults from index.html.
+    const socialTags: Array<[string, string, string]> = [
+      ["property", "og:title", title],
+      ["property", "og:description", description ?? ""],
+      ["property", "og:url", pageUrl],
+      ["name", "twitter:title", title],
+      ["name", "twitter:description", description ?? ""],
+    ];
+    const previousSocial = socialTags.map(([attribute, key, value]) => {
+      if (!value) return null;
+      const selector = `meta[${attribute}="${key}"]`;
+      const tag = ensureTag(selector, () => {
+        const m = document.createElement("meta");
+        m.setAttribute(attribute, key);
+        return m;
+      }) as HTMLMetaElement;
+      const previous = tag.content;
+      tag.content = value;
+      return { selector, previous };
+    });
+
+    // A compact page entity gives search engines and AI retrieval systems a
+    // stable relationship between each route, the site, and the association.
+    let routeSchema: HTMLScriptElement | null = null;
+    if (!noindex) {
+      routeSchema = document.createElement("script");
+      routeSchema.type = "application/ld+json";
+      routeSchema.id = "bamas-route-schema";
+      routeSchema.text = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": schemaType,
+        "@id": `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: title,
+        description,
+        isPartOf: { "@id": `${SITE_ORIGIN}/#website` },
+        about: { "@id": `${SITE_ORIGIN}/#organization` },
+        inLanguage: document.documentElement.lang || "bg",
+      });
+      document.getElementById(routeSchema.id)?.remove();
+      document.head.appendChild(routeSchema);
+    }
+
     // Robots
     let robots = document.head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
     const hadRobots = !!robots;
@@ -79,11 +127,17 @@ export function useDocumentMeta({ title, description, canonical, noindex }: Docu
         if (meta) meta.content = prevDescription;
       }
       link.href = prevCanonical;
+      routeSchema?.remove();
+      previousSocial.forEach((entry) => {
+        if (!entry) return;
+        const tag = document.head.querySelector(entry.selector) as HTMLMetaElement | null;
+        if (tag) tag.content = entry.previous;
+      });
       const currentRobots = document.head.querySelector('meta[name="robots"]') as HTMLMetaElement | null;
       if (noindex && currentRobots) {
         if (hadRobots) currentRobots.content = prevRobots;
         else currentRobots.remove();
       }
     };
-  }, [title, description, canonical, noindex]);
+  }, [title, description, canonical, noindex, schemaType]);
 }

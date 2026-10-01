@@ -75,6 +75,7 @@ const OfficialDocuments = () => {
     description: language === 'bg'
       ? 'Устав, регистърна информация и информационен пакет за членство на БАЗАП.'
       : 'Articles of Association, registry information and membership information package of BAMAS.',
+    schemaType: "CollectionPage",
   });
   const navigate = useNavigate();
   const [selectedDoc, setSelectedDoc] = useState<OfficialDocument | null>(null);

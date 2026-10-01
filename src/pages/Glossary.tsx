@@ -52,6 +52,7 @@ const Glossary = () => {
         description: bg
             ? "Двуезичен терминологичен речник за адитивно производство и 3D печат — материали, процеси, оборудване и стандарти, поддържан от БАЗАП."
             : "Bilingual additive manufacturing and 3D printing terminology dictionary — materials, processes, equipment and standards, maintained by BAMAS.",
+        schemaType: "CollectionPage",
     });
 
     useEffect(() => {

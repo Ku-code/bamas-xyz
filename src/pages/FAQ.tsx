@@ -98,6 +98,7 @@ const FAQ = () => {
         description: language === "bg"
             ? "Какво е БАЗАП, какво е адитивно производство, колко струва членството и как да кандидатствате — отговори на най-честите въпроси."
             : "What BAMAS is, what additive manufacturing is, membership pricing and how to apply — answers to the most common questions.",
+        schemaType: "CollectionPage",
     });
 
     const jsonLd = {
