@@ -1,17 +1,18 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowRight, CalendarDays, MapPin, Ticket } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, Play, Ticket } from "lucide-react";
 
 type Bi = { bg: string; en: string };
 
 interface Talk {
   name: string;
-  image: string;
+  image?: string;
   date: string;
   day: string;
   time: string;
   title: string;
   role: Bi;
   summary: Bi;
+  videos?: { href: string; label: Bi }[];
 }
 
 const talks: Talk[] = [
@@ -74,11 +75,36 @@ const talks: Talk[] = [
     },
   },
   {
+    name: "Petya Galinova",
+    date: "2026-10-09",
+    day: "9",
+    time: "15:45–16:00",
+    title: "3D Printing of Houses / 3D принтиране на къщи",
+    role: {
+      bg: "Специален гост · PERI Construction Bulgaria",
+      en: "Special guest · PERI Construction Bulgaria",
+    },
+    summary: {
+      bg: "Кратко въведение в строителното 3D принтиране и практическото му приложение при изграждането на къщи.",
+      en: "A short introduction to construction 3D printing and its practical application in building houses.",
+    },
+    videos: [
+      {
+        href: "https://youtu.be/BSDwU8MWFXA?si=2_FlQ3n0S82FeLQ2",
+        label: { bg: "Видео 1", en: "Video 1" },
+      },
+      {
+        href: "https://youtu.be/LRaANFFrhP4?si=LE0JqdeU44aKBHDc",
+        label: { bg: "Видео 2", en: "Video 2" },
+      },
+    ],
+  },
+  {
     name: "Kuzo Donchev",
     image: "/speakers/machtech-2026/kuzo-donchev.webp",
     date: "2026-10-09",
     day: "9",
-    time: "15:45–16:15",
+    time: "16:00–16:15",
     title: "AI Automation and Digital Fabrication",
     role: {
       bg: "Председател на БАЗАП · Основател и CEO, 3D OPEN DESIGN",
@@ -125,8 +151,8 @@ export default function MachTechProgramme() {
             <h2 id="machtech-programme-title" className="mt-4 text-3xl font-black leading-tight text-foreground md:text-5xl">MachTech &amp; InnoTech Expo 2026</h2>
             <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
               {bg
-                ? "Пълната потвърдена програма на БАЗАП: пет презентации за адитивното производство, индустриалния дизайн, роботиката, AI и дигиталната фабрикация."
-                : "The complete confirmed BAMAS programme: five presentations spanning additive manufacturing, industrial design, robotics, AI and digital fabrication."}
+                ? "Пълната програма на БАЗАП: пет презентации и специално гост-участие за адитивното производство, индустриалния дизайн, роботиката, строителното 3D принтиране, AI и дигиталната фабрикация."
+                : "The complete BAMAS programme: five presentations and a special guest introduction spanning additive manufacturing, industrial design, robotics, construction 3D printing, AI and digital fabrication."}
             </p>
           </div>
           <div className="flex flex-wrap gap-3 lg:justify-end">
@@ -143,7 +169,13 @@ export default function MachTechProgramme() {
           {talks.map((talk) => (
             <article key={`${talk.date}-${talk.time}`} className="group overflow-hidden rounded-2xl border border-primary/15 bg-background shadow-sm transition-all hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg">
               <div className="grid min-h-full grid-cols-[112px_1fr] sm:grid-cols-[150px_1fr]">
-                <img src={talk.image} alt={talk.name} width={800} height={1000} loading="lazy" className="h-full min-h-56 w-full object-cover object-top" />
+                {talk.image ? (
+                  <img src={talk.image} alt={talk.name} width={800} height={1000} loading="lazy" className="h-full min-h-56 w-full object-cover object-top" />
+                ) : (
+                  <div className="flex min-h-56 items-center justify-center bg-primary/10 px-3 text-center" aria-hidden="true">
+                    <span className="text-3xl font-black tracking-tight text-primary">PERI</span>
+                  </div>
+                )}
                 <div className="flex min-w-0 flex-col p-5 sm:p-6">
                   <time dateTime={`${talk.date}T${talk.time.slice(0, 5)}:00+03:00`} className="text-xs font-black uppercase tracking-[0.14em] text-primary">
                     {talk.day} {bg ? "октомври" : "October"} · {talk.time}
@@ -152,6 +184,15 @@ export default function MachTechProgramme() {
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{talk.role[language]}</p>
                   <p className="mt-4 text-base font-bold leading-snug text-foreground">{talk.title}</p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{talk.summary[language]}</p>
+                  {talk.videos && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {talk.videos.map((video) => (
+                        <a key={video.href} href={video.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-primary hover:bg-primary/5">
+                          <Play className="h-3 w-3 fill-current" />{video.label[language]}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-auto pt-5 text-xs font-semibold text-primary">{bg ? "Семинарна зала · Зала 5" : "Seminar room · Hall 5"}</p>
                 </div>
               </div>
