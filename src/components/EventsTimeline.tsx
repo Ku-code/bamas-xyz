@@ -100,17 +100,6 @@ const EVENTS: BamasEvent[] = [
         organizer: "B2N",
     },
     {
-        key: "board-september",
-        start: "2026-09-25",
-        date: { bg: "Септември 2026 · очаквайте дата", en: "September 2026 · date TBA" },
-        title: { bg: "Общо събрание", en: "Board Assembly" },
-        place: { bg: "Онлайн", en: "Online" },
-        desc: {
-            bg: "Преглед на стратегическите цели с всички членове — онлайн формат.",
-            en: "Review of strategic goals with all members — held online.",
-        },
-    },
-    {
         key: "mach-tech",
         start: "2026-10-06",
         end: "2026-10-09",
@@ -118,11 +107,11 @@ const EVENTS: BamasEvent[] = [
         title: { bg: "MACH-TECH & INNOTECH Expo 2026", en: "MACH-TECH & INNOTECH Expo 2026" },
         place: { bg: "Интер Експо Център, София", en: "Inter Expo Center, Sofia" },
         desc: {
-            bg: "Щанд и кийноут сесия на БАЗАП на водещото индустриално изложение в България.",
-            en: "BAMAS booth and keynote session at Bulgaria's leading industrial expo.",
+            bg: "Щанд на БАЗАП в Зоната на браншовите организации и пет потвърдени презентации в семинарната зала на Зала 5.",
+            en: "BAMAS booth in the Industry Associations Zone and five confirmed presentations in the Hall 5 seminar room.",
         },
-        url: "https://machtech.bg/",
-        badge: { bg: "Кийноут на БАЗАП", en: "BAMAS keynote" },
+        url: "https://machtech.bg/ot-aditivnoto-proizvodstvo-do-ai-na-machtech/",
+        badge: { bg: "БАЗАП на MACH-TECH", en: "BAMAS at MACH-TECH" },
         schemaLocation: { name: "Inter Expo Center", locality: "Sofia", country: "BG" },
     },
     {

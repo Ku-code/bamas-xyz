@@ -9,12 +9,19 @@ interface Partner {
   name: string;
   url: string;
   hasWhiteBackground?: boolean;
-  subtext?: string;
+  subtext?: string | { bg: string; en: string };
   logoDark?: string;
 }
 
 // Partner logos with their website URLs
 const PARTNERS: Partner[] = [
+  {
+    logo: "/partnerlogos/clap-bas.jpg",
+    name: "Central Laboratory of Applied Physics – BAS",
+    url: "https://www.clap-bas.com/",
+    hasWhiteBackground: true,
+    subtext: { bg: "Нов член на БАЗАП", en: "New BAMAS Member" },
+  },
   {
     logo: "/partnerlogos/WAATERS-Logo.svg",
     name: "WAATERS",
@@ -254,7 +261,7 @@ const PartnerLogosCarousel = () => {
           </div>
           {partner.subtext && (
             <p className="text-xs font-black text-primary mt-3 text-center uppercase tracking-widest">
-              {partner.subtext}
+              {typeof partner.subtext === "string" ? partner.subtext : partner.subtext[language]}
             </p>
           )}
         </div>
@@ -272,7 +279,7 @@ const PartnerLogosCarousel = () => {
           />
           {partner.subtext && (
             <p className="text-xs font-black text-primary mt-4 text-center uppercase tracking-widest">
-              {partner.subtext}
+              {typeof partner.subtext === "string" ? partner.subtext : partner.subtext[language]}
             </p>
           )}
         </div>

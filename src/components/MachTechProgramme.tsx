@@ -1,75 +1,168 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ArrowRight, CalendarDays, MapPin, Ticket } from "lucide-react";
 
-const talks = [
+type Bi = { bg: string; en: string };
+
+interface Talk {
+  name: string;
+  image: string;
+  date: string;
+  day: string;
+  time: string;
+  title: string;
+  role: Bi;
+  summary: Bi;
+}
+
+const talks: Talk[] = [
   {
     name: "Kenan Boz",
     image: "/speakers/machtech-2026/kenan-boz.png",
     date: "2026-10-06",
     day: "6",
-    title: "A Global Outlook on Additive Manufacturing from Today to Tomorrow",
+    time: "12:00–12:30",
+    title: "A Global Outlook on Additive Manufacturing — from Today to Tomorrow",
     role: { bg: "Технически мениджър, EPMA", en: "Technical Manager, EPMA" },
-    location: { bg: "Семинарна зала в Зала 5", en: "Hall 5 seminar room" },
+    summary: {
+      bg: "Световни тенденции, нови технологии, метална адитивна фабрикация, мултиматериални процеси, устойчивост и стандартизация.",
+      en: "Global trends, emerging technologies, metal additive manufacturing, multi-material processes, sustainability and standardisation.",
+    },
   },
   {
     name: "Georgi Chervendinev",
     image: "/speakers/machtech-2026/georgi-chervendinev.png",
     date: "2026-10-08",
     day: "8",
-    title: "ARCTONIC - Endless Game of Design / Дизайнът като безкрайна игра",
+    time: "12:00–12:30",
+    title: "ARCTONIC — Endless Game of Design / Дизайнът като безкрайна игра",
     role: { bg: "Дизайнер, инженер и преподавател", en: "Designer, engineer and educator" },
+    summary: {
+      bg: "От дизайнерската концепция до реалната разработка чрез CAD, инженеринг, прототипиране и дигитално производство.",
+      en: "From design concept to physical development through CAD, engineering, prototyping and digital manufacturing.",
+    },
+  },
+  {
+    name: "Han-Zu Haller",
+    image: "/speakers/machtech-2026/han-zu-haller.webp",
+    date: "2026-10-09",
+    day: "9",
+    time: "12:00–12:30",
+    title: "Inert Printing in Open Atmosphere",
+    role: {
+      bg: "Chief Commercial Officer, LabAM24 Inc.",
+      en: "Chief Commercial Officer, LabAM24 Inc.",
+    },
+    summary: {
+      bg: "Нови възможности за металното адитивно производство чрез инертно принтиране в открита атмосфера.",
+      en: "New possibilities for metal additive manufacturing through inert printing in an open atmosphere.",
+    },
+  },
+  {
+    name: "Ivan Petkov",
+    image: "/speakers/machtech-2026/ivan-petkov.webp",
+    date: "2026-10-09",
+    day: "9",
+    time: "12:45–13:15",
+    title: "Automation in Action / Автоматизация в действие",
+    role: {
+      bg: "Мениджър продажби, отдел „Роботика“, Солтех ЕООД",
+      en: "Sales Manager, Robotics Department, Soltec Ltd.",
+    },
+    summary: {
+      bg: "Практически опит от реални производствени проекти — от идеята за автоматизация до избора на технология и работещо решение.",
+      en: "Practical lessons from real manufacturing projects — from the first automation idea to technology selection and a working solution.",
+    },
+  },
+  {
+    name: "Kuzo Donchev",
+    image: "/speakers/machtech-2026/kuzo-donchev.webp",
+    date: "2026-10-09",
+    day: "9",
+    time: "15:45–16:15",
+    title: "AI Automation and Digital Fabrication",
+    role: {
+      bg: "Председател на БАЗАП · Основател и CEO, 3D OPEN DESIGN",
+      en: "Chairman, BAMAS · Founder & CEO, 3D OPEN DESIGN",
+    },
+    summary: {
+      bg: "Как AI, автоматизацията и дигиталната фабрикация свързват идеята, CAD процеса, производственото решение и физическия продукт.",
+      en: "How AI, automation and digital fabrication connect the idea, CAD process, manufacturing decision and physical product.",
+    },
   },
 ];
+
+const eventPhase = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today < "2026-10-06") return "upcoming";
+  if (today <= "2026-10-09") return "live";
+  return "past";
+};
 
 export default function MachTechProgramme() {
   const { language } = useLanguage();
   const bg = language === "bg";
+  const phase = eventPhase();
+  const phaseLabel = phase === "live"
+    ? bg ? "Провежда се сега" : "Happening now"
+    : phase === "upcoming"
+      ? bg ? "Следващото събитие на БАЗАП" : "BAMAS next event"
+      : bg ? "Програма 2026" : "2026 programme";
 
   return (
-    <section id="machtech-programme" aria-labelledby="machtech-programme-title" className="scroll-mt-24 border-y border-primary/15 bg-background px-4 py-12 md:py-20">
-      <div className="mx-auto max-w-5xl">
-        <header className="mb-8 max-w-3xl">
-          <p className="mb-3 text-sm font-semibold text-primary">6–9 {bg ? "октомври" : "October"} 2026</p>
-          <h2 id="machtech-programme-title" className="text-3xl font-bold leading-tight text-foreground md:text-4xl">MachTech &amp; InnoTech Expo 2026</h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            {bg ? "Потвърдени презентации на гост-лекторите на БАЗАП" : "Confirmed presentations from BAMAS guest speakers"}
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">{bg ? "Всички часове са в местно време за София." : "All times are local to Sofia."}</p>
+    <section
+      id="machtech-programme"
+      aria-labelledby="machtech-programme-title"
+      className="scroll-mt-24 border-y border-primary/15 bg-[linear-gradient(180deg,hsl(var(--primary)/.08),transparent_26%)] px-4 py-14 md:py-24"
+    >
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-10 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="max-w-3xl">
+            <span className="inline-flex rounded-full bg-primary px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-primary-foreground">{phaseLabel}</span>
+            <p className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold text-primary">
+              <span className="inline-flex items-center gap-2"><CalendarDays className="h-4 w-4" />6–9 {bg ? "октомври" : "October"} 2026</span>
+              <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4" />{bg ? "Интер Експо Център · Зала 5" : "Inter Expo Center · Hall 5"}</span>
+            </p>
+            <h2 id="machtech-programme-title" className="mt-4 text-3xl font-black leading-tight text-foreground md:text-5xl">MachTech &amp; InnoTech Expo 2026</h2>
+            <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+              {bg
+                ? "Пълната потвърдена програма на БАЗАП: пет презентации за адитивното производство, индустриалния дизайн, роботиката, AI и дигиталната фабрикация."
+                : "The complete confirmed BAMAS programme: five presentations spanning additive manufacturing, industrial design, robotics, AI and digital fabrication."}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3 lg:justify-end">
+            <a href="https://machtech.bg/posetiteli/bileti/" target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">
+              <Ticket className="h-4 w-4" />{bg ? "Билети" : "Tickets"}<ArrowRight className="h-4 w-4" />
+            </a>
+            <a href="https://machtech.bg/ot-aditivnoto-proizvodstvo-do-ai-na-machtech/" target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-full border border-primary/25 bg-background px-5 text-sm font-bold text-foreground transition-colors hover:border-primary/60">
+              {bg ? "Официална програма" : "Official programme"}<ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         </header>
-        <div className="divide-y divide-primary/20 border-y border-primary/20">
+
+        <div className="grid gap-5 md:grid-cols-2">
           {talks.map((talk) => (
-            <article key={talk.date} className="grid gap-5 py-7 sm:grid-cols-[140px_1fr] md:grid-cols-[140px_160px_1fr] md:gap-8">
-              <div className="flex items-baseline gap-4 sm:block">
-                <time dateTime={`${talk.date}T12:00:00+03:00`} className="block text-xl font-semibold text-primary">
-                  {talk.day} {bg ? "октомври" : "October"}
-                </time>
-                <p className="mt-1 whitespace-nowrap text-base font-semibold text-foreground">12:00–12:30</p>
-              </div>
-              <img src={talk.image} alt={talk.name} width={160} height={200} loading="lazy" className="h-auto w-32 self-start rounded-lg object-contain sm:w-40" />
-              <div className="min-w-0 sm:col-start-2 md:col-start-auto">
-                <h3 className="text-xl font-bold text-foreground md:text-2xl">{talk.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{talk.role[language]}</p>
-                <p className="mt-4 max-w-2xl text-lg font-medium leading-relaxed text-foreground">{talk.title}</p>
-                {talk.location && <p className="mt-3 text-sm text-muted-foreground">{talk.location[language]}</p>}
-              </div>
-            </article>
-          ))}
-          {["12:00–12:30", "15:45–16:15"].map((slot) => (
-            <article key={slot} className="grid gap-3 py-6 sm:grid-cols-[140px_1fr] md:gap-8">
-              <div>
-                <p className="text-lg font-semibold text-muted-foreground">9 {bg ? "октомври" : "October"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{slot}</p>
-              </div>
-              <div className="border-l-2 border-dashed border-primary/30 pl-5">
-                <h3 className="text-lg font-semibold text-muted-foreground">{bg ? "Очаквайте скоро" : "To be announced"}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{bg ? "Запазен час. Лекторът и темата предстои да бъдат потвърдени." : "Reserved slot. Speaker and topic pending confirmation."}</p>
+            <article key={`${talk.date}-${talk.time}`} className="group overflow-hidden rounded-2xl border border-primary/15 bg-background shadow-sm transition-all hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg">
+              <div className="grid min-h-full grid-cols-[112px_1fr] sm:grid-cols-[150px_1fr]">
+                <img src={talk.image} alt={talk.name} width={800} height={1000} loading="lazy" className="h-full min-h-56 w-full object-cover object-top" />
+                <div className="flex min-w-0 flex-col p-5 sm:p-6">
+                  <time dateTime={`${talk.date}T${talk.time.slice(0, 5)}:00+03:00`} className="text-xs font-black uppercase tracking-[0.14em] text-primary">
+                    {talk.day} {bg ? "октомври" : "October"} · {talk.time}
+                  </time>
+                  <h3 className="mt-3 text-xl font-black text-foreground sm:text-2xl">{talk.name}</h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{talk.role[language]}</p>
+                  <p className="mt-4 text-base font-bold leading-snug text-foreground">{talk.title}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{talk.summary[language]}</p>
+                  <p className="mt-auto pt-5 text-xs font-semibold text-primary">{bg ? "Семинарна зала · Зала 5" : "Seminar room · Hall 5"}</p>
+                </div>
               </div>
             </article>
           ))}
         </div>
-        <p className="mt-6 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+
+        <p className="mt-7 text-sm leading-relaxed text-muted-foreground">
           {bg
-            ? "Програмата е частична. Останалите лектори и програмни елементи са в процес на потвърждение. Допълнителни подробности ще бъдат публикувани скоро."
-            : "This is a partial programme. Other speakers and programme items are pending confirmation. Additional details will follow."}
+            ? "Всички часове са местно време за София. Програмата и лекторите са потвърдени към 1 октомври 2026 г."
+            : "All times are local to Sofia. Programme and speakers confirmed as of 1 October 2026."}
         </p>
       </div>
     </section>

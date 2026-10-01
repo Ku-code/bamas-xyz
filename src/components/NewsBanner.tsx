@@ -24,6 +24,7 @@ const TWO_ROWS_CHAR_THRESHOLD = 250;
 
 /** Type tag palette — small badges so major news reads differently from routine items. */
 const TYPE_LABELS: Record<string, { bg: string; en: string }> = {
+    member: { bg: "Нов член", en: "New member" },
     partner: { bg: "Партньор", en: "Partner" },
     event: { bg: "Събитие", en: "Event" },
     media: { bg: "Медия", en: "Media" },
