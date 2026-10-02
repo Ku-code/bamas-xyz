@@ -75,7 +75,7 @@ const talks: Talk[] = [
     },
   },
   {
-    name: "Petya Galinova",
+    name: "Petia Galinova",
     image: "/speakers/machtech-2026/petya-galinova.webp",
     date: "2026-10-09",
     day: "9",
