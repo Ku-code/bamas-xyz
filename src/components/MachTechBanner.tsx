@@ -54,7 +54,7 @@ const MachTechBanner = () => {
 
                 <span className={card} style={{ width: "11.5cqw", height: "7cqw", padding: "0.5cqw 0.7cqw" }}>
                     <img
-                        src="/banners/bamas-logo-card.png"
+                        src="/banners/bamas-logo-card.webp"
                         alt="Bulgarian Additive Manufacturing Association"
                         className="block h-auto w-auto max-h-full max-w-full"
                         decoding="async"
@@ -63,7 +63,7 @@ const MachTechBanner = () => {
 
                 <span className={card} style={{ width: "11.5cqw", height: "7cqw" }}>
                     <img
-                        src="/banners/machtech-mark.png"
+                        src="/banners/machtech-mark.webp"
                         alt="Machtech mark"
                         className="block w-auto"
                         style={{ height: "5.6cqw" }}

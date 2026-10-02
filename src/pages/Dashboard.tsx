@@ -244,8 +244,8 @@ const Dashboard = () => {
   };
 
   const logoPath = language === 'bg'
-    ? '/bamas-uploads/BAMAS_Logo_bg.png'
-    : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+    ? '/bamas-uploads/BAMAS_Logo_bg.webp'
+    : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.webp';
 
   const userInitials = user?.name
     ?.split(" ")
@@ -379,4 +379,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

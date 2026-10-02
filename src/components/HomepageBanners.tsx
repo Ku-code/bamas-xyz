@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, ChevronLeft, ChevronRight, Drone, Factory, Layers3, Newspaper } from "lucide-react";
+import { Box, ChevronLeft, ChevronRight, Drone, Factory, Layers3, Newspaper, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import "./homepage-banners.css";
 
@@ -20,6 +20,10 @@ const banners = [
     bg: "#173B43", fg: "#FFFFFF", date: { bg: "11–14 октомври 2026", en: "11–14 October 2026" },
     description: { bg: "Конгрес и изложение за прахова металургия. Будапеща, Унгария.", en: "Powder metallurgy congress and exhibition. Budapest, Hungary." },
     href: "https://www.europm2026.com/", cta: { bg: "Научете повече", en: "Learn more" } },
+  { id: "formnext", title: "Formnext 2026", short: "Formnext", icon: Sparkles,
+    bg: "#00A8A9", fg: "#FFFFFF", date: { bg: "17–20 ноември 2026", en: "17–20 November 2026" },
+    description: { bg: "Водещото европейско изложение за адитивно производство във Франкфурт.", en: "Europe's leading additive manufacturing exhibition in Frankfurt." },
+    href: "https://formnext.mesago.com/frankfurt/en.html", cta: { bg: "Посетете Formnext", en: "Visit Formnext" } },
   { id: "additive", title: "Additive Days 2027", short: "Additive Days", icon: Box,
     bg: "#F4D328", fg: "#000000", date: { bg: "Пето издание", en: "Fifth edition" },
     description: { bg: "Датите и мястото предстои да бъдат обявени.", en: "Dates and venue to be announced." },

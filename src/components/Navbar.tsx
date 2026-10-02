@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X } from "./ui/icons";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,6 +15,7 @@ import {
 } from "./ui/dropdown-menu";
 import { LogOut, User, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import BrandLogo from "./BrandLogo";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -126,41 +127,6 @@ const Navbar = () => {
     .slice(0, 2) || "U";
 
   // Detect dark mode state
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark");
-    }
-    return true; // Default to dark mode
-  });
-
-  // Listen for dark mode changes
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains("dark"));
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const logoPath = useMemo(() => {
-    if (isDarkMode) {
-      // Dark mode: use white logos from /bamas-uploads
-      return language === 'bg'
-        ? '/bamas-uploads/BAMAS_Logo_bg.png'
-        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
-    } else {
-      // Light mode: use dark logos from /logos folder
-      return language === 'bg'
-        ? '/logos/BAMAS_LOGO_inkscape_file_6.PNG'
-        : '/logos/BAMAS_LOGO_inkscape_file_4 2.PNG';
-    }
-  }, [language, isDarkMode]);
-
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? "bg-background/90 shadow-md backdrop-blur-sm py-2 border-b border-border/40" : "bg-transparent py-4"
@@ -168,28 +134,8 @@ const Navbar = () => {
       style={{ minHeight: isScrolled ? '64px' : '80px' }}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <a href={onHomePage ? "#home" : "/"} className="flex items-center" aria-label="BAMAS — начало">
-          <div className="h-12 w-12">
-            <img
-              key={`${logoPath}-${isDarkMode}`}
-              src={logoPath}
-              alt={language === "bg" ? "БАЗАП Лого" : "BAMAS Logo"}
-              style={{ borderRadius: '1rem' }}
-              className="w-full h-full object-contain transition-opacity duration-300"
-              loading="eager"
-              fetchPriority="high"
-              onError={(e) => {
-                console.warn('Navbar logo failed to load:', e.currentTarget.src);
-                // Fallback to dark mode logos if light mode logos fail
-                if (!isDarkMode) {
-                  const fallbackPath = language === 'bg'
-                    ? '/bamas-uploads/BAMAS_Logo_bg.png'
-                    : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
-                  e.currentTarget.src = fallbackPath;
-                }
-              }}
-            />
-          </div>
+        <a href={onHomePage ? "#home" : "/"} className="flex items-center" aria-label={language === "bg" ? "БАЗАП — начало" : "BAMAS — home"}>
+          <BrandLogo language={language} className="max-w-[285px]" />
         </a>
 
         {/* Desktop Navigation */}

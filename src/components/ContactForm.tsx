@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +17,8 @@ const ContactForm = () => {
     const { language } = useLanguage();
     const { toast } = useToast();
     const [sending, setSending] = useState(false);
-    const [sent, setSent] = useState(false);
+    const navigate = useNavigate();
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const bg = language === "bg";
 
@@ -34,11 +36,9 @@ const ContactForm = () => {
 
         // Honeypot — bots fill it, humans never see it
         if (data.get("website_hp")) {
-            setSent(true);
             return;
         }
 
-        setSending(true);
         const record = {
             name: String(data.get("name") ?? "").trim(),
             email: String(data.get("email") ?? "").trim().toLowerCase(),
@@ -46,6 +46,13 @@ const ContactForm = () => {
             message: String(data.get("message") ?? "").trim(),
             language,
         };
+        const nextErrors: Record<string, string> = {};
+        if (record.name.length < 2) nextErrors.name = bg ? "Въведете име с поне 2 знака." : "Enter at least 2 characters.";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(record.email)) nextErrors.email = bg ? "Въведете валиден имейл адрес." : "Enter a valid email address.";
+        if (record.message.length < 10) nextErrors.message = bg ? "Съобщението трябва да е поне 10 знака." : "Message must be at least 10 characters.";
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length) return;
+        setSending(true);
         // Preferred path: edge function stores AND emails (confirmation to the
         // sender, notification to info@bamas.xyz). Fallback: direct insert.
         let failed = false;
@@ -75,7 +82,7 @@ const ContactForm = () => {
             return;
         }
         form.reset();
-        setSent(true);
+        navigate("/thank-you", { state: { name: record.name } });
         toast({
             title: bg ? "Съобщението е изпратено" : "Message sent",
             description: bg
@@ -83,22 +90,6 @@ const ContactForm = () => {
                 : "Thank you! We will get back to you as soon as possible.",
         });
     };
-
-    if (sent) {
-        return (
-            <div className="flex h-full flex-col items-center justify-center gap-3 py-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
-                    <Send className="h-5 w-5" />
-                </div>
-                <p className="font-semibold text-foreground">
-                    {bg ? "Съобщението е изпратено." : "Your message has been sent."}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                    {bg ? "Ще ви отговорим на посочения имейл." : "We will reply to the email you provided."}
-                </p>
-            </div>
-        );
-    }
 
     return (
         <form onSubmit={onSubmit} className="flex h-full flex-col gap-3">
@@ -115,13 +106,15 @@ const ContactForm = () => {
             <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                     <label htmlFor="cf-name" className="sr-only">{bg ? "Име" : "Name"}</label>
-                    <Input id="cf-name" name="name" required autoComplete="name"
+                    <Input id="cf-name" name="name" required autoComplete="name" aria-invalid={!!errors.name} aria-describedby={errors.name ? "cf-name-error" : undefined}
                         placeholder={bg ? "Вашето име" : "Your name"} />
+                    {errors.name && <p id="cf-name-error" className="mt-1 text-xs text-destructive">{errors.name}</p>}
                 </div>
                 <div>
                     <label htmlFor="cf-email" className="sr-only">{bg ? "Имейл" : "Email"}</label>
-                    <Input id="cf-email" name="email" type="email" required autoComplete="email"
+                    <Input id="cf-email" name="email" type="email" required autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email ? "cf-email-error" : undefined}
                         placeholder={bg ? "Имейл адрес" : "Email address"} />
+                    {errors.email && <p id="cf-email-error" className="mt-1 text-xs text-destructive">{errors.email}</p>}
                 </div>
             </div>
 
@@ -143,8 +136,9 @@ const ContactForm = () => {
 
             <div className="flex-grow">
                 <label htmlFor="cf-message" className="sr-only">{bg ? "Съобщение" : "Message"}</label>
-                <Textarea id="cf-message" name="message" required rows={4} maxLength={5000}
+                <Textarea id="cf-message" name="message" required rows={4} maxLength={5000} aria-invalid={!!errors.message} aria-describedby={errors.message ? "cf-message-error" : undefined}
                     placeholder={bg ? "Вашето съобщение…" : "Your message…"} className="h-full min-h-[96px]" />
+                {errors.message && <p id="cf-message-error" className="mt-1 text-xs text-destructive">{errors.message}</p>}
             </div>
 
             {/* Footnote sits above the button so the submit button lands on

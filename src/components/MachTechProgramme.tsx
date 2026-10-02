@@ -18,7 +18,7 @@ interface Talk {
 const talks: Talk[] = [
   {
     name: "Kenan Boz",
-    image: "/speakers/machtech-2026/kenan-boz.png",
+    image: "/speakers/machtech-2026/kenan-boz.webp",
     date: "2026-10-06",
     day: "6",
     time: "12:00–12:30",
@@ -31,7 +31,7 @@ const talks: Talk[] = [
   },
   {
     name: "Georgi Chervendinev",
-    image: "/speakers/machtech-2026/georgi-chervendinev.png",
+    image: "/speakers/machtech-2026/georgi-chervendinev.webp",
     date: "2026-10-08",
     day: "8",
     time: "12:00–12:30",
@@ -76,6 +76,7 @@ const talks: Talk[] = [
   },
   {
     name: "Petya Galinova",
+    image: "/speakers/machtech-2026/petya-galinova.webp",
     date: "2026-10-09",
     day: "9",
     time: "15:45–16:00",

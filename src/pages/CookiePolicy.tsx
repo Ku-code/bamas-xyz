@@ -20,7 +20,7 @@ const CookiePolicy = () => {
   const content = {
     en: {
       title: "Cookie Policy",
-      lastUpdated: "Last Updated: January 2025",
+      lastUpdated: "Last Updated: October 2026",
       sections: [
         {
           title: "1. Introduction",
@@ -119,13 +119,15 @@ We may update this list from time to time as we add or remove cookies from the W
           content: `If you have any questions about our use of cookies or other technologies, please contact us at:
 
 Email: info@bamas.xyz
-Address: Sofia, Bulgaria`
+Phone: +359 889 536 699
+Registered office: 1 Chukar Street, Vitosha District, Sofia 1616, Bulgaria
+Legal entity: Bulgarian Additive Manufacturing Association, association, UIC 208630654`
         }
       ]
     },
     bg: {
       title: "Политика за бисквитки",
-      lastUpdated: "Последна актуализация: Януари 2025",
+      lastUpdated: "Последна актуализация: Октомври 2026",
       sections: [
         {
           title: "1. Въведение",
@@ -224,7 +226,9 @@ Edge: Настройки > Поверителност, търсене и усл�
           content: `Ако имате въпроси относно нашето използване на бисквитки или други технологии, моля, свържете се с нас на:
 
 Имейл: info@bamas.xyz
-Адрес: София, България`
+Телефон: 0889 536 699
+Седалище и адрес на управление: България, гр. София 1616, р-н Витоша, ул. „Чукар“ № 1
+Юридическо лице: „БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО“, сдружение, ЕИК 208630654`
         }
       ]
     }
@@ -274,4 +278,3 @@ Edge: Настройки > Поверителност, търсене и усл�
 };
 
 export default CookiePolicy;
-

@@ -20,7 +20,7 @@ const TermsOfUse = () => {
   const content = {
     en: {
       title: "Terms of Use",
-      lastUpdated: "Last Updated: January 2025",
+      lastUpdated: "Last Updated: October 2026",
       sections: [
         {
           title: "1. Agreement to Terms",
@@ -97,13 +97,15 @@ Further, BAMAS does not warrant or make any representations concerning the accur
           content: `If you have any questions about these Terms of Use, please contact us at:
 
 Email: info@bamas.xyz
-Address: Sofia, Bulgaria`
+Phone: +359 889 536 699
+Registered office: 1 Chukar Street, Vitosha District, Sofia 1616, Bulgaria
+Legal entity: Bulgarian Additive Manufacturing Association, association, UIC 208630654`
         }
       ]
     },
     bg: {
       title: "Условия за използване",
-      lastUpdated: "Последна актуализация: Януари 2025",
+      lastUpdated: "Последна актуализация: Октомври 2026",
       sections: [
         {
           title: "1. Съгласие с условията",
@@ -180,7 +182,9 @@ Address: Sofia, Bulgaria`
           content: `Ако имате въпроси относно тези Условия за използване, моля, свържете се с нас на:
 
 Имейл: info@bamas.xyz
-Адрес: София, България`
+Телефон: 0889 536 699
+Седалище и адрес на управление: България, гр. София 1616, р-н Витоша, ул. „Чукар“ № 1
+Юридическо лице: „БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО“, сдружение, ЕИК 208630654`
         }
       ]
     }
@@ -230,4 +234,3 @@ Address: Sofia, Bulgaria`
 };
 
 export default TermsOfUse;
-

@@ -62,7 +62,7 @@ const LogoMark = ({ reducedMotion, className }: { reducedMotion: boolean; classN
     if (reducedMotion) {
         return (
             <img
-                src="/banners/additive-days-mark.jpg"
+                src="/banners/additive-days-mark.webp"
                 alt="Additive Days"
                 className={className}
                 style={MARK_FILTER}
@@ -78,7 +78,7 @@ const LogoMark = ({ reducedMotion, className }: { reducedMotion: boolean; classN
             className={className}
             style={MARK_FILTER}
             src="/banners/additive-days-mark.mp4"
-            poster="/banners/additive-days-mark.jpg"
+            poster="/banners/additive-days-mark.webp"
             autoPlay
             loop
             muted
@@ -239,7 +239,7 @@ const AdditiveDaysBanner = () => {
                         />
                         <span style={{ color: "#828282", fontSize: t(14) }}>by</span>
                         <img
-                            src="/banners/b2n-mark-white.png"
+                            src="/banners/b2n-mark-white.webp"
                             alt="B2N"
                             style={{ width: t(60) }}
                             loading="lazy"

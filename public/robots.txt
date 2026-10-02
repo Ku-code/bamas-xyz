@@ -68,6 +68,17 @@ Allow: /
 User-agent: *
 Allow: /
 Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /settings
+Disallow: /settings/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /auth/
+Disallow: /thank-you
+Disallow: /membership-success
+
+Host: www.bamas.xyz
 
 Sitemap: https://www.bamas.xyz/sitemap.xml

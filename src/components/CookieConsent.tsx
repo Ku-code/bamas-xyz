@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { X, Cookie } from "lucide-react";
+import { X, Cookie, BarChart3, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /**
@@ -13,6 +13,8 @@ import { Link } from "react-router-dom";
 const CookieConsent = () => {
   const { t } = useLanguage();
   const [show, setShow] = useState(false);
+  const [customize, setCustomize] = useState(false);
+  const [analytics, setAnalytics] = useState(false);
 
   useEffect(() => {
     // Check if user has already made a choice
@@ -26,15 +28,21 @@ const CookieConsent = () => {
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem("cookieConsent", "accepted");
+    localStorage.setItem("cookieConsent", JSON.stringify({ essential: true, analytics: true, updatedAt: new Date().toISOString() }));
     setShow(false);
     // index.html listens for this and only then loads GA4 + Clarity (GDPR).
     window.dispatchEvent(new Event("cookie-consent-accepted"));
   };
 
   const handleReject = () => {
-    localStorage.setItem("cookieConsent", "rejected");
+    localStorage.setItem("cookieConsent", JSON.stringify({ essential: true, analytics: false, updatedAt: new Date().toISOString() }));
     setShow(false);
+  };
+
+  const handleSave = () => {
+    localStorage.setItem("cookieConsent", JSON.stringify({ essential: true, analytics, updatedAt: new Date().toISOString() }));
+    setShow(false);
+    if (analytics) window.dispatchEvent(new Event("cookie-consent-accepted"));
   };
 
   if (!show) return null;
@@ -55,7 +63,7 @@ const CookieConsent = () => {
               {t("cookies.consent.title") || "Cookie Consent"}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              {t("cookies.consent.description") || "We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking 'Accept', you consent to our use of cookies."}
+              {t("cookies.consent.description") || "Essential storage keeps the site working. Optional analytics helps us understand anonymous traffic and improve BAMAS."}
             </p>
             <Link
               to="/cookie-policy"
@@ -75,7 +83,12 @@ const CookieConsent = () => {
           </Button>
         </div>
 
-        <div className="mt-3 flex items-center gap-2">
+        {customize && <div className="mt-4 space-y-2 border-t border-border pt-3">
+          <div className="flex items-center justify-between rounded-xl bg-muted/50 p-3"><div className="flex gap-2"><ShieldCheck className="mt-0.5 h-4 w-4 text-primary" /><div><p className="text-xs font-semibold">Essential</p><p className="text-[11px] text-muted-foreground">Always active</p></div></div><span className="text-[11px] font-medium text-primary">Required</span></div>
+          <label className="flex cursor-pointer items-center justify-between rounded-xl bg-muted/50 p-3"><div className="flex gap-2"><BarChart3 className="mt-0.5 h-4 w-4 text-primary" /><div><p className="text-xs font-semibold">Analytics</p><p className="text-[11px] text-muted-foreground">Google Analytics and Microsoft Clarity</p></div></div><input type="checkbox" checked={analytics} onChange={(event) => setAnalytics(event.target.checked)} className="h-4 w-4 accent-[hsl(var(--primary))]" /></label>
+        </div>}
+
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -84,10 +97,11 @@ const CookieConsent = () => {
           >
             {t("cookies.consent.reject") || "Reject"}
           </Button>
+          <Button variant="ghost" size="sm" onClick={() => customize ? handleSave() : setCustomize(true)} className="h-8 rounded-full text-xs">{customize ? "Save choices" : "Customize"}</Button>
           <Button
             size="sm"
             onClick={handleAccept}
-            className="h-8 flex-1 rounded-full text-xs"
+            className="col-span-2 h-8 rounded-full text-xs"
           >
             {t("cookies.consent.accept") || "Accept All"}
           </Button>

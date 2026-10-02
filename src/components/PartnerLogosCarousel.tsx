@@ -16,7 +16,7 @@ interface Partner {
 // Partner logos with their website URLs
 const PARTNERS: Partner[] = [
   {
-    logo: "/partnerlogos/clap-bas.jpg",
+    logo: "/partnerlogos/clap-bas.webp",
     name: "Central Laboratory of Applied Physics – BAS",
     url: "https://www.clap-bas.com/",
     hasWhiteBackground: true,
@@ -29,73 +29,73 @@ const PARTNERS: Partner[] = [
     subtext: "UK Official Partner",
   },
   {
-    logo: "/partnerlogos/addliancelogo.png",
+    logo: "/partnerlogos/addliancelogo.webp",
     name: "Addliance",
     url: "https://addliance.eu/",
   },
   {
-    logo: "/partnerlogos/IndustryInfo_logo.png",
+    logo: "/partnerlogos/IndustryInfo_logo.webp",
     name: "IndustryInfo",
     url: "https://industryinfo.bg/",
     hasWhiteBackground: true,
     subtext: "Media Partner",
   },
   {
-    logo: "/partnerlogos/8cell_logo.png",
+    logo: "/partnerlogos/8cell_logo.webp",
     name: "8Cell",
     url: "https://8cell.bg/",
   },
   {
-    logo: "/partnerlogos/B2N_logo.jpg",
+    logo: "/partnerlogos/B2N_logo.webp",
     name: "B2N",
     url: "https://b2n.bg/",
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/01_HabitAdd_Logo_RGB.png",
+    logo: "/partnerlogos/01_HabitAdd_Logo_RGB.webp",
     name: "HabitAdd",
     url: "https://habitadd.bg/en/",
   },
   {
-    logo: "/partnerlogos/GreMa3D_Blue.png",
+    logo: "/partnerlogos/GreMa3D_Blue.webp",
     name: "GreMa3D",
     url: "https://www.grema3d.bg/bg/",
   },
   {
-    logo: "/partnerlogos/3Dbgprint_logo.png",
+    logo: "/partnerlogos/3Dbgprint_logo.webp",
     name: "3DBGPrint",
     url: "https://3dbgprint.com/",
   },
   {
-    logo: "/partnerlogos/edufacturing_logo.jpeg",
+    logo: "/partnerlogos/edufacturing_logo.webp",
     name: "EduFacturing",
     url: "https://edufacturing.com/en/home/",
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/parai_logo.png",
+    logo: "/partnerlogos/parai_logo.webp",
     name: "Parai",
     url: "https://para.expert/",
   },
   {
-    logo: "/partnerlogos/solidfill_logo.jpg",
+    logo: "/partnerlogos/solidfill_logo.webp",
     name: "SolidFill",
     url: "https://solidfill.com/en/home-en/",
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/3dopendesign_logo.png",
+    logo: "/partnerlogos/3dopendesign_logo.webp",
     name: "3D Open Design",
     url: "https://www.3dopendesign.com/",
   },
   {
-    logo: "/partnerlogos/3dprintx_logo.png",
+    logo: "/partnerlogos/3dprintx_logo.webp",
     name: "3D PrintX",
     url: "https://3dprintx.bg/",
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/resonator_logo.png",
+    logo: "/partnerlogos/resonator_logo.webp",
     name: "Resonator",
     url: "https://www.rsntr.com/",
   },
@@ -111,21 +111,21 @@ const PARTNERS: Partner[] = [
     url: "https://buildplatez.com/",
   },
   {
-    logo: "/partnerlogos/3Druck Logo.png",
+    logo: "/partnerlogos/3Druck Logo.webp",
     name: "3Druck.com",
     url: "https://3druck.com/",
   },
   {
-    logo: "/partnerlogos/epma logo.png",
+    logo: "/partnerlogos/epma logo.webp",
     name: "EPMA",
     url: "https://www.epma.com/",
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/Betma Logo.png",
+    logo: "/partnerlogos/Betma Logo.webp",
     name: "BETMA",
     url: "https://www.betma.eu/",
-    logoDark: "/partnerlogos/Betma Logo white.png",
+    logoDark: "/partnerlogos/Betma Logo white.webp",
   },
   {
     logo: "/partnerlogos/peri-logo.webp",
@@ -134,16 +134,16 @@ const PARTNERS: Partner[] = [
     hasWhiteBackground: true,
   },
   {
-    logo: "/partnerlogos/concreef_logo.png",
-    logoDark: "/partnerlogos/concreef_logo_white.png",
+    logo: "/partnerlogos/concreef_logo.webp",
+    logoDark: "/partnerlogos/concreef_logo_white.webp",
     name: "CONCREEF",
     url: "https://www.concreef.eu/",
   },
   {
     // Supplied as white artwork on the brand blue; both variants are that same
     // artwork with the coverage recovered as alpha, so neither theme needs a plate.
-    logo: "/partnerlogos/interexpocenter.png",
-    logoDark: "/partnerlogos/interexpocenter-white.png",
+    logo: "/partnerlogos/interexpocenter.webp",
+    logoDark: "/partnerlogos/interexpocenter-white.webp",
     name: "Inter Expo Center",
     url: "https://iec.bg/",
   },

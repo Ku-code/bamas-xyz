@@ -20,7 +20,7 @@ const PrivacyPolicy = () => {
   const content = {
     en: {
       title: "Privacy Policy",
-      lastUpdated: "Last Updated: January 2025",
+      lastUpdated: "Last Updated: October 2026",
       sections: [
         {
           title: "1. Introduction",
@@ -105,13 +105,15 @@ If you make a request, we have one month to respond to you. If you would like to
           content: `If you have questions or comments about this Privacy Policy, please contact us at:
 
 Email: info@bamas.xyz
-Address: Sofia, Bulgaria`
+Phone: +359 889 536 699
+Registered office: 1 Chukar Street, Vitosha District, Sofia 1616, Bulgaria
+Legal entity: Bulgarian Additive Manufacturing Association, association, UIC 208630654`
         }
       ]
     },
     bg: {
       title: "Политика за поверителност",
-      lastUpdated: "Последна актуализация: Януари 2025",
+      lastUpdated: "Последна актуализация: Октомври 2026",
       sections: [
         {
           title: "1. Въведение",
@@ -196,7 +198,9 @@ Address: Sofia, Bulgaria`
           content: `Ако имате въпроси или коментари относно тази Политика за поверителност, моля, свържете се с нас на:
 
 Имейл: info@bamas.xyz
-Адрес: София, България`
+Телефон: 0889 536 699
+Седалище и адрес на управление: България, гр. София 1616, р-н Витоша, ул. „Чукар“ № 1
+Юридическо лице: „БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО“, сдружение, ЕИК 208630654`
         }
       ]
     }
@@ -246,4 +250,3 @@ Address: Sofia, Bulgaria`
 };
 
 export default PrivacyPolicy;
-

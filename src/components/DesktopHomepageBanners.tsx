@@ -9,7 +9,7 @@ import ImageBanner from "@/components/ImageBanner";
 export default function DesktopHomepageBanners() {
   return <BannerCube intervalMs={2000} faces={[
     <MachTechBanner key="machtech" />,
-    <ImageBanner key="interdrone-expo" src="/banners/interdrone-expo-2026.gif"
+    <ImageBanner key="interdrone-expo" src="/banners/interdrone-expo-2026.webp"
       href="https://interdroneexpo.bg/online-ticket/"
       alt="INTER DRONE EXPO, 6–9 October 2026, Inter Expo Center — opens interdroneexpo.bg in a new tab" background="#C4CCB5" />,
     <IndustryInfoBanner key="industryinfo" />,

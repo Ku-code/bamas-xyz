@@ -104,8 +104,8 @@ const OfficialDocuments = () => {
   const logoPath = useMemo(() => {
     if (isDarkMode) {
       return language === 'bg'
-        ? '/bamas-uploads/BAMAS_Logo_bg.png'
-        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+        ? '/bamas-uploads/BAMAS_Logo_bg.webp'
+        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.webp';
     } else {
       return language === 'bg'
         ? '/logos/BAMAS_LOGO_inkscape_file_6.PNG'
@@ -187,8 +187,8 @@ const OfficialDocuments = () => {
                 onError={(e) => {
                   if (!isDarkMode) {
                     const fallbackPath = language === 'bg'
-                      ? '/bamas-uploads/BAMAS_Logo_bg.png'
-                      : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
+                      ? '/bamas-uploads/BAMAS_Logo_bg.webp'
+                      : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.webp';
                     e.currentTarget.src = fallbackPath;
                   }
                 }}

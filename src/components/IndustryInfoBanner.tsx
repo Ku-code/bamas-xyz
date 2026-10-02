@@ -91,7 +91,7 @@ const IndustryInfoBanner = () => {
 
                     {/* BAMAS logo */}
                     <img
-                        src="/banners/bamas-logo-card.png"
+                        src="/banners/bamas-logo-card.webp"
                         alt="Bulgarian Additive Manufacturing Association"
                         className="absolute object-contain"
                         style={{ left: x(46), top: y(30), width: x(244), height: y(98) }}
@@ -126,7 +126,7 @@ const IndustryInfoBanner = () => {
 
                     {/* IndustryInfo logo */}
                     <img
-                        src="/banners/industryinfo-logo.png"
+                        src="/banners/industryinfo-logo.webp"
                         alt="IndustryInfo.bg — порталът на българската индустрия"
                         className="absolute object-contain"
                         style={{ left: x(466), top: y(41), width: x(311), height: y(80) }}
@@ -217,7 +217,7 @@ const IndustryInfoBanner = () => {
 
                     <div className="flex items-center gap-3 px-4 pt-2.5">
                         <img
-                            src="/banners/bamas-logo-card.png"
+                            src="/banners/bamas-logo-card.webp"
                             alt="BAMAS"
                             className="h-9 w-auto object-contain"
                             decoding="async"
@@ -229,7 +229,7 @@ const IndustryInfoBanner = () => {
                             In partnership with
                         </span>
                         <img
-                            src="/banners/industryinfo-logo.png"
+                            src="/banners/industryinfo-logo.webp"
                             alt="IndustryInfo.bg"
                             className="h-7 w-auto object-contain"
                             decoding="async"

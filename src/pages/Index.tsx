@@ -41,6 +41,7 @@ import { supabase } from "@/lib/supabase";
 import ContactForm from "@/components/ContactForm";
 import LazyMap from "@/components/LazyMap";
 import { DotGlobeHero } from "@/components/ui/globe-hero";
+import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 const Index = () => {
   const { toast } = useToast();
@@ -50,6 +51,12 @@ const Index = () => {
   const [expandedCard, setExpandedCard] = useState<'vision' | 'mission' | null>(null);
   const [isMembershipOpen, setIsMembershipOpen] = useState(false);
   const [membershipType, setMembershipType] = useState<ApplicationType | undefined>(undefined);
+
+  useDocumentMeta({
+    title: language === "bg" ? "БАЗАП — Адитивно производство и 3D печат в България" : "BAMAS — Additive Manufacturing and 3D Printing in Bulgaria",
+    description: language === "bg" ? "БАЗАП обединява бизнеса, университетите и експертите в българската екосистема за адитивно производство и 3D печат." : "BAMAS connects businesses, universities and experts across Bulgaria's additive manufacturing and 3D printing ecosystem.",
+    schemaType: "AboutPage",
+  });
 
   const openMembership = (type?: ApplicationType) => {
     setMembershipType(type);
@@ -106,12 +113,6 @@ const Index = () => {
     });
     e.currentTarget.reset();
   }, [toast]);
-
-  const logoPath = useMemo(() => {
-    return language === 'bg'
-      ? '/bamas-uploads/BAMAS_Logo_bg.png'
-      : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
-  }, [language]);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -859,8 +860,8 @@ const Index = () => {
               {/* Legal identity — trust signal and Organization-schema consistency */}
               <p className="mt-4 text-center text-xs text-muted-foreground">
                 {language === 'bg'
-                  ? 'Българска асоциация за адитивно производство (БАЗАП) · сдружение с нестопанска цел · София, България · info@bamas.xyz'
-                  : 'Bulgarian Additive Manufacturing Association (BAMAS) · non-profit association · Sofia, Bulgaria · info@bamas.xyz'}
+                  ? '„БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО“ · сдружение · ЕИК 208630654 · ул. „Чукар“ № 1, София 1616 · info@bamas.xyz'
+                  : 'Bulgarian Additive Manufacturing Association · association · UIC 208630654 · 1 Chukar Street, Sofia 1616 · info@bamas.xyz'}
               </p>
             </div>
           </div>
@@ -887,7 +888,8 @@ const Index = () => {
           },
           contact: {
             title: t("footer.contact"),
-            address: "Sofia, Bulgaria",
+            address: language === "bg" ? "ул. „Чукар“ № 1, София 1616" : "1 Chukar Street, Sofia 1616",
+            phone: language === "bg" ? "0889 536 699" : "+359 889 536 699",
             email: "info@bamas.xyz"
           },
           followUs: {

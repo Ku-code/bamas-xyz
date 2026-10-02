@@ -11,6 +11,8 @@ interface DocumentMeta {
   noindex?: boolean;
   /** Schema.org page type. Public routes default to WebPage. */
   schemaType?: "WebPage" | "AboutPage" | "CollectionPage" | "ContactPage";
+  /** Absolute social preview image. Defaults to the branded BAMAS OG card. */
+  image?: string;
 }
 
 const SITE_ORIGIN = "https://www.bamas.xyz";
@@ -23,7 +25,7 @@ const SITE_ORIGIN = "https://www.bamas.xyz";
  * sync with the active route, and restores the homepage defaults on unmount
  * so navigating back never leaves stale metadata behind.
  */
-export function useDocumentMeta({ title, description, canonical, noindex, schemaType = "WebPage" }: DocumentMeta) {
+export function useDocumentMeta({ title, description, canonical, noindex, schemaType = "WebPage", image = `${SITE_ORIGIN}/og/bamas-social.webp` }: DocumentMeta) {
   useEffect(() => {
     const prevTitle = document.title;
     document.title = title;
@@ -66,8 +68,12 @@ export function useDocumentMeta({ title, description, canonical, noindex, schema
       ["property", "og:title", title],
       ["property", "og:description", description ?? ""],
       ["property", "og:url", pageUrl],
+      ["property", "og:image", image],
+      ["property", "og:type", "website"],
       ["name", "twitter:title", title],
       ["name", "twitter:description", description ?? ""],
+      ["name", "twitter:image", image],
+      ["name", "twitter:card", "summary_large_image"],
     ];
     const previousSocial = socialTags.map(([attribute, key, value]) => {
       if (!value) return null;
@@ -139,5 +145,5 @@ export function useDocumentMeta({ title, description, canonical, noindex, schema
         else currentRobots.remove();
       }
     };
-  }, [title, description, canonical, noindex, schemaType]);
+  }, [title, description, canonical, noindex, schemaType, image]);
 }

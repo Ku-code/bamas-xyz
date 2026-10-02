@@ -49,7 +49,7 @@ const AnimatedMark = ({ reducedMotion, className }: { reducedMotion: boolean; cl
     if (reducedMotion) {
         return (
             <img
-                src="/banners/additive-days-mark.jpg"
+                src="/banners/additive-days-mark.webp"
                 alt="Additive Days"
                 className={className}
                 style={MARK_FILTER}
@@ -63,7 +63,7 @@ const AnimatedMark = ({ reducedMotion, className }: { reducedMotion: boolean; cl
             className={className}
             style={MARK_FILTER}
             src="/banners/additive-days-mark.mp4"
-            poster="/banners/additive-days-mark.jpg"
+            poster="/banners/additive-days-mark.webp"
             autoPlay
             loop
             muted
@@ -163,7 +163,7 @@ const RSFBanner = () => {
 
                     {/* RSF logo */}
                     <img
-                        src="/banners/rsf-logo.png"
+                        src="/banners/rsf-logo.webp"
                         alt="Robotics Strategy Forum 2026"
                         className="absolute object-contain"
                         style={{ left: x(570), top: y(24), width: x(239), height: y(112) }}
@@ -184,7 +184,7 @@ const RSFBanner = () => {
                         Организатор
                     </div>
                     <img
-                        src="/banners/parai-logo.png"
+                        src="/banners/parai-logo.webp"
                         alt="PARAi"
                         className="absolute object-contain"
                         style={{ left: x(830), top: y(70), width: x(136), height: y(42) }}

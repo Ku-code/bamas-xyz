@@ -3,9 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="favicon" />
-  <link rel="apple-touch-icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="apple-touch-icon" />
-  <link rel="shortcut icon" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" id="shortcut-icon" />
+  <link rel="icon" type="image/webp" href="/brand/bamas-symbol.webp" id="favicon" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" id="apple-touch-icon" />
+  <link rel="shortcut icon" href="/favicon.ico" id="shortcut-icon" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0C9D6A" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -58,7 +59,9 @@
         })(window, document, "clarity", "script", "v0iipjyh6t");
       }
       try {
-        if (localStorage.getItem('cookieConsent') === 'accepted') loadAnalytics();
+        var consent = localStorage.getItem('cookieConsent');
+        if (consent === 'accepted') loadAnalytics();
+        else if (consent) { try { if (JSON.parse(consent).analytics === true) loadAnalytics(); } catch (_) {} }
       } catch (e) { /* storage unavailable */ }
       window.addEventListener('cookie-consent-accepted', loadAnalytics);
     })();
@@ -89,8 +92,7 @@
   <!-- Google Tag Manager preconnect -->
   <link rel="preconnect" href="https://www.googletagmanager.com" />
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-  <link rel="preload" href="/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png" as="image" />
-  <link rel="preload" href="/bamas-uploads/BAMAS_Logo_bg.png" as="image" />
+  <link rel="preload" href="/brand/bamas-symbol.webp" as="image" type="image/webp" />
   <!-- Preload default language translation (bg) -->
   <link rel="modulepreload" href="/src/translations/bg.json" />
   <title>БАЗАП — Българска асоциация за адитивно производство | 3D печат България</title>
@@ -110,9 +112,9 @@
   <meta property="og:title" content="БАЗАП — Българска асоциация за адитивно производство" />
   <meta property="og:description"
     content="Националната асоциация за адитивно производство и 3D печат в България. Обединяваме производители, университети и стартъпи." />
-  <meta property="og:image" content="https://www.bamas.xyz/bamas-uploads/BamasMain.png" />
-  <meta property="og:image:width" content="1903" />
-  <meta property="og:image:height" content="935" />
+  <meta property="og:image" content="https://www.bamas.xyz/og/bamas-social.webp" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://www.bamas.xyz/" />
   <meta property="og:locale" content="bg_BG" />
   <meta property="og:locale:alternate" content="en_US" />
@@ -122,7 +124,7 @@
   <meta name="twitter:title" content="БАЗАП — Българска асоциация за адитивно производство" />
   <meta name="twitter:description"
     content="Националната асоциация за адитивно производство и 3D печат в България." />
-  <meta name="twitter:image" content="https://www.bamas.xyz/bamas-uploads/BamasMain.png" />
+  <meta name="twitter:image" content="https://www.bamas.xyz/og/bamas-social.webp" />
 
   <!-- Structured data: the entity search engines and AI assistants retrieve -->
   <script type="application/ld+json">
@@ -133,13 +135,16 @@
         "@type": "Organization",
         "@id": "https://www.bamas.xyz/#organization",
         "name": "Bulgarian Additive Manufacturing Association",
+        "legalName": "БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО",
         "alternateName": ["BAMAS", "БАЗАП", "Българска асоциация за адитивно производство"],
         "url": "https://www.bamas.xyz/",
-        "logo": "https://www.bamas.xyz/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png",
+        "logo": "https://www.bamas.xyz/brand/bamas-symbol.webp",
         "email": "info@bamas.xyz",
+        "telephone": "+359889536699",
+        "identifier": { "@type": "PropertyValue", "propertyID": "UIC", "value": "208630654" },
         "foundingDate": "2026",
         "nonprofitStatus": "Nonprofit",
-        "address": { "@type": "PostalAddress", "addressLocality": "Sofia", "addressCountry": "BG" },
+        "address": { "@type": "PostalAddress", "streetAddress": "1 Chukar Street, Vitosha District", "postalCode": "1616", "addressLocality": "Sofia", "addressRegion": "Sofia City", "addressCountry": "BG" },
         "areaServed": { "@type": "Country", "name": "Bulgaria" },
         "knowsAbout": ["Additive manufacturing", "3D printing", "Industry 4.0", "Metal additive manufacturing", "Rapid prototyping", "Digital manufacturing"],
         "memberOf": { "@type": "Organization", "name": "(Add)liance — European Centre for Additive Manufacturing", "url": "https://addliance.eu/" },
@@ -221,23 +226,6 @@
     </div>
   </noscript>
   <script type="module" src="/src/main.tsx"></script>
-  <script>
-    // Function to update favicon based on language
-    function updateFavicon(language) {
-      const logoPath = language === 'bg'
-        ? '/bamas-uploads/BAMAS_Logo_bg.png'
-        : '/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png';
-
-      document.getElementById('favicon').href = logoPath;
-      document.getElementById('apple-touch-icon').href = logoPath;
-      document.getElementById('shortcut-icon').href = logoPath;
-    }
-
-    // Listen for language changes
-    window.addEventListener('languageChange', (event) => {
-      updateFavicon(event.detail.language);
-    });
-  </script>
 </body>
 
 </html>

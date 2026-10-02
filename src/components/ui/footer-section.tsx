@@ -10,6 +10,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Facebook, Instagram, Linkedin, Moon, Send, Sun, Twitter, Languages } from "lucide-react"
+import BrandLogo from "@/components/BrandLogo"
 
 interface FooterSectionProps {
   translations?: {
@@ -124,36 +125,6 @@ function FooterSection({
     }
   }
 
-  // Determine which logo to show based on language and theme
-  // Light mode uses specific logos from /logos folder
-  // Dark mode uses the existing logos
-  const getLogoPath = () => {
-    if (isDarkMode) {
-      // Dark mode: use existing logos
-      if (currentLanguage === "bg") {
-        return "/bamas-uploads/BAMAS_Logo_bg.png";
-      } else {
-        return "/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
-      }
-    } else {
-      // Light mode: use logos from /logos folder
-      if (currentLanguage === "bg") {
-        // Bulgarian version for light mode (file ending with 6)
-        return "/logos/BAMAS_LOGO_inkscape_file_6.PNG";
-      } else {
-        // English version for light mode (file ending with 42)
-        return "/logos/BAMAS_LOGO_inkscape_file_4 2.PNG";
-      }
-    }
-  };
-
-  const logoPath = getLogoPath();
-
-  // Fallback paths if primary doesn't exist (for dark mode)
-  const fallbackLogoPath = currentLanguage === "bg"
-    ? "/bamas-uploads/BAMAS_Logo_bg.png"
-    : "/bamas-uploads/6e77d85a-74ad-47e5-b141-a339ec981d57.png";
-
   return (
     <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
       <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8 max-w-7xl">
@@ -166,28 +137,7 @@ function FooterSection({
                 className="inline-block transition-all hover:opacity-80 hover:scale-105 cursor-pointer"
                 aria-label={currentLanguage === "bg" ? "Отиди към началото" : "Go to home"}
               >
-                <img
-                  key={`${logoPath}-${isDarkMode}`}
-                  src={logoPath}
-                  alt={currentLanguage === "bg" ? "БАЗАП Лого" : "BAMAS Logo"}
-                  className="h-12 md:h-16 w-auto object-contain max-w-full shadow-sm"
-                  loading="eager"
-                  decoding="async"
-                  style={{ display: 'block', maxHeight: '64px', borderRadius: '1rem' }}
-                  onError={(e) => {
-                    console.warn('BAMAS logo failed to load from primary path:', e.currentTarget.src);
-                    // Try fallback path only in dark mode
-                    if (isDarkMode && e.currentTarget.src !== fallbackLogoPath) {
-                      console.log('Trying fallback path:', fallbackLogoPath);
-                      e.currentTarget.src = fallbackLogoPath;
-                    } else {
-                      console.error('Logo failed to load:', e.currentTarget.src);
-                    }
-                  }}
-                  onLoad={() => {
-                    console.log('BAMAS logo loaded successfully from:', logoPath);
-                  }}
-                />
+                <BrandLogo language={currentLanguage} className="max-w-[300px]" />
               </a>
             </div>
             <h2 className="mb-4 text-3xl font-extrabold tracking-tight">
@@ -395,8 +345,8 @@ function FooterSection({
             {translations?.copyright || `© ${new Date().getFullYear()} BAMAS. All rights reserved.`}
             <span className="block mt-1 text-xs text-muted-foreground/80">
               {currentLanguage === "bg"
-                ? "Българска асоциация за адитивно производство (БАЗАП) · сдружение с нестопанска цел · София"
-                : "Bulgarian Additive Manufacturing Association (BAMAS) · non-profit association · Sofia, Bulgaria"}
+                ? "„БЪЛГАРСКА АСОЦИАЦИЯ ЗА АДИТИВНО ПРОИЗВОДСТВО“ · сдружение · ЕИК 208630654"
+                : "Bulgarian Additive Manufacturing Association · association · UIC 208630654"}
             </span>
           </p>
           <nav className="flex gap-4 text-sm">

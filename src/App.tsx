@@ -31,6 +31,7 @@ const News = lazy(() => import("./pages/News"));
 const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const Glossary = lazy(() => import("./pages/Glossary"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const ThankYou = lazy(() => import("./pages/ThankYou"));
 
 // Lightweight loading fallback component
 const LoadingFallback = () => (
@@ -173,6 +174,7 @@ const AppContent: React.FC = () => {
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/rechnik" element={<Navigate to="/glossary" replace />} />
                 <Route path="/membership-success" element={<MembershipSuccess />} />
+                <Route path="/thank-you" element={<ThankYou />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
