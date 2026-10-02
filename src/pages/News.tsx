@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BlogThumbnail } from "@/components/blog/BlogThumbnail";
 
 interface NewsEntry {
     slug: string;
@@ -14,6 +15,8 @@ interface NewsEntry {
     title_bg: string;
     title_en: string;
     source?: string;
+    summary_bg?: string;
+    summary_en?: string;
 }
 
 const TYPE_STYLES: Record<string, { label_bg: string; label_en: string; cls: string }> = {
@@ -62,7 +65,8 @@ const News = () => {
         () => [...items].sort((a, b) => b.date.localeCompare(a.date)),
         [items],
     );
-    const groups = sortedItems.reduce<Record<string, NewsEntry[]>>((acc, it) => {
+    const featured = sortedItems[0];
+    const groups = sortedItems.slice(1).reduce<Record<string, NewsEntry[]>>((acc, it) => {
         const key = it.date.slice(0, 7);
         (acc[key] ??= []).push(it);
         return acc;
@@ -92,11 +96,12 @@ const News = () => {
     return (
         <div className="min-h-screen bg-background">
             <Navbar />
-            <main className="container mx-auto max-w-3xl px-4 pb-20 pt-28 md:pt-36">
-                <h1 className="text-3xl md:text-5xl font-extrabold text-primary text-center mb-3">
+            <main className="container mx-auto max-w-6xl px-4 pb-24 pt-28 md:pt-36">
+                <p className="mb-3 text-center text-xs font-black uppercase tracking-[0.25em] text-primary">BAMAS Insights</p>
+                <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground text-center mb-4">
                     {language === "bg" ? "Блог" : "Blog"}
                 </h1>
-                <p className="text-center text-muted-foreground mb-10 md:mb-14">
+                <p className="mx-auto max-w-2xl text-center text-base leading-7 text-muted-foreground mb-12 md:mb-16">
                     {language === "bg"
                         ? "Проверени публикации, медийно отразяване и новини за БАЗАП и българската екосистема за адитивно производство."
                         : "Verified articles, media coverage and news about BAMAS and Bulgaria's additive manufacturing ecosystem."}
@@ -108,34 +113,52 @@ const News = () => {
                     </p>
                 )}
 
+                {featured && (
+                    <Link to={`/blog/${featured.slug}`} className="group mb-16 grid overflow-hidden rounded-3xl border border-border/70 bg-card shadow-xl shadow-black/5 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl md:grid-cols-[1.2fr_1fr]">
+                        <BlogThumbnail
+                            type={featured.type}
+                            source={featured.source}
+                            title={language === "bg" ? featured.title_bg : featured.title_en}
+                            className="aspect-[16/10] min-h-[280px]"
+                        />
+                        <div className="flex flex-col justify-center p-7 md:p-10">
+                            <span className="text-xs font-black uppercase tracking-[0.18em] text-primary">{language === "bg" ? "Акцент" : "Featured"}</span>
+                            <h2 className="mt-4 text-2xl font-black leading-tight text-foreground transition-colors group-hover:text-primary md:text-4xl">
+                                {language === "bg" ? featured.title_bg : featured.title_en}
+                            </h2>
+                            <p className="mt-4 line-clamp-3 leading-7 text-muted-foreground">
+                                {(language === "bg" ? featured.summary_bg : featured.summary_en) || (language === "bg" ? "Последни новини от екосистемата на БАЗАП." : "Latest news from the BAMAS ecosystem.")}
+                            </p>
+                            <span className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-primary">
+                                {language === "bg" ? "Прочети публикацията" : "Read the article"} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </span>
+                        </div>
+                    </Link>
+                )}
+
                 {orderedKeys.map((ym) => (
-                    <section key={ym} className="mb-10">
-                        <h2 className="mb-4 text-sm font-black uppercase tracking-widest text-muted-foreground">
+                    <section key={ym} className="mb-14">
+                        <h2 className="mb-6 border-b border-border/60 pb-3 text-sm font-black uppercase tracking-widest text-muted-foreground">
                             {monthLabel(ym)}
                         </h2>
-                        <ol className="space-y-3">
+                        <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {groups[ym].map((it) => {
                                 const style = TYPE_STYLES[it.type] ?? TYPE_STYLES.announcement;
                                 const title = language === "bg" ? it.title_bg : it.title_en;
                                 return (
                                     <li key={it.slug}>
-                                        <Link
-                                            to={`/blog/${it.slug}`}
-                                            className="group flex items-start gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
-                                        >
-                                            <span className={`mt-0.5 flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${style.cls}`}>
-                                                {language === "bg" ? style.label_bg : style.label_en}
-                                            </span>
-                                            <span className="min-w-0 flex-grow">
-                                                <span className="block font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
-                                                    {title}
+                                        <Link to={`/blog/${it.slug}`} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl">
+                                            <BlogThumbnail type={it.type} source={it.source} title={title} className="aspect-[16/10]" />
+                                            <span className="flex flex-1 flex-col p-5">
+                                                <span className={`mb-3 w-fit rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${style.cls}`}>
+                                                    {language === "bg" ? style.label_bg : style.label_en}
                                                 </span>
-                                                <time dateTime={it.date} className="mt-1 block text-xs text-muted-foreground">
-                                                    {fmt(it.date)}
-                                                    {it.source ? ` · ${it.source}` : ""}
-                                                </time>
+                                                <span className="line-clamp-3 text-lg font-bold leading-snug text-foreground transition-colors group-hover:text-primary">{title}</span>
+                                                <span className="mt-auto flex items-center justify-between gap-3 pt-5 text-xs text-muted-foreground">
+                                                    <time dateTime={it.date}>{fmt(it.date)}</time>
+                                                    <ArrowRight className="h-4 w-4 text-primary transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                                                </span>
                                             </span>
-                                            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-primary/50 transition-all group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
                                         </Link>
                                     </li>
                                 );
