@@ -1,4 +1,5 @@
 import AdditiveDaysBanner from "@/components/AdditiveDaysBanner";
+import FormnextBanner from "@/components/FormnextBanner";
 import BannerCube from "@/components/BannerCube";
 import MachTechBanner from "@/components/MachTechBanner";
 import IndustryInfoBanner from "@/components/IndustryInfoBanner";
@@ -15,6 +16,7 @@ export default function DesktopHomepageBanners() {
     <ImageBanner key="europm-2026" src="/banners/europm-2026.webp"
       href="https://www.europm2026.com/"
       alt="EURO PM2026 Congress & Exhibition, 11–14 October 2026, Budapest, Hungary — opens europm2026.com in a new tab" background="#0B1F2A" />,
+    <FormnextBanner key="formnext-2026" />,
     <AdditiveDaysBanner key="additive-days" />,
   ]} />;
 }
