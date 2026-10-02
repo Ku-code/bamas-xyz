@@ -21,7 +21,7 @@ const talks: Talk[] = [
     image: "/speakers/machtech-2026/kenan-boz.webp",
     date: "2026-10-06",
     day: "6",
-    time: "12:00–12:30",
+    time: "12:30–13:00",
     title: "A Global Outlook on Additive Manufacturing — from Today to Tomorrow",
     role: { bg: "Технически мениджър, EPMA", en: "Technical Manager, EPMA" },
     summary: {
