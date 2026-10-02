@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, Newspaper } from "lucide-react";
+import { ArrowRight, Newspaper } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,6 +12,7 @@ export interface NewsItem {
 }
 
 interface RawNewsItem {
+    slug?: string;
     url: string;
     date?: string;
     type?: string;
@@ -106,10 +107,8 @@ const MarqueeRow = ({ items, language, duration, paused }: { items: NewsItem[]; 
                         const date = formatDate(item.date, language);
                         return (
                             <div key={`${setIndex}-${idx}`} className="flex items-center gap-10 px-6">
-                                <a
-                                    href={item.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <Link
+                                    to={item.url}
                                     className="inline-flex items-center gap-2.5 text-xs md:text-sm lg:text-base font-bold text-foreground/90 hover:text-primary transition-all duration-300 group/item whitespace-nowrap"
                                 >
                                     {tag && (
@@ -126,8 +125,8 @@ const MarqueeRow = ({ items, language, duration, paused }: { items: NewsItem[]; 
                                             {date}
                                         </span>
                                     )}
-                                    <ExternalLink className="w-3.5 h-3.5 opacity-40 group-hover/item:opacity-100 group-hover/item:translate-x-1 group-hover/item:-translate-y-1 transition-all duration-300 text-primary" />
-                                </a>
+                                    <ArrowRight className="w-3.5 h-3.5 opacity-40 group-hover/item:opacity-100 group-hover/item:translate-x-1 transition-all duration-300 text-primary" />
+                                </Link>
                                 <span className="text-primary/40 font-bold select-none text-base" aria-hidden="true">✦</span>
                             </div>
                         );
@@ -154,7 +153,7 @@ const NewsBanner = () => {
                     const data = await response.json();
                     const items: NewsItem[] = (data.items as RawNewsItem[])
                         .map((it) => ({
-                            url: it.url,
+                            url: it.slug ? `/blog/${it.slug}` : it.url,
                             title: (language === "bg" ? it.title_bg : it.title_en) || it.title_bg || it.title_en || it.title || "",
                             date: it.date,
                             type: it.type,
@@ -204,7 +203,7 @@ const NewsBanner = () => {
         >
             <div className="container mx-auto px-4 flex items-center">
                 <Link
-                    to="/news"
+                    to="/blog"
                     className="flex-shrink-0 flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary border border-primary/30 mr-5 md:mr-6 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:bg-primary/30 transition-colors"
                     aria-label={language === 'bg' ? 'Всички новини' : 'All news'}
                 >

@@ -1,6 +1,7 @@
 {
   "items": [
     {
+      "slug": "3druck-international-directory-features-bamas",
       "date": "2026-04-23",
       "type": "media",
       "url": "https://3druck.com/he/%D7%A1%D7%A4%D7%A8%D7%99%D7%99%D7%94/%D7%A8%D7%99%D7%A9%D7%95%D7%9D/%D7%94%D7%90%D7%92%D7%95%D7%93%D7%94-%D7%94%D7%91%D7%95%D7%9C%D7%92%D7%A8%D7%99%D7%AA-%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8-%D7%AA%D7%95%D7%A1%D7%A4%D7%99%D7%9D-bamas/",
@@ -9,6 +10,7 @@
       "title_en": "3Druck.com features BAMAS in its international additive manufacturing directory"
     },
     {
+      "slug": "central-laboratory-applied-physics-bas-joins-bamas",
       "date": "2026-10-01",
       "type": "member",
       "url": "https://www.clap-bas.com/",
@@ -16,6 +18,7 @@
       "title_en": "The Central Laboratory of Applied Physics – BAS joins BAMAS and will be with us at the BAMAS booth during MACH-TECH 2026"
     },
     {
+      "slug": "concreef-becomes-bamas-partner",
       "date": "2026-08-12",
       "type": "partner",
       "url": "https://www.concreef.eu/",
@@ -23,6 +26,7 @@
       "title_en": "CONCREEF — additive manufacturing concrete innovation in Bulgaria — becomes BAMAS partner"
     },
     {
+      "slug": "peri-bulgaria-becomes-bamas-partner",
       "date": "2026-08-12",
       "type": "partner",
       "url": "https://www.peri.bg/",
@@ -30,6 +34,7 @@
       "title_en": "PERI Bulgaria becomes BAMAS partner"
     },
     {
+      "slug": "betma-becomes-bamas-partner",
       "date": "2026-08-12",
       "type": "partner",
       "url": "https://www.betma.eu/",
@@ -37,6 +42,7 @@
       "title_en": "BETMA — Balkan Engineering, Tech & Makers Association — becomes BAMAS partner"
     },
     {
+      "slug": "epma-powder-metallurgy-congress-2026",
       "date": "2026-08-12",
       "type": "event",
       "url": "https://www.powdermetallurgycongress.com/",
@@ -44,6 +50,7 @@
       "title_en": "EPMA organizes the 2026 Powder Metallurgy Congress & Exhibition in Budapest, 11–14 October 2026"
     },
     {
+      "slug": "bamas-at-machtech-innotech-expo-2026",
       "date": "2026-08-12",
       "type": "event",
       "url": "https://machtech.bg/",
@@ -51,6 +58,7 @@
       "title_en": "BAMAS will attend and organize a keynote session at MACH-TECH 2026, 6–9 October 2026"
     },
     {
+      "slug": "waaters-uk-partner",
       "date": "2026-02-18",
       "type": "partner",
       "url": "https://waaters.org/",
@@ -58,14 +66,18 @@
       "title_en": "Waaters.org is now the official BAMAS partner in the UK"
     },
     {
+      "slug": "engineering-review-interview-bulgaria-additive-manufacturing-strategy",
       "date": "2026-02-18",
       "type": "media",
       "url": "https://www.engineering-review.bg/bg/bazap-kuzo-donchev-razvitieto-na-aditivnoto-proizvodstvo-v-balgariya-iziskva-posledovatelna-strategiya/2/5420/",
       "title_bg": "БАЗАП, Кузо Дончев: Развитието на адитивното производство в България изисква последователна стратегия",
       "title_en": "BAMAS, Kuzo Donchev: The development of additive manufacturing in Bulgaria requires a consistent strategy",
-      "source": "Engineering Review / TLL Media"
+      "source": "Engineering Review / TLL Media",
+      "summary_bg": "В интервю за Engineering Review председателят на БАЗАП Кузо Дончев очертава нуждата от последователна национална стратегия, по-силно сътрудничество между бизнеса и академичните среди и по-широко внедряване на адитивните технологии в българската индустрия.",
+      "summary_en": "In an Engineering Review interview, BAMAS chairman Kuzo Donchev outlines the need for a consistent national strategy, stronger industry-academia collaboration and wider adoption of additive technologies across Bulgarian manufacturing."
     },
     {
+      "slug": "3druck-becomes-bamas-media-partner",
       "date": "2026-02-18",
       "type": "media",
       "url": "https://3druck.com",
@@ -74,6 +86,7 @@
       "title_en": "3Druck.com becomes the official BAMAS media partner in Austria"
     },
     {
+      "slug": "bamas-membership-applications-open",
       "date": "2026-02-18",
       "type": "announcement",
       "url": "https://www.bamas.xyz/documents",
@@ -81,12 +94,59 @@
       "title_en": "BAMAS membership applications are open now!"
     },
     {
+      "slug": "industryinfo-bamas-annual-industry-associations-meeting",
       "date": "2025-10-07",
       "type": "media",
       "url": "https://industryinfo.bg/article/35585-vajnite-temi-za-biznes-asociaciite-u-nas-digitalizaciia-prozrachnost-kadri-i-oshte-",
       "source": "IndustryInfo.bg / TLL Media",
       "title_bg": "IndustryInfo.bg отразява участието на БАЗАП в годишната среща на индустриалните асоциации",
-      "title_en": "IndustryInfo.bg covers BAMAS at the annual meeting of Bulgarian industry associations"
+      "title_en": "IndustryInfo.bg covers BAMAS at the annual meeting of Bulgarian industry associations",
+      "summary_bg": "IndustryInfo.bg отразява участието на БАЗАП в годишната среща на българските индустриални асоциации, където сред основните теми са дигитализацията, прозрачността, кадрите и ролята на професионалните организации за развитието на индустрията.",
+      "summary_en": "IndustryInfo.bg reports on BAMAS at the annual meeting of Bulgarian industry associations, highlighting digitalisation, transparency, workforce development and the role of professional organisations in industrial growth."
+    },
+    {
+      "slug": "3druck-interview-machtech-connects-bulgaria-with-europe",
+      "date": "2026-09-28",
+      "type": "media",
+      "url": "https://3druck.com/en/industry-2/interview-with-kuzo-donchev-of-bamas-machtech-2026-connecting-bulgarias-industry-with-europe-23163302/",
+      "source": "3Druck.com",
+      "title_bg": "Интервю на 3Druck.com: MachTech 2026 свързва българския сектор за адитивно производство с Европа",
+      "title_en": "3Druck.com interview: MachTech 2026 connects Bulgaria's additive manufacturing industry with Europe",
+      "summary_bg": "В международно интервю за 3Druck.com БАЗАП представя ролята си като национална платформа за сектора, програмата за адитивно производство на MachTech 2026 и европейското сътрудничество чрез Addliance.",
+      "summary_en": "In an international interview with 3Druck.com, BAMAS presents its role as Bulgaria's national AM platform, the additive manufacturing programme at MachTech 2026 and European cooperation through Addliance."
+    },
+    {
+      "slug": "additive-days-2026-bamas-partnership",
+      "date": "2026-09-29",
+      "type": "media",
+      "url": "https://machinebuilding-bulgaria.com/article/3825-specialnata-zona-additive-days-pokaza-novite-vazmojnosti-na-aditivnoto-proizvodstvo-na-robotics-strategy-forum-2026",
+      "source": "Machinebuilding-Bulgaria.com / TLL Media",
+      "title_bg": "Additive Days 2026 и БАЗАП представиха новите възможности на адитивното производство",
+      "title_en": "Additive Days 2026 and BAMAS presented new opportunities in additive manufacturing",
+      "summary_bg": "Специалната зона Additive Days на Robotics Strategy Forum 2026 беше реализирана в партньорство с БАЗАП и събра бизнеса, академичните среди и професионалната общност около реални приложения на 3D печата.",
+      "summary_en": "The Additive Days zone at Robotics Strategy Forum 2026 was delivered in partnership with BAMAS, bringing industry, academia and the professional community together around real 3D-printing applications."
+    },
+    {
+      "slug": "machtech-2026-additive-manufacturing-ai-programme",
+      "date": "2026-09-28",
+      "type": "media",
+      "url": "https://machtech.bg/ot-aditivnoto-proizvodstvo-do-ai-na-machtech/",
+      "source": "MachTech & InnoTech Expo / Inter Expo Center",
+      "title_bg": "От адитивното производство до AI: международни експерти в програмата на MachTech 2026",
+      "title_en": "From additive manufacturing to AI: international experts join the MachTech 2026 programme",
+      "summary_bg": "Официалната програма на MachTech & InnoTech Expo представя серията от лекции на БАЗАП с експерти от България, Южна Корея, Франция и европейски индустриални организации.",
+      "summary_en": "The official MachTech & InnoTech Expo programme presents the BAMAS lecture series with experts from Bulgaria, South Korea, France and European industry organisations."
+    },
+    {
+      "slug": "bamas-joins-addliance-european-am-hubs-alliance",
+      "date": "2026-09-01",
+      "type": "partner",
+      "url": "https://www.addliance.eu/alliance",
+      "source": "Addliance",
+      "title_bg": "БАЗАП представя България в европейската мрежа за адитивно производство Addliance",
+      "title_en": "BAMAS represents Bulgaria in the Addliance European AM hubs network",
+      "summary_bg": "Addliance включва БАЗАП и България в своята европейска мрежа от центрове, асоциации, изследователски организации и индустриални партньори в адитивното производство.",
+      "summary_en": "Addliance includes BAMAS and Bulgaria in its European network of additive manufacturing hubs, associations, research organisations and industry partners."
     }
   ]
 }

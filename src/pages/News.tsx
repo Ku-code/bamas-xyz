@@ -3,9 +3,11 @@ import Navbar from "@/components/Navbar";
 import { FooterSection } from "@/components/ui/footer-section";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
-import { ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface NewsEntry {
+    slug: string;
     date: string;
     type: string;
     url: string;
@@ -26,18 +28,19 @@ const TYPE_STYLES: Record<string, { label_bg: string; label_en: string; cls: str
  * dated, crawlable entry. The ticker's LATEST badge links here.
  */
 const News = () => {
-    const { language, t } = useLanguage();
+    const { language } = useLanguage();
     const [items, setItems] = useState<NewsEntry[]>([]);
     const [failed, setFailed] = useState(false);
 
     useDocumentMeta({
         title: language === "bg"
-            ? "Новини | БАЗАП — Българска асоциация за адитивно производство"
-            : "News | BAMAS — Bulgarian Additive Manufacturing Association",
+            ? "Блог | БАЗАП — Българска асоциация за адитивно производство"
+            : "Blog | BAMAS — Bulgarian Additive Manufacturing Association",
         description: language === "bg"
             ? "Партньорства, събития и съобщения от БАЗАП и българската екосистема за адитивно производство и 3D печат."
             : "Partnerships, events and announcements from BAMAS and the Bulgarian additive manufacturing ecosystem.",
         schemaType: "CollectionPage",
+        canonical: "https://www.bamas.xyz/blog",
     });
 
     useEffect(() => {
@@ -55,7 +58,11 @@ const News = () => {
         });
 
     // Group by year-month for scannable archive structure
-    const groups = items.reduce<Record<string, NewsEntry[]>>((acc, it) => {
+    const sortedItems = useMemo(
+        () => [...items].sort((a, b) => b.date.localeCompare(a.date)),
+        [items],
+    );
+    const groups = sortedItems.reduce<Record<string, NewsEntry[]>>((acc, it) => {
         const key = it.date.slice(0, 7);
         (acc[key] ??= []).push(it);
         return acc;
@@ -68,13 +75,13 @@ const News = () => {
         name: language === "bg" ? "Новини и медийни публикации за БАЗАП" : "BAMAS news and media coverage",
         itemListOrder: "https://schema.org/ItemListOrderDescending",
         numberOfItems: items.length,
-        itemListElement: items.map((item, index) => ({
+        itemListElement: sortedItems.map((item, index) => ({
             "@type": "ListItem",
             position: index + 1,
-            url: item.url,
+            url: `https://www.bamas.xyz/blog/${item.slug}`,
             name: language === "bg" ? item.title_bg : item.title_en,
         })),
-    }), [items, language]);
+    }), [items.length, language, sortedItems]);
 
     const monthLabel = (ym: string) =>
         new Date(ym + "-01T00:00:00").toLocaleDateString(language === "bg" ? "bg-BG" : "en-GB", {
@@ -87,10 +94,12 @@ const News = () => {
             <Navbar />
             <main className="container mx-auto max-w-3xl px-4 pb-20 pt-28 md:pt-36">
                 <h1 className="text-3xl md:text-5xl font-extrabold text-primary text-center mb-3">
-                    {t("news.pageTitle")}
+                    {language === "bg" ? "Блог" : "Blog"}
                 </h1>
                 <p className="text-center text-muted-foreground mb-10 md:mb-14">
-                    {t("news.pageSubtitle")}
+                    {language === "bg"
+                        ? "Проверени публикации, медийно отразяване и новини за БАЗАП и българската екосистема за адитивно производство."
+                        : "Verified articles, media coverage and news about BAMAS and Bulgaria's additive manufacturing ecosystem."}
                 </p>
 
                 {failed && (
@@ -109,11 +118,9 @@ const News = () => {
                                 const style = TYPE_STYLES[it.type] ?? TYPE_STYLES.announcement;
                                 const title = language === "bg" ? it.title_bg : it.title_en;
                                 return (
-                                    <li key={it.url + it.date}>
-                                        <a
-                                            href={it.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
+                                    <li key={it.slug}>
+                                        <Link
+                                            to={`/blog/${it.slug}`}
                                             className="group flex items-start gap-4 rounded-xl border border-border/60 bg-card p-4 shadow-sm transition-all hover:border-primary/40 hover:shadow-md"
                                         >
                                             <span className={`mt-0.5 flex-shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${style.cls}`}>
@@ -128,8 +135,8 @@ const News = () => {
                                                     {it.source ? ` · ${it.source}` : ""}
                                                 </time>
                                             </span>
-                                            <ExternalLink className="mt-1 h-4 w-4 flex-shrink-0 text-primary/50 transition-all group-hover:text-primary" aria-hidden="true" />
-                                        </a>
+                                            <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-primary/50 transition-all group-hover:translate-x-0.5 group-hover:text-primary" aria-hidden="true" />
+                                        </Link>
                                     </li>
                                 );
                             })}

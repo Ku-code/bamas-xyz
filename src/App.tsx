@@ -28,6 +28,7 @@ const MembershipApplication = lazy(() => import("./pages/MembershipApplication")
 const MembershipSuccess = lazy(() => import("./pages/MembershipSuccess"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const News = lazy(() => import("./pages/News"));
+const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const Glossary = lazy(() => import("./pages/Glossary"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 
@@ -165,7 +166,10 @@ const AppContent: React.FC = () => {
                 <Route path="/membership-application" element={<MembershipApplication />} />
                 <Route path="/join" element={<Navigate to="/membership-application" replace />} />
                 <Route path="/faq" element={<FAQ />} />
-                <Route path="/news" element={<News />} />
+                <Route path="/blog" element={<News />} />
+                <Route path="/blog/:slug" element={<NewsArticle />} />
+                <Route path="/news" element={<Navigate to="/blog" replace />} />
+                <Route path="/news/:slug" element={<NewsArticle />} />
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/rechnik" element={<Navigate to="/glossary" replace />} />
                 <Route path="/membership-success" element={<MembershipSuccess />} />

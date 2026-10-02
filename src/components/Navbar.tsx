@@ -100,6 +100,7 @@ const Navbar = () => {
     { name: t("nav.mission"), href: "#mission" },
     { name: t("nav.membership"), href: "#membership" },
     { name: t("nav.documents"), href: "/documents", isRoute: true },
+    { name: language === "bg" ? "Блог" : "Blog", href: "/blog", isRoute: true },
     { name: t("nav.events"), href: "#events" },
     { name: t("nav.contact"), href: "#contact" },
   ];

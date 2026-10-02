@@ -2,105 +2,153 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BAMAS / БАЗАП — Новини</title>
-    <link>https://www.bamas.xyz/news</link>
+    <link>https://www.bamas.xyz/blog</link>
     <atom:link href="https://www.bamas.xyz/rss.xml" rel="self" type="application/rss+xml" />
     <description>Партньорства, събития и съобщения от Българската асоциация за адитивно производство.</description>
     <language>bg</language>
     <item>
       <title>Централната лаборатория по приложна физика – БАН е нов член на БАЗАП и ще бъде с нас на щанда на БАЗАП по време на MACH-TECH 2026</title>
-      <link>https://www.clap-bas.com/</link>
-      <guid isPermaLink="false">https://www.clap-bas.com/#2026-10-01</guid>
+      <link>https://www.bamas.xyz/blog/central-laboratory-applied-physics-bas-joins-bamas</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/central-laboratory-applied-physics-bas-joins-bamas</guid>
       <pubDate>Thu, 01 Oct 2026 09:00:00 GMT</pubDate>
       <category>member</category>
-      <description>The Central Laboratory of Applied Physics – BAS joins BAMAS and will be with us at the BAMAS booth during MACH-TECH 2026</description>
+      <description>Централната лаборатория по приложна физика – БАН е нов член на БАЗАП и ще бъде с нас на щанда на БАЗАП по време на MACH-TECH 2026</description>
+      <source url="https://www.clap-bas.com/">Original source</source>
+    </item>
+    <item>
+      <title>Additive Days 2026 и БАЗАП представиха новите възможности на адитивното производство</title>
+      <link>https://www.bamas.xyz/blog/additive-days-2026-bamas-partnership</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/additive-days-2026-bamas-partnership</guid>
+      <pubDate>Tue, 29 Sep 2026 09:00:00 GMT</pubDate>
+      <category>media</category>
+      <description>Специалната зона Additive Days на Robotics Strategy Forum 2026 беше реализирана в партньорство с БАЗАП и събра бизнеса, академичните среди и професионалната общност около реални приложения на 3D печата.</description>
+      <source url="https://machinebuilding-bulgaria.com/article/3825-specialnata-zona-additive-days-pokaza-novite-vazmojnosti-na-aditivnoto-proizvodstvo-na-robotics-strategy-forum-2026">Machinebuilding-Bulgaria.com / TLL Media</source>
+    </item>
+    <item>
+      <title>От адитивното производство до AI: международни експерти в програмата на MachTech 2026</title>
+      <link>https://www.bamas.xyz/blog/machtech-2026-additive-manufacturing-ai-programme</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/machtech-2026-additive-manufacturing-ai-programme</guid>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 GMT</pubDate>
+      <category>media</category>
+      <description>Официалната програма на MachTech &amp; InnoTech Expo представя серията от лекции на БАЗАП с експерти от България, Южна Корея, Франция и европейски индустриални организации.</description>
+      <source url="https://machtech.bg/ot-aditivnoto-proizvodstvo-do-ai-na-machtech/">MachTech &amp; InnoTech Expo / Inter Expo Center</source>
+    </item>
+    <item>
+      <title>Интервю на 3Druck.com: MachTech 2026 свързва българския сектор за адитивно производство с Европа</title>
+      <link>https://www.bamas.xyz/blog/3druck-interview-machtech-connects-bulgaria-with-europe</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/3druck-interview-machtech-connects-bulgaria-with-europe</guid>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 GMT</pubDate>
+      <category>media</category>
+      <description>В международно интервю за 3Druck.com БАЗАП представя ролята си като национална платформа за сектора, програмата за адитивно производство на MachTech 2026 и европейското сътрудничество чрез Addliance.</description>
+      <source url="https://3druck.com/en/industry-2/interview-with-kuzo-donchev-of-bamas-machtech-2026-connecting-bulgarias-industry-with-europe-23163302/">3Druck.com</source>
+    </item>
+    <item>
+      <title>БАЗАП представя България в европейската мрежа за адитивно производство Addliance</title>
+      <link>https://www.bamas.xyz/blog/bamas-joins-addliance-european-am-hubs-alliance</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/bamas-joins-addliance-european-am-hubs-alliance</guid>
+      <pubDate>Tue, 01 Sep 2026 09:00:00 GMT</pubDate>
+      <category>partner</category>
+      <description>Addliance включва БАЗАП и България в своята европейска мрежа от центрове, асоциации, изследователски организации и индустриални партньори в адитивното производство.</description>
+      <source url="https://www.addliance.eu/alliance">Addliance</source>
     </item>
     <item>
       <title>БАЗАП ще участва с щанд и кийноут сесия на MACH-TECH 2026, 6–9 октомври 2026</title>
-      <link>https://machtech.bg/</link>
-      <guid isPermaLink="false">https://machtech.bg/#2026-08-12</guid>
+      <link>https://www.bamas.xyz/blog/bamas-at-machtech-innotech-expo-2026</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/bamas-at-machtech-innotech-expo-2026</guid>
       <pubDate>Wed, 12 Aug 2026 09:00:00 GMT</pubDate>
       <category>event</category>
-      <description>BAMAS will attend and organize a keynote session at MACH-TECH 2026, 6–9 October 2026</description>
+      <description>БАЗАП ще участва с щанд и кийноут сесия на MACH-TECH 2026, 6–9 октомври 2026</description>
+      <source url="https://machtech.bg/">Original source</source>
     </item>
     <item>
       <title>EPMA организира Конгрес и изложение по прахова металургия 2026 в Будапеща, 11–14 октомври 2026</title>
-      <link>https://www.powdermetallurgycongress.com/</link>
-      <guid isPermaLink="false">https://www.powdermetallurgycongress.com/#2026-08-12</guid>
+      <link>https://www.bamas.xyz/blog/epma-powder-metallurgy-congress-2026</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/epma-powder-metallurgy-congress-2026</guid>
       <pubDate>Wed, 12 Aug 2026 09:00:00 GMT</pubDate>
       <category>event</category>
-      <description>EPMA organizes the 2026 Powder Metallurgy Congress &amp; Exhibition in Budapest, 11–14 October 2026</description>
+      <description>EPMA организира Конгрес и изложение по прахова металургия 2026 в Будапеща, 11–14 октомври 2026</description>
+      <source url="https://www.powdermetallurgycongress.com/">Original source</source>
     </item>
     <item>
       <title>BETMA — Balkan Engineering, Tech &amp; Makers Association — става партньор на БАЗАП</title>
-      <link>https://www.betma.eu/</link>
-      <guid isPermaLink="false">https://www.betma.eu/#2026-08-12</guid>
+      <link>https://www.bamas.xyz/blog/betma-becomes-bamas-partner</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/betma-becomes-bamas-partner</guid>
       <pubDate>Wed, 12 Aug 2026 09:00:00 GMT</pubDate>
       <category>partner</category>
-      <description>BETMA — Balkan Engineering, Tech &amp; Makers Association — becomes BAMAS partner</description>
+      <description>BETMA — Balkan Engineering, Tech &amp; Makers Association — става партньор на БАЗАП</description>
+      <source url="https://www.betma.eu/">Original source</source>
     </item>
     <item>
       <title>PERI България става партньор на БАЗАП</title>
-      <link>https://www.peri.bg/</link>
-      <guid isPermaLink="false">https://www.peri.bg/#2026-08-12</guid>
+      <link>https://www.bamas.xyz/blog/peri-bulgaria-becomes-bamas-partner</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/peri-bulgaria-becomes-bamas-partner</guid>
       <pubDate>Wed, 12 Aug 2026 09:00:00 GMT</pubDate>
       <category>partner</category>
-      <description>PERI Bulgaria becomes BAMAS partner</description>
+      <description>PERI България става партньор на БАЗАП</description>
+      <source url="https://www.peri.bg/">Original source</source>
     </item>
     <item>
       <title>CONCREEF — иновации в адитивното производство с бетон в България — става партньор на БАЗАП</title>
-      <link>https://www.concreef.eu/</link>
-      <guid isPermaLink="false">https://www.concreef.eu/#2026-08-12</guid>
+      <link>https://www.bamas.xyz/blog/concreef-becomes-bamas-partner</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/concreef-becomes-bamas-partner</guid>
       <pubDate>Wed, 12 Aug 2026 09:00:00 GMT</pubDate>
       <category>partner</category>
-      <description>CONCREEF — additive manufacturing concrete innovation in Bulgaria — becomes BAMAS partner</description>
+      <description>CONCREEF — иновации в адитивното производство с бетон в България — става партньор на БАЗАП</description>
+      <source url="https://www.concreef.eu/">Original source</source>
     </item>
     <item>
       <title>3Druck.com представя БАЗАП в международната си директория за адитивно производство</title>
-      <link>https://3druck.com/he/%D7%A1%D7%A4%D7%A8%D7%99%D7%99%D7%94/%D7%A8%D7%99%D7%A9%D7%95%D7%9D/%D7%94%D7%90%D7%92%D7%95%D7%93%D7%94-%D7%94%D7%91%D7%95%D7%9C%D7%92%D7%A8%D7%99%D7%AA-%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8-%D7%AA%D7%95%D7%A1%D7%A4%D7%99%D7%9D-bamas/</link>
-      <guid isPermaLink="false">https://3druck.com/he/%D7%A1%D7%A4%D7%A8%D7%99%D7%99%D7%94/%D7%A8%D7%99%D7%A9%D7%95%D7%9D/%D7%94%D7%90%D7%92%D7%95%D7%93%D7%94-%D7%94%D7%91%D7%95%D7%9C%D7%92%D7%A8%D7%99%D7%AA-%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8-%D7%AA%D7%95%D7%A1%D7%A4%D7%99%D7%9D-bamas/#2026-04-23</guid>
+      <link>https://www.bamas.xyz/blog/3druck-international-directory-features-bamas</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/3druck-international-directory-features-bamas</guid>
       <pubDate>Thu, 23 Apr 2026 09:00:00 GMT</pubDate>
       <category>media</category>
-      <description>3Druck.com features BAMAS in its international additive manufacturing directory</description>
+      <description>3Druck.com представя БАЗАП в международната си директория за адитивно производство</description>
+      <source url="https://3druck.com/he/%D7%A1%D7%A4%D7%A8%D7%99%D7%99%D7%94/%D7%A8%D7%99%D7%A9%D7%95%D7%9D/%D7%94%D7%90%D7%92%D7%95%D7%93%D7%94-%D7%94%D7%91%D7%95%D7%9C%D7%92%D7%A8%D7%99%D7%AA-%D7%9C%D7%99%D7%99%D7%A6%D7%95%D7%A8-%D7%AA%D7%95%D7%A1%D7%A4%D7%99%D7%9D-bamas/">3Druck.com</source>
     </item>
     <item>
       <title>Кандидатстването за членство в БАЗАП е отворено!</title>
-      <link>https://www.bamas.xyz/documents</link>
-      <guid isPermaLink="false">https://www.bamas.xyz/documents#2026-02-18</guid>
+      <link>https://www.bamas.xyz/blog/bamas-membership-applications-open</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/bamas-membership-applications-open</guid>
       <pubDate>Wed, 18 Feb 2026 09:00:00 GMT</pubDate>
       <category>announcement</category>
-      <description>BAMAS membership applications are open now!</description>
+      <description>Кандидатстването за членство в БАЗАП е отворено!</description>
+      <source url="https://www.bamas.xyz/documents">Original source</source>
     </item>
     <item>
       <title>3Druck.com става официален медиен партньор на БАЗАП за Австрия</title>
-      <link>https://3druck.com</link>
-      <guid isPermaLink="false">https://3druck.com#2026-02-18</guid>
+      <link>https://www.bamas.xyz/blog/3druck-becomes-bamas-media-partner</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/3druck-becomes-bamas-media-partner</guid>
       <pubDate>Wed, 18 Feb 2026 09:00:00 GMT</pubDate>
       <category>media</category>
-      <description>3Druck.com becomes the official BAMAS media partner in Austria</description>
+      <description>3Druck.com става официален медиен партньор на БАЗАП за Австрия</description>
+      <source url="https://3druck.com">3Druck.com</source>
     </item>
     <item>
       <title>БАЗАП, Кузо Дончев: Развитието на адитивното производство в България изисква последователна стратегия</title>
-      <link>https://www.engineering-review.bg/bg/bazap-kuzo-donchev-razvitieto-na-aditivnoto-proizvodstvo-v-balgariya-iziskva-posledovatelna-strategiya/2/5420/</link>
-      <guid isPermaLink="false">https://www.engineering-review.bg/bg/bazap-kuzo-donchev-razvitieto-na-aditivnoto-proizvodstvo-v-balgariya-iziskva-posledovatelna-strategiya/2/5420/#2026-02-18</guid>
+      <link>https://www.bamas.xyz/blog/engineering-review-interview-bulgaria-additive-manufacturing-strategy</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/engineering-review-interview-bulgaria-additive-manufacturing-strategy</guid>
       <pubDate>Wed, 18 Feb 2026 09:00:00 GMT</pubDate>
       <category>media</category>
-      <description>BAMAS, Kuzo Donchev: The development of additive manufacturing in Bulgaria requires a consistent strategy</description>
+      <description>В интервю за Engineering Review председателят на БАЗАП Кузо Дончев очертава нуждата от последователна национална стратегия, по-силно сътрудничество между бизнеса и академичните среди и по-широко внедряване на адитивните технологии в българската индустрия.</description>
+      <source url="https://www.engineering-review.bg/bg/bazap-kuzo-donchev-razvitieto-na-aditivnoto-proizvodstvo-v-balgariya-iziskva-posledovatelna-strategiya/2/5420/">Engineering Review / TLL Media</source>
     </item>
     <item>
       <title>Waaters.org е официален партньор на БАЗАП за Обединеното кралство</title>
-      <link>https://waaters.org/</link>
-      <guid isPermaLink="false">https://waaters.org/#2026-02-18</guid>
+      <link>https://www.bamas.xyz/blog/waaters-uk-partner</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/waaters-uk-partner</guid>
       <pubDate>Wed, 18 Feb 2026 09:00:00 GMT</pubDate>
       <category>partner</category>
-      <description>Waaters.org is now the official BAMAS partner in the UK</description>
+      <description>Waaters.org е официален партньор на БАЗАП за Обединеното кралство</description>
+      <source url="https://waaters.org/">Original source</source>
     </item>
     <item>
       <title>IndustryInfo.bg отразява участието на БАЗАП в годишната среща на индустриалните асоциации</title>
-      <link>https://industryinfo.bg/article/35585-vajnite-temi-za-biznes-asociaciite-u-nas-digitalizaciia-prozrachnost-kadri-i-oshte-</link>
-      <guid isPermaLink="false">https://industryinfo.bg/article/35585-vajnite-temi-za-biznes-asociaciite-u-nas-digitalizaciia-prozrachnost-kadri-i-oshte-#2025-10-07</guid>
+      <link>https://www.bamas.xyz/blog/industryinfo-bamas-annual-industry-associations-meeting</link>
+      <guid isPermaLink="true">https://www.bamas.xyz/blog/industryinfo-bamas-annual-industry-associations-meeting</guid>
       <pubDate>Tue, 07 Oct 2025 09:00:00 GMT</pubDate>
       <category>media</category>
-      <description>IndustryInfo.bg covers BAMAS at the annual meeting of Bulgarian industry associations</description>
+      <description>IndustryInfo.bg отразява участието на БАЗАП в годишната среща на българските индустриални асоциации, където сред основните теми са дигитализацията, прозрачността, кадрите и ролята на професионалните организации за развитието на индустрията.</description>
+      <source url="https://industryinfo.bg/article/35585-vajnite-temi-za-biznes-asociaciite-u-nas-digitalizaciia-prozrachnost-kadri-i-oshte-">IndustryInfo.bg / TLL Media</source>
     </item>
   </channel>
 </rss>

@@ -248,8 +248,8 @@ function FooterSection({
               <a href="/documents" className="block transition-colors hover:text-primary">
                 {currentLanguage === "bg" ? "Документи" : "Documents"}
               </a>
-              <a href="/news" className="block transition-colors hover:text-primary">
-                {currentLanguage === "bg" ? "Новини" : "News"}
+              <a href="/blog" className="block transition-colors hover:text-primary">
+                {currentLanguage === "bg" ? "Блог" : "Blog"}
               </a>
               <a href="/faq" className="block transition-colors hover:text-primary">
                 {currentLanguage === "bg" ? "Въпроси и отговори" : "FAQ"}
